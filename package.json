@@ -1,0 +1,38 @@
+{
+  "name": "secret-drop",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --host 0.0.0.0",
+    "build": "vite build",
+    "start": "vite preview"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.3",
+    "tw-animate-css": "^1.3.8",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.13",
+    "@tanstack/react-router": "^1.131.50",
+    "@tanstack/react-start": "^1.131.50",
+    "better-auth": "^1.3.14",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.544.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-icons": "^5.5.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.13",
+    "vite": "^7.1.7"
+  }
+}
