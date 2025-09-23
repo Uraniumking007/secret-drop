@@ -1,3 +1,4 @@
+import { HomeLayout } from "@/components/layouts/home-layout";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -20,10 +21,12 @@ function Home() {
 
   return (
     <main className="min-h-screen bg-[#0f1216] text-[#e6e9ee]">
-      <Hero theme={theme} />
-      <SocialProof theme={theme} />
-      <FeatureGrid theme={theme} />
-      <FinalCTA theme={theme} />
+      <HomeLayout>
+        <Hero theme={theme} />
+        <SocialProof theme={theme} />
+        <FeatureGrid theme={theme} />
+        <FinalCTA theme={theme} />
+      </HomeLayout>
     </main>
   );
 }

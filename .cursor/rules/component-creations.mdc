@@ -1,0 +1,7 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+install and use shadcn components to create components, and only create them from scrach only if needed.

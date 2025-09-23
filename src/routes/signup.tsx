@@ -25,10 +25,10 @@ function SignupPage() {
     setLoading(true);
     try {
       // Attempt signup; adapt to your auth provider
-      // @ts-expect-error better-auth types
-      await authClient.signUp?.({
+      await authClient.signUp.email({
         email,
         password,
+        name: email.split("@")[0] || email,
       });
       // Redirect to home after signup
       window.location.href = "/";

@@ -3,8 +3,8 @@
 
 /*
  * =================================================================================================
- * Custom Theme: Stone (OKLCH Version)
- * A modern, minimalist theme with a sophisticated "Stone Blue" accent.
+ * Custom Theme: Deepwater (OKLCH Version)
+ * A dark, focused theme with a cool blue accent, based on your provided palette.
  * Integrated into your global.css structure.
  * =================================================================================================
 */
@@ -50,80 +50,78 @@
 }
 
 :root {
-  --radius: 0.5rem; /* Feel free to change back to 0.625rem if you prefer */
-  --background: oklch(0.98 0.01 240);
-  --foreground: oklch(0.22 0.02 255);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.02 255);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.02 255);
-  --primary: oklch(0.42 0.08 260);
-  --primary-foreground: oklch(0.98 0.01 240);
-  --secondary: oklch(0.94 0.02 240);
-  --secondary-foreground: oklch(0.42 0.08 260);
-  --muted: oklch(0.94 0.02 240);
-  --muted-foreground: oklch(0.6 0.03 250);
-  --accent: oklch(0.94 0.02 240);
-  --accent-foreground: oklch(0.42 0.08 260);
-  --destructive: oklch(0.6 0.22 25);
-  --border: oklch(0.9 0.02 240);
-  --input: oklch(0.9 0.02 240);
-  --ring: oklch(0.5 0.08 260);
+  --radius: 0.625rem;
+  /* Light Mode - Inverted from the provided dark theme */
+  --background: oklch(0.15 0.01 255); /* #0f1216 */
+  --foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --card: oklch(0.18 0.01 258); /* #141921 */
+  --card-foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --popover: oklch(0.18 0.01 258); /* #141921 */
+  --popover-foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --primary: oklch(0.6 0.1 245); /* #4c89b6 */
+  --primary-foreground: oklch(0.12 0.01 255);
+  --secondary: oklch(0.22 0.01 256); /* #1c232d */
+  --secondary-foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --muted: oklch(0.22 0.01 256); /* #1c232d */
+  --muted-foreground: oklch(0.68 0.02 255); /* #9aa4b2 */
+  --accent: oklch(0.22 0.01 256); /* #1c232d */
+  --accent-foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --destructive: oklch(0.65 0.2 25);
+  --border: oklch(0.22 0.01 256); /* #1c232d */
+  --input: oklch(0.26 0.02 254); /* Slightly lighter than border */
+  --ring: oklch(0.35 0.03 250); /* #314152 */
 
-  /* Monochromatic chart colors derived from the primary accent */
-  --chart-1: oklch(0.5 0.08 260);
-  --chart-2: oklch(0.6 0.08 260);
-  --chart-3: oklch(0.7 0.08 260);
-  --chart-4: oklch(0.8 0.08 260);
-  --chart-5: oklch(0.4 0.08 260);
-
-  /* Sidebar colors mapped for consistency */
-  --sidebar: oklch(0.99 0.01 240);
-  --sidebar-foreground: oklch(0.22 0.02 255);
-  --sidebar-primary: oklch(0.42 0.08 260);
-  --sidebar-primary-foreground: oklch(0.98 0.01 240);
-  --sidebar-accent: oklch(0.94 0.02 240);
-  --sidebar-accent-foreground: oklch(0.42 0.08 260);
-  --sidebar-border: oklch(0.9 0.02 240);
-  --sidebar-ring: oklch(0.5 0.08 260);
+  /* Chart and Sidebar colors mapped for consistency */
+  --chart-1: oklch(0.5 0.12 248);
+  --chart-2: oklch(0.6 0.12 248);
+  --chart-3: oklch(0.7 0.12 248);
+  --chart-4: oklch(0.8 0.12 248);
+  --chart-5: oklch(0.4 0.12 248);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 .dark {
-  --background: oklch(0.18 0.02 250);
-  --foreground: oklch(0.88 0.01 240);
-  --card: oklch(0.21 0.02 250);
-  --card-foreground: oklch(0.88 0.01 240);
-  --popover: oklch(0.21 0.02 250);
-  --popover-foreground: oklch(0.88 0.01 240);
-  --primary: oklch(0.75 0.1 260);
-  --primary-foreground: oklch(0.18 0.02 250);
-  --secondary: oklch(0.28 0.03 250);
-  --secondary-foreground: oklch(0.98 0.01 240);
-  --muted: oklch(0.28 0.03 250);
-  --muted-foreground: oklch(0.65 0.02 250);
-  --accent: oklch(0.28 0.03 250);
-  --accent-foreground: oklch(0.98 0.01 240);
+  /* Dark Mode - Directly from your provided theme object */
+  --background: oklch(0.15 0.01 255); /* #0f1216 */
+  --foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --card: oklch(0.18 0.01 258); /* #141921 */
+  --card-foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --popover: oklch(0.18 0.01 258); /* #141921 */
+  --popover-foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --primary: oklch(0.6 0.1 245); /* #4c89b6 */
+  --primary-foreground: oklch(0.12 0.01 255);
+  --secondary: oklch(0.22 0.01 256); /* #1c232d */
+  --secondary-foreground: oklch(0.93 0.01 260); /* #e6e9ee */
+  --muted: oklch(0.22 0.01 256); /* #1c232d */
+  --muted-foreground: oklch(0.68 0.02 255); /* #9aa4b2 */
+  --accent: oklch(0.22 0.01 256); /* #1c232d */
+  --accent-foreground: oklch(0.93 0.01 260); /* #e6e9ee */
   --destructive: oklch(0.65 0.2 25);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.75 0.1 260);
+  --border: oklch(0.22 0.01 256); /* #1c232d */
+  --input: oklch(0.26 0.02 254); /* Slightly lighter than border */
+  --ring: oklch(0.35 0.03 250); /* #314152 */
 
-  /* Monochromatic chart colors derived from the primary accent */
-  --chart-1: oklch(0.75 0.1 260);
-  --chart-2: oklch(0.65 0.1 260);
-  --chart-3: oklch(0.55 0.1 260);
-  --chart-4: oklch(0.45 0.1 260);
-  --chart-5: oklch(0.85 0.1 260);
-
-  /* Sidebar colors mapped for consistency */
-  --sidebar: oklch(0.21 0.02 250);
-  --sidebar-foreground: oklch(0.88 0.01 240);
-  --sidebar-primary: oklch(0.75 0.1 260);
-  --sidebar-primary-foreground: oklch(0.18 0.02 250);
-  --sidebar-accent: oklch(0.28 0.03 250);
-  --sidebar-accent-foreground: oklch(0.98 0.01 240);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.75 0.1 260);
+  /* Chart and Sidebar colors mapped for consistency */
+  --chart-1: oklch(0.6 0.1 245);
+  --chart-2: oklch(0.65 0.1 245);
+  --chart-3: oklch(0.7 0.1 245);
+  --chart-4: oklch(0.75 0.1 245);
+  --chart-5: oklch(0.55 0.1 245);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {
@@ -134,3 +132,4 @@
     @apply bg-background text-foreground;
   }
 }
+

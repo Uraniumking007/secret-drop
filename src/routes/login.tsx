@@ -1,4 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useRouter,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import { authClient } from "../lib/auth-client";
 
@@ -12,7 +17,7 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   const canSubmit = !!email && !!password && !loading;
 
   async function onSubmit(e: React.FormEvent) {
@@ -21,14 +26,14 @@ function LoginPage() {
     if (!canSubmit) return;
     setLoading(true);
     try {
-      // @ts-expect-error better-auth types
-      await authClient.signIn?.({
+      await authClient.signIn.email({
         email,
         password,
       });
-      window.location.href = "/";
+      return navigate({ to: "/" });
     } catch (err: any) {
       setError("Email or password is incorrect.");
+      console.log(err);
     } finally {
       setLoading(false);
     }
