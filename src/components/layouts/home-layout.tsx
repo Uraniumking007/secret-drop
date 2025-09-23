@@ -1,7 +1,16 @@
 import type { ReactNode } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { authClient } from "../../lib/auth-client";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "../ui/dropdown-menu";
 
 type NavbarProps = {
   variant?: "public" | "app";
@@ -10,32 +19,7 @@ type NavbarProps = {
 
 export function Navbar({ variant = "public", viewTitle }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [data, setData] = useState<any>(null);
-  const { data: session, isPending, error } = authClient.useSession();
-  // console.log(session.refetch());
-
-  useEffect(() => {
-    if (isPending) {
-      return;
-    }
-    console.log("session", session);
-    if (session) {
-      return;
-    }
-    console.log("data", data);
-    if (data) {
-      return;
-    }
-    console.log("error", error);
-    if (error) {
-      return;
-    }
-
-    setData(session);
-  }, [session, isPending, data, error]);
-
-  console.log("session", session);
+  const { data: session } = authClient.useSession();
 
   const isAuthed = useMemo(() => !!session?.user?.email, [session]);
   const isApp = variant === "app" || isAuthed;
@@ -91,61 +75,43 @@ export function Navbar({ variant = "public", viewTitle }: NavbarProps) {
           </div>
         ) : (
           <div className="hidden md:flex items-center gap-2">
-            <button
-              aria-haspopup="menu"
-              aria-expanded={profileOpen}
-              onClick={() => setProfileOpen((s) => !s)}
-              className="inline-flex h-10 items-center gap-2 rounded-full border border-border px-3 text-sm hover:bg-accent/30"
-            >
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/15 text-xs font-semibold text-foreground">
-                {session?.user?.email
-                  ? session?.user?.email[0]?.toUpperCase()
-                  : "?"}
-              </span>
-              <span className="hidden sm:block max-w-[160px] truncate text-muted-foreground">
-                {session?.user?.email ?? "Account"}
-              </span>
-            </button>
-
-            {profileOpen ? (
-              <div
-                role="menu"
-                className="absolute right-4 top-16 w-64 rounded-md border border-border bg-card shadow-lg"
-              >
-                <div
-                  className="px-3 py-2 text-xs text-muted-foreground"
-                  aria-disabled
-                >
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="inline-flex h-10 items-center gap-2 rounded-full border border-border px-3 text-sm hover:bg-accent/30">
+                  <Avatar>
+                    <AvatarImage src={undefined} alt="avatar" />
+                    <AvatarFallback>
+                      {(session?.user?.email?.[0] || "?")?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:block max-w-[160px] truncate text-muted-foreground">
+                    {session?.user?.email ?? "Account"}
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>
                   {session?.user?.email ?? "Signed out"}
-                </div>
-                <div className="h-px bg-border/60" />
-                <a
-                  href="/settings"
-                  className="block px-3 py-2 text-sm hover:bg-primary/10"
-                  role="menuitem"
-                >
-                  Account Settings
-                </a>
-                <a
-                  href="/billing"
-                  className="block px-3 py-2 text-sm hover:bg-primary/10"
-                  role="menuitem"
-                >
-                  Billing
-                </a>
-                <div className="h-px bg-border/60" />
-                <Link
-                  to="/logout"
-                  className="block px-3 py-2 text-sm hover:bg-primary/10"
-                  role="menuitem"
-                >
-                  <span className="inline-flex items-center gap-2">
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <a href="/settings">Account Settings</a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a href="/billing">Billing</a>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/logout"
+                    className="inline-flex w-full items-center gap-2"
+                  >
                     <span aria-hidden>⎋</span>
                     Log Out
-                  </span>
-                </Link>
-              </div>
-            ) : null}
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
 
@@ -161,18 +127,40 @@ export function Navbar({ variant = "public", viewTitle }: NavbarProps) {
             </button>
           ) : null}
           {isApp ? (
-            <button
-              aria-haspopup="menu"
-              aria-expanded={profileOpen}
-              onClick={() => setProfileOpen((s) => !s)}
-              className="inline-grid h-9 w-9 place-items-center rounded-full border border-border hover:bg-accent/30"
-            >
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/15 text-xs font-semibold text-foreground">
-                {session?.user?.email
-                  ? session?.user?.email[0]?.toUpperCase()
-                  : "?"}
-              </span>
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="inline-grid h-9 w-9 place-items-center rounded-full border border-border hover:bg-accent/30">
+                  <Avatar>
+                    <AvatarImage src={undefined} alt="avatar" />
+                    <AvatarFallback>
+                      {(session?.user?.email?.[0] || "?")?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>
+                  {session?.user?.email ?? "Signed out"}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <a href="/settings">Account Settings</a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a href="/billing">Billing</a>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/logout"
+                    className="inline-flex w-full items-center gap-2"
+                  >
+                    <span aria-hidden>⎋</span>
+                    Log Out
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <button
               aria-label="Open menu"
