@@ -21,6 +21,10 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 3,
     updateAge: 60 * 60 * 24 * 1,
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 60 * 24 * 3,
+    },
   },
   baseURL: process.env.BETTER_AUTH_URL!,
   secret: process.env.BETTER_AUTH_SECRET!,
