@@ -12,20 +12,36 @@ export const verification = pgTable("verification", {
 	updatedAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
-export const user = pgTable("user", {
-	id: text().primaryKey().notNull(),
-	name: text().notNull(),
-	email: text().notNull(),
-	emailVerified: boolean().default(false).notNull(),
-	image: text(),
-	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	username: text(),
-	displayUsername: text(),
-}, (table) => [
-	uniqueIndex("user_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
-	uniqueIndex("user_username_key").using("btree", table.username.asc().nullsLast().op("text_ops")),
-]);
+export const user = pgTable(
+  "user",
+  {
+    id: text().primaryKey().notNull(),
+    name: text().notNull(),
+    email: text().notNull(),
+    emailVerified: boolean().default(false).notNull(),
+    image: text(),
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    username: text(),
+    displayUsername: text(),
+    /** Whether two factor authentication is enabled for the user */
+    twoFactorEnabled: boolean().default(false),
+  },
+  (table) => [
+    uniqueIndex("user_email_key").using(
+      "btree",
+      table.email.asc().nullsLast().op("text_ops")
+    ),
+    uniqueIndex("user_username_key").using(
+      "btree",
+      table.username.asc().nullsLast().op("text_ops")
+    ),
+  ]
+);
 
 export const session = pgTable(
   "session",
@@ -219,4 +235,20 @@ export const teamMembers = pgTable("team_members", {
 			foreignColumns: [user.id],
 			name: "team_members_user_id_user_id_fk"
 		}).onDelete("cascade"),
+]);
+
+// Two-Factor Authentication table as required by Better Auth twoFactor plugin
+export const twoFactor = pgTable("twoFactor", {
+	id: text().primaryKey().notNull(),
+	userId: text().notNull(),
+	secret: text(),
+	backupCodes: text(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [
+	foreignKey({
+		columns: [table.userId],
+		foreignColumns: [user.id],
+		name: "two_factor_user_id_user_id_fk",
+	}).onDelete("cascade"),
 ]);

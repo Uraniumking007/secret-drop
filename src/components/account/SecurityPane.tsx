@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { SectionCard } from "./SectionCard";
 import { authClient } from "@/lib/auth-client";
+import QRCode from "react-qr-code";
 
 const SESSIONS_TTL_MS = 60_000; // 60s
 
@@ -36,6 +37,12 @@ type AuthSession = {
 export function SecurityPane({ email }: { email: string }) {
   const [show2FA, setShow2FA] = useState(false);
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
+  const [password, setPassword] = useState("");
+  const [verifyCode, setVerifyCode] = useState("");
+  const [totpURI, setTotpURI] = useState<string | null>(null);
+  const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
+  const [isBusy, setIsBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [sessions, setSessions] = useState<AuthSession[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -58,6 +65,62 @@ export function SecurityPane({ email }: { email: string }) {
       // keep previous state
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function enable2FA() {
+    setIsBusy(true);
+    setError(null);
+    try {
+      const res = await authClient.twoFactor.enable({
+        password,
+        issuer: "Secret Drop",
+      });
+      if (res.error)
+        throw new Error(res.error.message || "Failed to enable 2FA");
+      setTotpURI(res.data?.totpURI ?? null);
+      setBackupCodes(res.data?.backupCodes ?? null);
+      setShow2FA(true);
+    } catch (e: any) {
+      setError(e?.message ?? "Something went wrong");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function verifyTOTP() {
+    setIsBusy(true);
+    setError(null);
+    try {
+      const res = await authClient.twoFactor.verifyTotp({
+        code: verifyCode,
+        trustDevice: true,
+      });
+      if (res.error) throw new Error(res.error.message || "Invalid code");
+      setTwoFAEnabled(true);
+      setShow2FA(false);
+      setVerifyCode("");
+    } catch (e: any) {
+      setError(e?.message ?? "Verification failed");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function disable2FA() {
+    setIsBusy(true);
+    setError(null);
+    try {
+      const res = await authClient.twoFactor.disable({ password });
+      if (res.error)
+        throw new Error(res.error.message || "Failed to disable 2FA");
+      setTwoFAEnabled(false);
+      setTotpURI(null);
+      setBackupCodes(null);
+    } catch (e: any) {
+      setError(e?.message ?? "Something went wrong");
+    } finally {
+      setIsBusy(false);
     }
   }
 
@@ -123,19 +186,38 @@ export function SecurityPane({ email }: { email: string }) {
           </div>
           {twoFAEnabled ? (
             <button
-              className="inline-flex h-9 items-center rounded-md border border-red-500/60 text-red-400 px-3 text-sm hover:bg-red-500/10"
-              onClick={() => setTwoFAEnabled(false)}
+              className="inline-flex h-9 items-center rounded-md border border-red-500/60 text-red-400 px-3 text-sm hover:bg-red-500/10 disabled:opacity-50"
+              onClick={disable2FA}
+              disabled={isBusy}
             >
               Disable
             </button>
           ) : (
             <button
-              className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-              onClick={() => setShow2FA(true)}
+              className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              onClick={enable2FA}
+              disabled={isBusy || !password}
             >
               Enable
             </button>
           )}
+        </div>
+
+        {error ? (
+          <div className="mt-3 text-sm text-red-400">{error}</div>
+        ) : null}
+
+        <div className="grid gap-3 sm:grid-cols-2 mt-4">
+          <div>
+            <label className="mb-1 block text-sm">Account Password</label>
+            <input
+              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
         </div>
 
         {show2FA ? (
@@ -145,15 +227,23 @@ export function SecurityPane({ email }: { email: string }) {
             </div>
             <div className="grid gap-3 sm:grid-cols-[200px_1fr] items-start">
               <div className="grid place-items-center rounded-md border border-border bg-card p-4 text-muted-foreground">
-                QR CODE
+                {totpURI ? <QRCode value={totpURI} size={160} /> : "QR CODE"}
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">
                   Scan with an authenticator app, or enter this key manually:
                 </div>
                 <div className="mt-2 rounded-md border border-border bg-card px-3 py-2 text-sm">
-                  ABCD-EFGH-IJKL-MNOP
+                  {totpURI ?? ""}
                 </div>
+                {backupCodes?.length ? (
+                  <div className="mt-3">
+                    <div className="text-sm mb-1">Backup Codes</div>
+                    <div className="rounded-md border border-border bg-card px-3 py-2 text-xs whitespace-pre-wrap">
+                      {backupCodes.join("\n")}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="mt-3">
                   <label className="mb-1 block text-sm">
                     Enter first code to verify
@@ -161,21 +251,22 @@ export function SecurityPane({ email }: { email: string }) {
                   <input
                     className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                     placeholder="123 456"
+                    value={verifyCode}
+                    onChange={(e) => setVerifyCode(e.target.value)}
                   />
                 </div>
                 <div className="mt-3 flex gap-2">
                   <button
-                    className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm"
+                    className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm disabled:opacity-50"
                     onClick={() => setShow2FA(false)}
+                    disabled={isBusy}
                   >
                     Cancel
                   </button>
                   <button
-                    className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-                    onClick={() => {
-                      setTwoFAEnabled(true);
-                      setShow2FA(false);
-                    }}
+                    className="inline-flex h-9 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                    onClick={verifyTOTP}
+                    disabled={isBusy || verifyCode.length < 6}
                   >
                     Enable 2FA
                   </button>

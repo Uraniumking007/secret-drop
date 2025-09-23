@@ -1,10 +1,16 @@
 import { betterAuth } from "better-auth";
 import { db } from "./db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { username } from "better-auth/plugins";
+import { username, twoFactor } from "better-auth/plugins";
 
 export const auth = betterAuth({
-  plugins: [username()],
+  appName: "Secret Drop",
+  plugins: [
+    username(),
+    twoFactor({
+      issuer: "Secret Drop",
+    }),
+  ],
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
