@@ -21,6 +21,11 @@ export function SecurityPane({ email }: { email: string }) {
         const data = await authClient.listSessions?.();
         if (!isMounted) return;
         setSessions((data?.data ?? []) as AuthSession[]);
+        console.log(data?.data?.map((session) => session.id));
+        data.data?.forEach((session) => {
+          console.log(session.id);
+        });
+        
       } catch {
         if (!isMounted) return;
         setSessions([]);
