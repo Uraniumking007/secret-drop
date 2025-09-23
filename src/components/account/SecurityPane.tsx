@@ -2,6 +2,30 @@ import { useEffect, useState } from "react";
 import { SectionCard } from "./SectionCard";
 import { authClient } from "@/lib/auth-client";
 
+const SESSIONS_TTL_MS = 60_000; // 60s
+
+function loadCachedSessions(cacheKey: string) {
+  try {
+    const raw = sessionStorage.getItem(cacheKey);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { ts: number; data: any[] };
+    if (!parsed || typeof parsed.ts !== "number" || !Array.isArray(parsed.data))
+      return null;
+    if (Date.now() - parsed.ts > SESSIONS_TTL_MS) return null;
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+function saveCachedSessions(cacheKey: string, data: any[]) {
+  try {
+    sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }));
+  } catch {
+    // ignore
+  }
+}
+
 type AuthSession = {
   id: string;
   ipAddress?: string | null;
@@ -13,28 +37,43 @@ export function SecurityPane({ email }: { email: string }) {
   const [show2FA, setShow2FA] = useState(false);
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
   const [sessions, setSessions] = useState<AuthSession[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const cacheKey = `sessions:${email || "anon"}`;
+
+  async function fetchSessions(force = false) {
+    if (!force) {
+      const cached = loadCachedSessions(cacheKey);
+      if (cached) {
+        setSessions(cached as AuthSession[]);
+      }
+    }
+    setLoading(true);
+    try {
+      const data = await authClient.listSessions?.();
+      const list = (data?.data ?? []) as AuthSession[];
+      setSessions(list);
+      saveCachedSessions(cacheKey, list);
+    } catch {
+      // keep previous state
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     let isMounted = true;
     (async () => {
-      try {
-        const data = await authClient.listSessions?.();
-        if (!isMounted) return;
-        setSessions((data?.data ?? []) as AuthSession[]);
-        console.log(data?.data?.map((session) => session.id));
-        data.data?.forEach((session) => {
-          console.log(session.id);
-        });
-        
-      } catch {
-        if (!isMounted) return;
-        setSessions([]);
+      const cached = loadCachedSessions(cacheKey);
+      if (cached && isMounted) {
+        setSessions(cached as AuthSession[]);
       }
+      await fetchSessions(!cached);
     })();
     return () => {
       isMounted = false;
     };
-  }, [email]);
+  }, [cacheKey]);
   return (
     <div className="space-y-4">
       <SectionCard
@@ -150,8 +189,21 @@ export function SecurityPane({ email }: { email: string }) {
       <SectionCard
         title="Active Sessions"
         footer={
-          <div className="flex justify-end">
-            <button className="inline-flex h-9 items-center rounded-md border border-red-500/60 text-red-400 px-3 text-sm hover:bg-red-500/10">
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => fetchSessions(true)}
+              className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm hover:bg-primary/10 disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? "Refreshing..." : "Refresh"}
+            </button>
+            <button
+              onClick={async () => {
+                await authClient.revokeOtherSessions();
+                await fetchSessions(true);
+              }}
+              className="inline-flex h-9 items-center rounded-md border border-red-500/60 text-red-400 px-3 text-sm hover:bg-red-500/10"
+            >
               Log out of all other sessions
             </button>
           </div>
@@ -165,6 +217,7 @@ export function SecurityPane({ email }: { email: string }) {
           {sessions.map((session) => (
             <SessionRow
               key={session.id}
+              id={session.id}
               label={session.userAgent ?? "Unknown device"}
               ip={session.ipAddress ?? "Unknown IP"}
               last={
@@ -172,6 +225,7 @@ export function SecurityPane({ email }: { email: string }) {
                   ? new Date(session.expiresAt).toLocaleString()
                   : "Unknown"
               }
+              fetchSessions={fetchSessions}
             />
           ))}
         </div>
@@ -182,14 +236,18 @@ export function SecurityPane({ email }: { email: string }) {
 
 export function SessionRow({
   label,
+  id,
   ip,
   last,
   current,
+  fetchSessions,
 }: {
   label: string;
+  id: string;
   ip: string;
   last: string;
   current?: boolean;
+  fetchSessions: (force: boolean) => Promise<void>;
 }) {
   return (
     <div className="flex items-center justify-between py-3 gap-3">
@@ -202,7 +260,13 @@ export function SessionRow({
       {current ? (
         <span className="text-xs text-muted-foreground">Current</span>
       ) : (
-        <button className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs hover:bg-primary/10">
+        <button
+          onClick={async () => {
+            await authClient.revokeSession({ token: id });
+            fetchSessions(true);
+          }}
+          className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs hover:bg-primary/10"
+        >
           Log Out
         </button>
       )}

@@ -27,23 +27,34 @@ export const user = pgTable("user", {
 	uniqueIndex("user_username_key").using("btree", table.username.asc().nullsLast().op("text_ops")),
 ]);
 
-export const session = pgTable("session", {
-	id: text().primaryKey().notNull(),
-	expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
-	token: text().notNull(),
-	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
-	ipAddress: text(),
-	userAgent: text(),
-	userId: text().notNull(),
-}, (table) => [
-	uniqueIndex("session_token_key").using("btree", table.token.asc().nullsLast().op("text_ops")),
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [user.id],
-			name: "session_userId_fkey"
-		}).onUpdate("cascade").onDelete("cascade"),
-]);
+export const session = pgTable(
+  "session",
+  {
+    id: text().primaryKey().notNull(),
+    expiresAt: timestamp({ precision: 3, mode: "date" }).notNull(),
+    token: text().notNull(),
+    createdAt: timestamp({ precision: 3, mode: "date" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: "date" }).notNull(),
+    ipAddress: text(),
+    userAgent: text(),
+    userId: text().notNull(),
+  },
+  (table) => [
+    uniqueIndex("session_token_key").using(
+      "btree",
+      table.token.asc().nullsLast().op("text_ops")
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "session_userId_fkey",
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
+  ]
+);
 
 export const account = pgTable("account", {
 	id: text().primaryKey().notNull(),
