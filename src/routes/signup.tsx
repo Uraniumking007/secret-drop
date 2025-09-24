@@ -8,6 +8,7 @@ export const Route = createFileRoute("/signup")({
 
 function SignupPage() {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +17,12 @@ function SignupPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const canSubmit =
-    !!email && !!password && password === confirm && agree && !loading;
+    !!email &&
+    !!username &&
+    !!password &&
+    password === confirm &&
+    agree &&
+    !loading;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,24 +34,38 @@ function SignupPage() {
       const response = await authClient.signUp.email({
         email,
         password,
-        name: email.split("@")[0] || email,
-        username: email.split("@")[0] || email,
-        displayUsername: email.split("@")[0] || email,
+        name: username || email.split("@")[0] || email,
+        username: username || email.split("@")[0] || email,
+        displayUsername: username || email.split("@")[0] || email,
       });
 
-      // if (response.data?.user?.id) {
-      //   await authClient.signIn.email({
-      //     email,
-      //     password,
-      //   });
-      // }
-      // Redirect to home after signup
-      // window.location.href = "/";
+      // Some Better Auth clients return { error } instead of throwing
+      if (response?.error) {
+        setError(
+          response.error.message ||
+            "Could not create account. Please try again."
+        );
+        return;
+      }
+
+      if (response.data?.user?.id) {
+        const signInResponse = await authClient.signIn.email({
+          email,
+          password,
+        });
+        if (signInResponse?.error) {
+          setError(
+            signInResponse.error.message ||
+              "Signed up, but sign-in failed. Try logging in."
+          );
+          return;
+        }
+      }
+      window.location.href = "/";
     } catch (err: any) {
       setError(err?.message || "Could not create account. Please try again.");
     } finally {
       setLoading(false);
-      // navigate({ to: "/" });
     }
   }
 
@@ -73,6 +93,25 @@ function SignupPage() {
             ) : null}
 
             <form className="mt-5 space-y-3" onSubmit={onSubmit}>
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  Username
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-muted-foreground">
+                    <UserIcon />
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full h-11 rounded-md border border-input bg-background pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                    placeholder="your-username"
+                    autoComplete="username"
+                  />
+                </div>
+              </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">
                   Email address
@@ -290,6 +329,28 @@ function EyeIcon({ open }: { open: boolean }) {
         stroke="currentColor"
         fill="none"
         opacity="0.7"
+      />
+    </svg>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
+      <circle cx="12" cy="8" r="4" fill="currentColor" opacity="0.12" />
+      <circle
+        cx="12"
+        cy="8"
+        r="4"
+        stroke="currentColor"
+        strokeOpacity="0.5"
+        fill="none"
+      />
+      <path
+        d="M4 20c0-4 4-6 8-6s8 2 8 6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
       />
     </svg>
   );
