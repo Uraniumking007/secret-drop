@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { authClient } from "@/lib/auth-client";
+import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -101,6 +102,7 @@ export function ContextSidebar({
           <div className="space-y-1">
             <SidebarLink label="Dashboard" />
             <SidebarLink label="Settings" />
+            <SidebarLink label="Manage Organizations" href="/orgs" />
           </div>
         ) : (
           <div className="space-y-1">
@@ -108,6 +110,8 @@ export function ContextSidebar({
             <SidebarLink label="Teams" />
             <SidebarLink label="Members" />
             <SidebarLink label="Org Settings" />
+            <div className="my-2 h-px bg-border" />
+            <SidebarLink label="Manage Organizations" href="/orgs" />
           </div>
         )}
       </nav>
@@ -155,10 +159,15 @@ export function ContextSidebar({
   );
 }
 
-function SidebarLink({ label }: { label: string }) {
-  return (
-    <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-accent/50 text-sm text-foreground border border-transparent hover:border-border transition-colors">
-      {label}
-    </button>
-  );
+function SidebarLink({ label, href }: { label: string; href?: string }) {
+  const classes =
+    "w-full text-left px-3 py-2 rounded-lg hover:bg-accent/50 text-sm text-foreground border border-transparent hover:border-border transition-colors";
+  if (href) {
+    return (
+      <Link to={href} className={classes}>
+        {label}
+      </Link>
+    );
+  }
+  return <button className={classes}>{label}</button>;
 }

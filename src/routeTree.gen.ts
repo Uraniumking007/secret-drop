@@ -16,6 +16,9 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrgsIndexRouteImport } from './routes/orgs/index'
+import { Route as OrgsNewRouteImport } from './routes/orgs/new'
+import { Route as OrgsOrgIdRouteImport } from './routes/orgs/$orgId'
 import { ServerRoute as ApiHealthServerRouteImport } from './routes/api/health'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 
@@ -46,6 +49,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrgsIndexRoute = OrgsIndexRouteImport.update({
+  id: '/orgs/',
+  path: '/orgs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrgsNewRoute = OrgsNewRouteImport.update({
+  id: '/orgs/new',
+  path: '/orgs/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrgsOrgIdRoute = OrgsOrgIdRouteImport.update({
+  id: '/orgs/$orgId',
+  path: '/orgs/$orgId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiHealthServerRoute = ApiHealthServerRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -63,6 +81,9 @@ export interface FileRoutesByFullPath {
   '/logout': typeof LogoutRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/orgs/$orgId': typeof OrgsOrgIdRoute
+  '/orgs/new': typeof OrgsNewRoute
+  '/orgs': typeof OrgsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +91,9 @@ export interface FileRoutesByTo {
   '/logout': typeof LogoutRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/orgs/$orgId': typeof OrgsOrgIdRoute
+  '/orgs/new': typeof OrgsNewRoute
+  '/orgs': typeof OrgsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,13 +102,41 @@ export interface FileRoutesById {
   '/logout': typeof LogoutRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/orgs/$orgId': typeof OrgsOrgIdRoute
+  '/orgs/new': typeof OrgsNewRoute
+  '/orgs/': typeof OrgsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/logout' | '/settings' | '/signup'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/logout'
+    | '/settings'
+    | '/signup'
+    | '/orgs/$orgId'
+    | '/orgs/new'
+    | '/orgs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/logout' | '/settings' | '/signup'
-  id: '__root__' | '/' | '/login' | '/logout' | '/settings' | '/signup'
+  to:
+    | '/'
+    | '/login'
+    | '/logout'
+    | '/settings'
+    | '/signup'
+    | '/orgs/$orgId'
+    | '/orgs/new'
+    | '/orgs'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/logout'
+    | '/settings'
+    | '/signup'
+    | '/orgs/$orgId'
+    | '/orgs/new'
+    | '/orgs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -93,6 +145,9 @@ export interface RootRouteChildren {
   LogoutRoute: typeof LogoutRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  OrgsOrgIdRoute: typeof OrgsOrgIdRoute
+  OrgsNewRoute: typeof OrgsNewRoute
+  OrgsIndexRoute: typeof OrgsIndexRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/health': typeof ApiHealthServerRoute
@@ -157,6 +212,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orgs/': {
+      id: '/orgs/'
+      path: '/orgs'
+      fullPath: '/orgs'
+      preLoaderRoute: typeof OrgsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orgs/new': {
+      id: '/orgs/new'
+      path: '/orgs/new'
+      fullPath: '/orgs/new'
+      preLoaderRoute: typeof OrgsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orgs/$orgId': {
+      id: '/orgs/$orgId'
+      path: '/orgs/$orgId'
+      fullPath: '/orgs/$orgId'
+      preLoaderRoute: typeof OrgsOrgIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 declare module '@tanstack/react-start/server' {
@@ -184,6 +260,9 @@ const rootRouteChildren: RootRouteChildren = {
   LogoutRoute: LogoutRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  OrgsOrgIdRoute: OrgsOrgIdRoute,
+  OrgsNewRoute: OrgsNewRoute,
+  OrgsIndexRoute: OrgsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
