@@ -2,6 +2,7 @@ import { HomeLayout } from "@/components/layouts/home-layout";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { createFileRoute } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -14,9 +15,9 @@ function Home() {
   if (session?.user?.email) {
     return (
       <main className="min-h-screen bg-background">
-        <HomeLayout variant="app" viewTitle="Dashboard">
+        <DashboardLayout>
           <Dashboard />
-        </HomeLayout>
+        </DashboardLayout>
       </main>
     );
   }
