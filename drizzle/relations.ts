@@ -1,28 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { user, session, account, environment, environmentOrg, orgs, environmentTeam, teams, orgTeams, teamMembers } from "./schema";
-
-export const sessionRelations = relations(session, ({one}) => ({
-	user: one(user, {
-		fields: [session.userId],
-		references: [user.id]
-	}),
-}));
-
-export const userRelations = relations(user, ({many}) => ({
-	sessions: many(session),
-	accounts: many(account),
-	environments: many(environment),
-	orgs: many(orgs),
-	teams: many(teams),
-	teamMembers: many(teamMembers),
-}));
-
-export const accountRelations = relations(account, ({one}) => ({
-	user: one(user, {
-		fields: [account.userId],
-		references: [user.id]
-	}),
-}));
+import { user, environment, environmentOrg, orgs, orgTeams, teams, secretView, environmentTeam, session, teamMembers, account, twoFactor } from "./schema";
 
 export const environmentRelations = relations(environment, ({one, many}) => ({
 	user: one(user, {
@@ -30,7 +7,19 @@ export const environmentRelations = relations(environment, ({one, many}) => ({
 		references: [user.id]
 	}),
 	environmentOrgs: many(environmentOrg),
+	secretViews: many(secretView),
 	environmentTeams: many(environmentTeam),
+}));
+
+export const userRelations = relations(user, ({many}) => ({
+	environments: many(environment),
+	orgs: many(orgs),
+	secretViews: many(secretView),
+	sessions: many(session),
+	teamMembers: many(teamMembers),
+	accounts: many(account),
+	teams: many(teams),
+	twoFactors: many(twoFactor),
 }));
 
 export const environmentOrgRelations = relations(environmentOrg, ({one}) => ({
@@ -50,33 +39,8 @@ export const orgsRelations = relations(orgs, ({one, many}) => ({
 		fields: [orgs.ownerId],
 		references: [user.id]
 	}),
+	orgTeams: many(orgTeams),
 	teams: many(teams),
-	orgTeams: many(orgTeams),
-}));
-
-export const environmentTeamRelations = relations(environmentTeam, ({one}) => ({
-	environment: one(environment, {
-		fields: [environmentTeam.environmentId],
-		references: [environment.id]
-	}),
-	team: one(teams, {
-		fields: [environmentTeam.teamId],
-		references: [teams.id]
-	}),
-}));
-
-export const teamsRelations = relations(teams, ({one, many}) => ({
-	environmentTeams: many(environmentTeam),
-	org: one(orgs, {
-		fields: [teams.orgId],
-		references: [orgs.id]
-	}),
-	user: one(user, {
-		fields: [teams.ownerId],
-		references: [user.id]
-	}),
-	orgTeams: many(orgTeams),
-	teamMembers: many(teamMembers),
 }));
 
 export const orgTeamsRelations = relations(orgTeams, ({one}) => ({
@@ -90,6 +54,49 @@ export const orgTeamsRelations = relations(orgTeams, ({one}) => ({
 	}),
 }));
 
+export const teamsRelations = relations(teams, ({one, many}) => ({
+	orgTeams: many(orgTeams),
+	environmentTeams: many(environmentTeam),
+	teamMembers: many(teamMembers),
+	org: one(orgs, {
+		fields: [teams.orgId],
+		references: [orgs.id]
+	}),
+	user: one(user, {
+		fields: [teams.ownerId],
+		references: [user.id]
+	}),
+}));
+
+export const secretViewRelations = relations(secretView, ({one}) => ({
+	environment: one(environment, {
+		fields: [secretView.environmentId],
+		references: [environment.id]
+	}),
+	user: one(user, {
+		fields: [secretView.userId],
+		references: [user.id]
+	}),
+}));
+
+export const environmentTeamRelations = relations(environmentTeam, ({one}) => ({
+	environment: one(environment, {
+		fields: [environmentTeam.environmentId],
+		references: [environment.id]
+	}),
+	team: one(teams, {
+		fields: [environmentTeam.teamId],
+		references: [teams.id]
+	}),
+}));
+
+export const sessionRelations = relations(session, ({one}) => ({
+	user: one(user, {
+		fields: [session.userId],
+		references: [user.id]
+	}),
+}));
+
 export const teamMembersRelations = relations(teamMembers, ({one}) => ({
 	team: one(teams, {
 		fields: [teamMembers.teamId],
@@ -97,6 +104,20 @@ export const teamMembersRelations = relations(teamMembers, ({one}) => ({
 	}),
 	user: one(user, {
 		fields: [teamMembers.userId],
+		references: [user.id]
+	}),
+}));
+
+export const accountRelations = relations(account, ({one}) => ({
+	user: one(user, {
+		fields: [account.userId],
+		references: [user.id]
+	}),
+}));
+
+export const twoFactorRelations = relations(twoFactor, ({one}) => ({
+	user: one(user, {
+		fields: [twoFactor.userId],
 		references: [user.id]
 	}),
 }));
