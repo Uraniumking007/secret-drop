@@ -22,7 +22,7 @@ export function Navbar({ variant = "public", viewTitle }: NavbarProps) {
   const { data: session } = authClient.useSession();
 
   const isAuthed = useMemo(() => !!session?.user?.email, [session]);
-  const isApp = variant === "app" || isAuthed;
+  const isApp = variant === "app" && isAuthed;
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 border-b border-border">
@@ -242,10 +242,18 @@ export function Navbar({ variant = "public", viewTitle }: NavbarProps) {
   );
 }
 
-export function HomeLayout({ children }: { children: ReactNode }) {
+export function HomeLayout({
+  children,
+  variant,
+  viewTitle,
+}: {
+  children: ReactNode;
+  variant?: "public" | "app";
+  viewTitle?: string;
+}) {
   return (
     <div>
-      <Navbar />
+      <Navbar variant={variant} viewTitle={viewTitle} />
       <div className="pt-16">{children}</div>
     </div>
   );
