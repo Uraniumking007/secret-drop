@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { Building2, Users, Layers, Plus } from "lucide-react";
 import { useState } from "react";
+import { createOrg } from "@/server/org/org";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/orgs/")({
   component: OrgsHub,
@@ -107,21 +109,23 @@ function OrgsHub() {
                 </button>
               </div>
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   const fd = new FormData(e.currentTarget as HTMLFormElement);
                   const name = String(fd.get("name") || "").trim();
                   if (!name) return;
-                  const newId = Math.random().toString(36).slice(2);
                   setShowCreate(false);
-                  // TODO: create org via API and get id
-
-                  navigate({
-                    to: "/orgs/$orgId",
-                    params: { orgId: newId },
-                    search: { tab: "members" },
-                  });
-                  // TODO: toast: Organization '<name>' created successfully. Now, invite your team!
+                  const newId = await createOrg({ data: fd });
+                  if (newId.success) {
+                    navigate({
+                      to: "/orgs/$orgId",
+                      params: { orgId: newId.id },
+                      search: { tab: "members" },
+                    });
+                    toast.success(
+                      `Organization '${name}' created successfully. Now, invite your team!`
+                    );
+                  }
                 }}
                 className="p-4 space-y-3"
               >
