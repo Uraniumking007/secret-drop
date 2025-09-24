@@ -29,21 +29,23 @@ function SignupPage() {
         email,
         password,
         name: email.split("@")[0] || email,
+        username: email.split("@")[0] || email,
+        displayUsername: email.split("@")[0] || email,
       });
 
-      if (response.data?.user?.id) {
-        await authClient.signIn.email({
-          email,
-          password,
-        });
-      }
+      // if (response.data?.user?.id) {
+      //   await authClient.signIn.email({
+      //     email,
+      //     password,
+      //   });
+      // }
       // Redirect to home after signup
       // window.location.href = "/";
     } catch (err: any) {
       setError(err?.message || "Could not create account. Please try again.");
     } finally {
       setLoading(false);
-      navigate({ to: "/" });
+      // navigate({ to: "/" });
     }
   }
 
