@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { authClient } from "../lib/auth-client";
 
@@ -14,7 +14,7 @@ function SignupPage() {
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   const canSubmit =
     !!email && !!password && password === confirm && agree && !loading;
 
@@ -25,17 +25,25 @@ function SignupPage() {
     setLoading(true);
     try {
       // Attempt signup; adapt to your auth provider
-      await authClient.signUp.email({
+      const response = await authClient.signUp.email({
         email,
         password,
         name: email.split("@")[0] || email,
       });
+
+      if (response.data?.user?.id) {
+        await authClient.signIn.email({
+          email,
+          password,
+        });
+      }
       // Redirect to home after signup
-      window.location.href = "/";
+      // window.location.href = "/";
     } catch (err: any) {
       setError(err?.message || "Could not create account. Please try again.");
     } finally {
       setLoading(false);
+      navigate({ to: "/" });
     }
   }
 
