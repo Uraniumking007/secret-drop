@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { X, Lock, Eye, Calendar, AlertCircle } from "lucide-react";
 import {
   Select,
@@ -12,6 +12,11 @@ interface NewDropModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: NewDropData) => void;
+  // Optional org context for team assignment
+  orgContext?: {
+    organizationId: string;
+    teams: { id: string; name: string }[];
+  } | null;
 }
 
 export interface NewDropData {
@@ -23,6 +28,7 @@ export interface NewDropData {
   isPublic: boolean;
   expiresAt?: string; // ISO timestamp
   isExpiring: boolean;
+  teamId?: string | null; // when in org context
 }
 
 const EXPIRATION_OPTIONS = [
@@ -33,7 +39,12 @@ const EXPIRATION_OPTIONS = [
   { value: "never", label: "Never" },
 ];
 
-export function NewDropModal({ isOpen, onClose, onSubmit }: NewDropModalProps) {
+export function NewDropModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  orgContext,
+}: NewDropModalProps) {
   const [formData, setFormData] = useState<NewDropData>({
     name: "",
     description: "",
@@ -43,6 +54,7 @@ export function NewDropModal({ isOpen, onClose, onSubmit }: NewDropModalProps) {
     isPublic: false,
     expiresAt: undefined,
     isExpiring: true,
+    teamId: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -86,6 +98,7 @@ export function NewDropModal({ isOpen, onClose, onSubmit }: NewDropModalProps) {
       isPublic: false,
       expiresAt: undefined,
       isExpiring: true,
+      teamId: null,
     });
     setErrors({});
     onClose();
@@ -303,6 +316,37 @@ export function NewDropModal({ isOpen, onClose, onSubmit }: NewDropModalProps) {
               </div>
             </div>
           </div>
+
+          {/* Team Assignment (org context only) */}
+          {orgContext && (
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Assign to Team
+              </label>
+              <Select
+                value={formData.teamId ?? "none"}
+                onValueChange={(value) =>
+                  handleInputChange("teamId", value === "none" ? null : value)
+                }
+              >
+                <SelectTrigger className="w-full h-10">
+                  <SelectValue placeholder="Select team" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No team (org-owned)</SelectItem>
+                  {orgContext.teams.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                This sets `environmentTeam` for this drop within the
+                organization.
+              </p>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
