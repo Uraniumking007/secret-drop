@@ -6,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sparkline } from "./Sparkline";
 
 export interface Secret {
   id: string;
@@ -16,6 +17,8 @@ export interface Secret {
   viewLimit: number | null; // null means unlimited
   hasPassword: boolean;
   expiresAt?: string;
+  ownerOrTeam?: string; // user.name or teams.name
+  sparklinePoints?: number[]; // last 7 days views
 }
 
 interface SecretCardProps {
@@ -67,6 +70,15 @@ export function SecretCard({
     return `Views: ${secret.viewCount} / ${secret.viewLimit}`;
   };
 
+  const getExpiryText = () => {
+    if (!secret.expiresAt) return null;
+    const now = Date.now();
+    const exp = new Date(secret.expiresAt).getTime();
+    if (exp < now) return "Expired";
+    const days = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+    return `Expires in ${days} day${days !== 1 ? "s" : ""}`;
+  };
+
   return (
     <div className="group rounded-xl bg-card border border-border p-4 hover:border-border/80 transition-colors">
       <div className="flex items-start justify-between gap-4">
@@ -81,14 +93,25 @@ export function SecretCard({
             )}
           </div>
 
+          {secret.ownerOrTeam && (
+            <div className="text-xs text-muted-foreground mb-1 truncate">
+              {secret.ownerOrTeam}
+            </div>
+          )}
+
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
               <span>Created {formatDate(secret.createdAt)}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Eye className="h-3 w-3" />
               <span>{getViewCountText()}</span>
+              {secret.sparklinePoints && (
+                <span className="ml-1 text-primary">
+                  <Sparkline points={secret.sparklinePoints} />
+                </span>
+              )}
             </div>
           </div>
 
@@ -103,9 +126,9 @@ export function SecretCard({
               {secret.status === "expired" && "Expired"}
               {secret.status === "viewed" && "Viewed"}
             </span>
-            {secret.expiresAt && secret.status === "active" && (
+            {secret.expiresAt && (
               <span className="text-xs text-muted-foreground">
-                Expires {formatDate(secret.expiresAt)}
+                {getExpiryText()}
               </span>
             )}
           </div>
