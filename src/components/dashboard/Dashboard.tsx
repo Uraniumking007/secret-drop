@@ -3,6 +3,11 @@ import { ActionBar } from "./ActionBar";
 import { SecretCard, type Secret } from "./SecretCard";
 import { EmptyState } from "./EmptyState";
 import { NewDropModal, type NewDropData } from "./NewDropModal";
+import {
+  DetailPane,
+  type SecretDetailMeta,
+  type SecretViewItem,
+} from "./DetailPane";
 
 // Mock data for demonstration - replace with actual API calls
 const MOCK_SECRETS: Secret[] = [
@@ -51,6 +56,10 @@ export function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isNewDropModalOpen, setIsNewDropModalOpen] = useState(false);
   const [secrets, setSecrets] = useState<Secret[]>(MOCK_SECRETS);
+  const [selectedSecret, setSelectedSecret] = useState<SecretDetailMeta | null>(
+    null
+  );
+  const [selectedViews, setSelectedViews] = useState<SecretViewItem[]>([]);
 
   // Filter secrets based on search query
   const filteredSecrets = useMemo(() => {
@@ -113,47 +122,84 @@ export function Dashboard() {
     }
   };
 
+  const handleSelectSecret = (secret: Secret) => {
+    setSelectedSecret({
+      id: secret.id,
+      name: secret.name,
+      description: "",
+      createdAt: secret.createdAt,
+      expiresAt: secret.expiresAt,
+      variablesPassword: secret.hasPassword ? "yes" : undefined,
+    });
+    // Placeholder views; replace with API
+    setSelectedViews([
+      {
+        id: "v1",
+        userName: "Jane Doe",
+        ipAddress: "203.0.113.10",
+        userAgent: "Chrome on macOS",
+        viewedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+      },
+      {
+        id: "v2",
+        userName: null,
+        ipAddress: "198.51.100.24",
+        userAgent: "curl/8.0",
+        viewedAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+      },
+    ]);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedSecret(null);
+    setSelectedViews([]);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Action Bar */}
-        <ActionBar
-          onSearch={handleSearch}
-          onNewDrop={handleNewDrop}
-          searchQuery={searchQuery}
-        />
+    <div>
+      <ActionBar
+        onSearch={handleSearch}
+        onNewDrop={handleNewDrop}
+        searchQuery={searchQuery}
+      />
 
-        {/* Main Content */}
-        <div className="mt-8">
-          {filteredSecrets.length === 0 ? (
-            <EmptyState onNewDrop={handleNewDrop} />
-          ) : (
-            <div className="space-y-4">
-              {/* Results count */}
-              <div className="text-sm text-muted-foreground">
-                {filteredSecrets.length === secrets.length
-                  ? `${secrets.length} secret${secrets.length !== 1 ? "s" : ""}`
-                  : `${filteredSecrets.length} of ${secrets.length} secrets`}
-              </div>
-
-              {/* Secrets List */}
-              <div className="grid gap-4">
-                {filteredSecrets.map((secret) => (
+      <div className="mt-6">
+        {filteredSecrets.length === 0 ? (
+          <EmptyState onNewDrop={handleNewDrop} />
+        ) : (
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              {filteredSecrets.length === secrets.length
+                ? `${secrets.length} secret${secrets.length !== 1 ? "s" : ""}`
+                : `${filteredSecrets.length} of ${secrets.length} secrets`}
+            </div>
+            <div className="grid gap-4">
+              {filteredSecrets.map((secret) => (
+                <div
+                  key={secret.id}
+                  onClick={() => handleSelectSecret(secret)}
+                  className="cursor-pointer"
+                >
                   <SecretCard
-                    key={secret.id}
                     secret={secret}
                     onCopyLink={handleCopyLink}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                   />
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* New Drop Modal */}
+      <DetailPane
+        open={!!selectedSecret}
+        secret={selectedSecret}
+        views={selectedViews}
+        onClose={handleCloseDetail}
+      />
+
       <NewDropModal
         isOpen={isNewDropModalOpen}
         onClose={() => setIsNewDropModalOpen(false)}
