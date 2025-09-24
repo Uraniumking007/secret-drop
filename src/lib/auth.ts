@@ -32,6 +32,7 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 3,
     },
   },
+  trustedOrigins: [process.env.BETTER_AUTH_URL!],
   baseURL: process.env.BETTER_AUTH_URL!,
   secret: process.env.BETTER_AUTH_SECRET!,
 });
