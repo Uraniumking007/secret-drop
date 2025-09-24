@@ -35,8 +35,10 @@ type AuthSession = {
 };
 
 export function SecurityPane({ email }: { email: string }) {
+  const { data: sessionData } = authClient.useSession();
   const [show2FA, setShow2FA] = useState(false);
-  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
+  // reflect server truth
+  const twoFAEnabled = !!sessionData?.user?.twoFactorEnabled;
   const [password, setPassword] = useState("");
   const [verifyCode, setVerifyCode] = useState("");
   const [totpURI, setTotpURI] = useState<string | null>(null);
@@ -72,16 +74,27 @@ export function SecurityPane({ email }: { email: string }) {
     setIsBusy(true);
     setError(null);
     try {
+      // Check if user has a valid session first
+      const session = await authClient.getSession();
+      if (!session?.data?.session) {
+        throw new Error("Please log in again to enable 2FA");
+      }
+
+      console.log("Enabling 2FA for user:", session.data.user?.email);
       const res = await authClient.twoFactor.enable({
         password,
         issuer: "Secret Drop",
       });
+      console.log("2FA enable response:", res);
       if (res.error)
         throw new Error(res.error.message || "Failed to enable 2FA");
+
+      // Use the URI returned from enable
       setTotpURI(res.data?.totpURI ?? null);
       setBackupCodes(res.data?.backupCodes ?? null);
       setShow2FA(true);
     } catch (e: any) {
+      console.error("2FA enable error:", e);
       setError(e?.message ?? "Something went wrong");
     } finally {
       setIsBusy(false);
@@ -92,15 +105,47 @@ export function SecurityPane({ email }: { email: string }) {
     setIsBusy(true);
     setError(null);
     try {
+      // Check session before verification
+      const session = await authClient.getSession();
+      if (!session?.data?.session) {
+        throw new Error("Please log in again to verify 2FA");
+      }
+
+      console.log("Verifying TOTP code:", verifyCode);
+      console.log("Current session:", session.data.session?.id);
+      console.log("User ID:", session.data.user?.id);
+      console.log("User 2FA enabled:", session.data.user?.twoFactorEnabled);
+
+      // Try verification with a fresh session check
+      const freshSession = await authClient.getSession();
+      console.log(
+        "Fresh session before verification:",
+        freshSession.data?.session?.id
+      );
+
       const res = await authClient.twoFactor.verifyTotp({
         code: verifyCode,
         trustDevice: true,
       });
-      if (res.error) throw new Error(res.error.message || "Invalid code");
-      setTwoFAEnabled(true);
+      console.log("TOTP verification response:", res);
+      if (res.error) {
+        console.error("TOTP verification error:", res.error);
+        // More specific error handling
+        if (res.error.message?.includes("invalid two factor")) {
+          throw new Error(
+            "Invalid TOTP code. Please check your authenticator app and try again."
+          );
+        }
+        throw new Error(res.error.message || "Invalid code");
+      }
       setShow2FA(false);
       setVerifyCode("");
+      // refresh session to reflect twoFactorEnabled
+      try {
+        await authClient.getSession();
+      } catch {}
     } catch (e: any) {
+      console.error("TOTP verification exception:", e);
       setError(e?.message ?? "Verification failed");
     } finally {
       setIsBusy(false);
@@ -114,9 +159,12 @@ export function SecurityPane({ email }: { email: string }) {
       const res = await authClient.twoFactor.disable({ password });
       if (res.error)
         throw new Error(res.error.message || "Failed to disable 2FA");
-      setTwoFAEnabled(false);
       setTotpURI(null);
       setBackupCodes(null);
+      // refresh session to reflect twoFactorEnabled
+      try {
+        await authClient.getSession();
+      } catch {}
     } catch (e: any) {
       setError(e?.message ?? "Something went wrong");
     } finally {
@@ -225,17 +273,27 @@ export function SecurityPane({ email }: { email: string }) {
             <div className="text-sm font-medium mb-2">
               Set up Two-Factor Authentication
             </div>
-            <div className="grid gap-3 sm:grid-cols-[200px_1fr] items-start">
-              <div className="grid place-items-center rounded-md border border-border bg-card p-4 text-muted-foreground">
-                {totpURI ? <QRCode value={totpURI} size={160} /> : "QR CODE"}
+            <div className="grid gap-3 sm:grid-cols-[240px_1fr] items-start">
+              <div className="grid place-items-center rounded-md border border-border bg-white p-4">
+                {totpURI ? (
+                  <QRCode
+                    value={totpURI}
+                    size={200}
+                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                  />
+                ) : (
+                  <div className="text-muted-foreground">QR CODE</div>
+                )}
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-muted-foreground mb-2">
                   Scan with an authenticator app, or enter this key manually:
                 </div>
-                <div className="mt-2 rounded-md border border-border bg-card px-3 py-2 text-sm">
-                  {totpURI ?? ""}
-                </div>
+                {totpURI && (
+                  <div className="mt-2 rounded-md border border-border bg-card px-3 py-2 text-sm font-mono break-all">
+                    {totpURI}
+                  </div>
+                )}
                 {backupCodes?.length ? (
                   <div className="mt-3">
                     <div className="text-sm mb-1">Backup Codes</div>
