@@ -5,7 +5,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "../global.css";
+import { Toaster } from "sonner";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -37,9 +39,12 @@ function NotFound() {
 }
 
 function RootComponent() {
+  const queryClient = new QueryClient();
   return (
     <RootDocument>
-      <Outlet />
+      <QueryClientProvider client={queryClient}>
+        <Outlet />
+      </QueryClientProvider>
     </RootDocument>
   );
 }
@@ -52,6 +57,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body>
         {children}
+        <Toaster />
         <Scripts />
       </body>
     </html>
