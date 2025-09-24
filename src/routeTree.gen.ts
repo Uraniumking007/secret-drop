@@ -15,7 +15,6 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as R2faRouteImport } from './routes/2fa'
 import { Route as IndexRouteImport } from './routes/index'
 import { ServerRoute as ApiHealthServerRouteImport } from './routes/api/health'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
@@ -42,11 +41,6 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const R2faRoute = R2faRouteImport.update({
-  id: '/2fa',
-  path: '/2fa',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -65,7 +59,6 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/2fa': typeof R2faRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/settings': typeof SettingsRoute
@@ -73,7 +66,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/2fa': typeof R2faRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/settings': typeof SettingsRoute
@@ -82,7 +74,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/2fa': typeof R2faRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/settings': typeof SettingsRoute
@@ -90,15 +81,14 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/2fa' | '/login' | '/logout' | '/settings' | '/signup'
+  fullPaths: '/' | '/login' | '/logout' | '/settings' | '/signup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/2fa' | '/login' | '/logout' | '/settings' | '/signup'
-  id: '__root__' | '/' | '/2fa' | '/login' | '/logout' | '/settings' | '/signup'
+  to: '/' | '/login' | '/logout' | '/settings' | '/signup'
+  id: '__root__' | '/' | '/login' | '/logout' | '/settings' | '/signup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  R2faRoute: typeof R2faRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
   SettingsRoute: typeof SettingsRoute
@@ -160,13 +150,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/2fa': {
-      id: '/2fa'
-      path: '/2fa'
-      fullPath: '/2fa'
-      preLoaderRoute: typeof R2faRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -197,7 +180,6 @@ declare module '@tanstack/react-start/server' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  R2faRoute: R2faRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
   SettingsRoute: SettingsRoute,
