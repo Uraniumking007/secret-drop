@@ -15,6 +15,8 @@ import {
   BillingPane,
   DangerPane,
 } from "@/components/org/OrgPanes";
+import { getOrgById } from "@/server/org/org";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/orgs/$orgId")({
   component: OrgSettings,
@@ -24,10 +26,22 @@ type Tab = OrgTab;
 
 function OrgSettings() {
   const { orgId } = useParams({ from: "/orgs/$orgId" });
+  const { data: orgData } = useQuery({
+    queryKey: ["org", orgId],
+    queryFn: () =>
+      getOrgById({
+        data: {
+          id: orgId || "",
+        },
+      }),
+  });
   const search = useSearch({ from: "/orgs/$orgId" }) as { tab?: Tab };
   const [active, setActive] = useState<Tab>((search.tab as Tab) ?? "general");
 
-  const org = useMemo(() => ({ id: orgId, name: "Acme Inc." }), [orgId]);
+  const org = useMemo(
+    () => ({ id: orgId, name: orgData?.org?.name || "" }),
+    [orgId, orgData]
+  );
 
   return (
     <DashboardLayout>
