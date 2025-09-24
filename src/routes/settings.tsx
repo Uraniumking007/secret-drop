@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePane } from "@/components/account/ProfilePane";
@@ -24,9 +24,23 @@ export const Route = createFileRoute("/settings")({
 type TabKey = "profile" | "security" | "billing" | "danger";
 
 function AccountPage() {
-  const { data: session } = authClient.useSession();
-  const email = session?.user?.email ?? "";
+  const { data: session, isPending } = authClient.useSession();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<TabKey>("profile");
+
+  if (!session && !isPending) {
+    navigate({ to: "/" });
+    return null;
+  }
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
+  const email = session?.user?.email;
+  if (!email) {
+    return <div>Loading...</div>;
+  }
 
   const tabs: { key: TabKey; label: string }[] = [
     { key: "profile", label: "Profile" },
@@ -36,7 +50,7 @@ function AccountPage() {
   ];
 
   return (
-    <HomeLayout>
+    <HomeLayout viewTitle="Account Settings" variant="app">
       <main className="min-h-screen bg-background text-foreground px-4">
         <div className="mx-auto max-w-6xl pt-20 pb-10">
           <div className="mb-5 flex items-center justify-between">
