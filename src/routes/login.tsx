@@ -52,13 +52,20 @@ function LoginPage() {
           },
         }
       );
+      // If the client returns an error object instead of throwing
+      if ((resp as any)?.error) {
+        setError(
+          (resp as any).error.message || "Email or password is incorrect."
+        );
+        return;
+      }
       // Fallback in case onSuccess isn't invoked by the client
       if ((resp as any)?.data?.twoFactorRedirect) {
         setShow2fa(true);
         return;
       }
     } catch (err: any) {
-      setError("Email or password is incorrect.");
+      setError(err.message || "Email or password is incorrect.");
       console.log(err);
     } finally {
       setLoading(false);
@@ -79,12 +86,14 @@ function LoginPage() {
             code: twofaCode,
             trustDevice: trust,
           });
-      if (res.error) throw new Error(res.error.message || "Invalid code");
+      if (res.error) {
+        throw new Error(res.error.message || "Invalid code");
+      }
       setShow2fa(false);
       setTwofaCode("");
       navigate({ to: "/" });
     } catch (err: any) {
-      setError(err?.message ?? "Verification failed");
+      setError(err.message || "Verification failed");
     }
   }
 
