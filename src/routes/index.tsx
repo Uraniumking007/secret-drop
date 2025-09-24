@@ -1,11 +1,27 @@
 import { HomeLayout } from "@/components/layouts/home-layout";
+import { Dashboard } from "@/components/dashboard/Dashboard";
 import { createFileRoute } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/")({
   component: Home,
 });
 
 function Home() {
+  const { data: session } = authClient.useSession();
+
+  // If user is authenticated, show dashboard
+  if (session?.user?.email) {
+    return (
+      <main className="min-h-screen bg-background">
+        <HomeLayout variant="app" viewTitle="Dashboard">
+          <Dashboard />
+        </HomeLayout>
+      </main>
+    );
+  }
+
+  // Otherwise show landing page
   const theme = {
     background: "#0f1216",
     panel: "#141921",
