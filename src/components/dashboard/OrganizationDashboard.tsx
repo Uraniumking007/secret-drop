@@ -8,28 +8,32 @@ import {
   type SecretDetailMeta,
   type SecretViewItem,
 } from "./DetailPane";
+import { StatCards } from "./StatCards";
+import { Plus } from "lucide-react";
 
-// Mock data for demonstration - replace with actual API calls
-const MOCK_SECRETS: Secret[] = [
+// Mock data for organization secrets - replace with actual API calls
+const MOCK_ORG_SECRETS: Secret[] = [
   {
     id: "1",
-    name: "Staging Database Credentials",
+    name: "Production Database Credentials",
     createdAt: "2024-01-15T10:30:00Z",
     status: "active",
     viewCount: 2,
     viewLimit: 5,
     hasPassword: true,
     expiresAt: "2024-02-15T10:30:00Z",
+    teamName: "Backend Team",
   },
   {
     id: "2",
-    name: "Production API Keys",
+    name: "API Gateway Keys",
     createdAt: "2024-01-10T14:20:00Z",
     status: "active",
     viewCount: 1,
     viewLimit: null,
     hasPassword: false,
     expiresAt: "2024-01-17T14:20:00Z",
+    teamName: "DevOps Team",
   },
   {
     id: "3",
@@ -40,26 +44,44 @@ const MOCK_SECRETS: Secret[] = [
     viewLimit: 3,
     hasPassword: true,
     expiresAt: "2024-01-12T09:15:00Z",
+    teamName: "Frontend Team",
   },
   {
     id: "4",
-    name: "Development Environment Variables",
+    name: "Staging Environment Variables",
     createdAt: "2024-01-01T16:45:00Z",
     status: "viewed",
     viewCount: 1,
     viewLimit: 1,
     hasPassword: false,
+    teamName: "QA Team",
   },
 ];
 
-export function Dashboard() {
+export interface OrganizationDashboardProps {
+  organization: {
+    id: string;
+    name: string;
+  };
+}
+
+export function OrganizationDashboard({
+  organization,
+}: OrganizationDashboardProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isNewDropModalOpen, setIsNewDropModalOpen] = useState(false);
-  const [secrets, setSecrets] = useState<Secret[]>(MOCK_SECRETS);
+  const [secrets, setSecrets] = useState<Secret[]>(MOCK_ORG_SECRETS);
   const [selectedSecret, setSelectedSecret] = useState<SecretDetailMeta | null>(
     null
   );
   const [selectedViews, setSelectedViews] = useState<SecretViewItem[]>([]);
+
+  // Mock organization stats - replace with actual API calls
+  const orgStats = {
+    totalSecrets: secrets.length,
+    totalTeams: 4, // Mock data
+    totalMembers: 12, // Mock data
+  };
 
   // Filter secrets based on search query
   const filteredSecrets = useMemo(() => {
@@ -69,7 +91,8 @@ export function Dashboard() {
     return secrets.filter(
       (secret) =>
         secret.name.toLowerCase().includes(query) ||
-        secret.id.toLowerCase().includes(query)
+        secret.id.toLowerCase().includes(query) ||
+        (secret.teamName && secret.teamName.toLowerCase().includes(query))
     );
   }, [secrets, searchQuery]);
 
@@ -89,9 +112,10 @@ export function Dashboard() {
       createdAt: new Date().toISOString(),
       status: "active",
       viewCount: 0,
-      viewLimit: null, // View limits are now tracked in secretView table
+      viewLimit: null,
       hasPassword: !!data.variablesPassword,
       expiresAt: data.expiresAt,
+      teamName: "Unassigned", // Default team
     };
 
     setSecrets((prev) => [newSecret, ...prev]);
@@ -157,8 +181,34 @@ export function Dashboard() {
 
   return (
     <div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            {organization.name} Dashboard
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Manage organization secrets and teams
+          </p>
+        </div>
+        <button
+          onClick={handleNewDrop}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          New Drop
+        </button>
+      </div>
+
+      {/* Stat Cards */}
+      <StatCards
+        totalSecrets={orgStats.totalSecrets}
+        totalTeams={orgStats.totalTeams}
+        totalMembers={orgStats.totalMembers}
+      />
+
       <ActionBar
-        context="personal"
+        context="organization"
         onSearch={handleSearch}
         onNewDrop={handleNewDrop}
         searchQuery={searchQuery}
@@ -166,7 +216,12 @@ export function Dashboard() {
 
       <div className="mt-6">
         {filteredSecrets.length === 0 ? (
-          <EmptyState onNewDrop={handleNewDrop} />
+          <EmptyState
+            onNewDrop={handleNewDrop}
+            title="This organization has no secrets yet"
+            description="Create the first drop to get started with secure secret sharing."
+            buttonText="Create New Drop"
+          />
         ) : (
           <div className="space-y-4">
             <div className="text-sm text-muted-foreground">
@@ -186,6 +241,7 @@ export function Dashboard() {
                     onCopyLink={handleCopyLink}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    showTeamInfo={true}
                   />
                 </div>
               ))}
@@ -205,6 +261,10 @@ export function Dashboard() {
         isOpen={isNewDropModalOpen}
         onClose={() => setIsNewDropModalOpen(false)}
         onSubmit={handleCreateSecret}
+        orgContext={{
+          organizationId: organization.id,
+          teams: [],
+        }}
       />
     </div>
   );

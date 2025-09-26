@@ -1,8 +1,14 @@
 import { HomeLayout } from "@/components/layouts/home-layout";
 import { Dashboard } from "@/components/dashboard/Dashboard";
+import {
+  ContextualDashboard,
+  type WorkspaceContext,
+} from "@/components/dashboard/ContextualDashboard";
 import { createFileRoute } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import { getUserOrgs } from "@/server/org/org";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -10,13 +16,28 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const { data: session } = authClient.useSession();
+  const { data: orgData, isLoading } = useQuery({
+    queryKey: ["userOrgs"],
+    queryFn: () => getUserOrgs(),
+    enabled: !!session?.user?.email,
+  });
 
   // If user is authenticated, show dashboard
   if (session?.user?.email) {
+    if (isLoading) {
+      return (
+        <main className="min-h-screen bg-background flex items-center justify-center">
+          <div>Loading...</div>
+        </main>
+      );
+    }
+
     return (
       <main className="min-h-screen bg-background">
-        <DashboardLayout>
-          <Dashboard />
+        <DashboardLayout organizations={orgData?.organizations || []}>
+          {(workspaceContext: WorkspaceContext) => (
+            <ContextualDashboard workspaceContext={workspaceContext} />
+          )}
         </DashboardLayout>
       </main>
     );

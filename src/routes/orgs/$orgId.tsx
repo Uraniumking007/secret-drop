@@ -44,7 +44,7 @@ function OrgSettings() {
   );
 
   return (
-    <DashboardLayout>
+    <DashboardLayout organizations={[org]}>
       <div className="min-h-screen">
         {/* Header */}
         <div className="mb-6">

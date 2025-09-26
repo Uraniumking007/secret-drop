@@ -1,20 +1,30 @@
 import type { ReactNode } from "react";
-import {
-  ContextSidebar,
-  type Organization,
-} from "@/components/dashboard/ContextSidebar";
+import { Outlet } from "@tanstack/react-router";
+import { ContextSidebar } from "@/components/dashboard/ContextSidebar";
 import { useState } from "react";
 
-export function DashboardLayout({ children }: { children: ReactNode }) {
+export function DashboardLayout({
+  children,
+  organizations,
+}: {
+  children: ReactNode | ((context: any) => ReactNode);
+  organizations: any[];
+}) {
   const [contextType, setContextType] = useState<"personal" | "organization">(
     "personal"
   );
   const [contextId, setContextId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const organizations: Organization[] = [
-    { id: "org_1", name: "Acme Inc." },
-    { id: "org_2", name: "Globex" },
-  ];
+
+  // Create context object to pass to children
+  const workspaceContext = {
+    type: contextType,
+    id: contextId,
+    organization:
+      contextType === "organization"
+        ? organizations.find((org) => org.id === contextId)
+        : null,
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,7 +53,16 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               <span>Menu</span>
             </button>
           </div>
-          {children}
+          {/* Pass workspace context to children or Outlet */}
+          {children ? (
+            typeof children === "function" ? (
+              children(workspaceContext)
+            ) : (
+              children
+            )
+          ) : (
+            <Outlet />
+          )}
         </div>
       </div>
 

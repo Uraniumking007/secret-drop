@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Search, Plus } from "lucide-react";
 
 interface ActionBarProps {
+  context: "personal" | "organization";
   onSearch: (query: string) => void;
   onNewDrop: () => void;
   searchQuery: string;
 }
 
 export function ActionBar({
+  context,
   onSearch,
   onNewDrop,
   searchQuery,
@@ -16,9 +18,13 @@ export function ActionBar({
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       {/* Left side - Page title */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">My Secrets</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          {context === "personal" ? "My Secrets" : "Organization Secrets"}
+        </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage and share your secure drops
+          {context === "personal"
+            ? "Manage and share your secure drops"
+            : "Manage and share your organization's secure drops"}
         </p>
       </div>
 

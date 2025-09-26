@@ -8,6 +8,20 @@
       "when": 1758717350505,
       "tag": "0000_worthless_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758869157413,
+      "tag": "0001_perfect_shocker",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758870491616,
+      "tag": "0002_cooing_terror",
+      "breakpoints": true
     }
   ]
 }

@@ -17,6 +17,8 @@ import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrgsIndexRouteImport } from './routes/orgs/index'
+import { Route as UserSettingsRouteImport } from './routes/user/settings'
+import { Route as UserSecretsRouteImport } from './routes/user/secrets'
 import { Route as OrgsNewRouteImport } from './routes/orgs/new'
 import { Route as OrgsOrgIdRouteImport } from './routes/orgs/$orgId'
 import { ServerRoute as ApiHealthServerRouteImport } from './routes/api/health'
@@ -54,6 +56,16 @@ const OrgsIndexRoute = OrgsIndexRouteImport.update({
   path: '/orgs/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UserSettingsRoute = UserSettingsRouteImport.update({
+  id: '/user/settings',
+  path: '/user/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UserSecretsRoute = UserSecretsRouteImport.update({
+  id: '/user/secrets',
+  path: '/user/secrets',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrgsNewRoute = OrgsNewRouteImport.update({
   id: '/orgs/new',
   path: '/orgs/new',
@@ -83,6 +95,8 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
+  '/user/secrets': typeof UserSecretsRoute
+  '/user/settings': typeof UserSettingsRoute
   '/orgs': typeof OrgsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +107,8 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
+  '/user/secrets': typeof UserSecretsRoute
+  '/user/settings': typeof UserSettingsRoute
   '/orgs': typeof OrgsIndexRoute
 }
 export interface FileRoutesById {
@@ -104,6 +120,8 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
+  '/user/secrets': typeof UserSecretsRoute
+  '/user/settings': typeof UserSettingsRoute
   '/orgs/': typeof OrgsIndexRoute
 }
 export interface FileRouteTypes {
@@ -116,6 +134,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/orgs/$orgId'
     | '/orgs/new'
+    | '/user/secrets'
+    | '/user/settings'
     | '/orgs'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -126,6 +146,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/orgs/$orgId'
     | '/orgs/new'
+    | '/user/secrets'
+    | '/user/settings'
     | '/orgs'
   id:
     | '__root__'
@@ -136,6 +158,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/orgs/$orgId'
     | '/orgs/new'
+    | '/user/secrets'
+    | '/user/settings'
     | '/orgs/'
   fileRoutesById: FileRoutesById
 }
@@ -147,6 +171,8 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   OrgsOrgIdRoute: typeof OrgsOrgIdRoute
   OrgsNewRoute: typeof OrgsNewRoute
+  UserSecretsRoute: typeof UserSecretsRoute
+  UserSettingsRoute: typeof UserSettingsRoute
   OrgsIndexRoute: typeof OrgsIndexRoute
 }
 export interface FileServerRoutesByFullPath {
@@ -219,6 +245,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/user/settings': {
+      id: '/user/settings'
+      path: '/user/settings'
+      fullPath: '/user/settings'
+      preLoaderRoute: typeof UserSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/user/secrets': {
+      id: '/user/secrets'
+      path: '/user/secrets'
+      fullPath: '/user/secrets'
+      preLoaderRoute: typeof UserSecretsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orgs/new': {
       id: '/orgs/new'
       path: '/orgs/new'
@@ -262,6 +302,8 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   OrgsOrgIdRoute: OrgsOrgIdRoute,
   OrgsNewRoute: OrgsNewRoute,
+  UserSecretsRoute: UserSecretsRoute,
+  UserSettingsRoute: UserSettingsRoute,
   OrgsIndexRoute: OrgsIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -10,6 +10,7 @@ import { Sparkline } from "./Sparkline";
 
 export interface Secret {
   id: string;
+  slug: string;
   name: string;
   createdAt: string;
   status: "active" | "expired" | "viewed";
@@ -18,14 +19,16 @@ export interface Secret {
   hasPassword: boolean;
   expiresAt?: string;
   ownerOrTeam?: string; // user.name or teams.name
+  teamName?: string; // team name for organization context
   sparklinePoints?: number[]; // last 7 days views
 }
 
 interface SecretCardProps {
   secret: Secret;
-  onCopyLink: (id: string) => void;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onCopyLink: (slug: string) => void;
+  onEdit: (slug: string) => void;
+  onDelete: (slug: string) => void;
+  showTeamInfo?: boolean;
 }
 
 export function SecretCard({
@@ -33,11 +36,12 @@ export function SecretCard({
   onCopyLink,
   onEdit,
   onDelete,
+  showTeamInfo = false,
 }: SecretCardProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
-    await onCopyLink(secret.id);
+    await onCopyLink(secret.slug);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -93,7 +97,12 @@ export function SecretCard({
             )}
           </div>
 
-          {secret.ownerOrTeam && (
+          {showTeamInfo && secret.teamName && (
+            <div className="text-xs text-muted-foreground mb-1 truncate">
+              Team: {secret.teamName}
+            </div>
+          )}
+          {!showTeamInfo && secret.ownerOrTeam && (
             <div className="text-xs text-muted-foreground mb-1 truncate">
               {secret.ownerOrTeam}
             </div>
@@ -159,11 +168,11 @@ export function SecretCard({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => onEdit(secret.id)}>
+              <DropdownMenuItem onClick={() => onEdit(secret.slug)}>
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => onDelete(secret.id)}
+                onClick={() => onDelete(secret.slug)}
                 className="text-destructive focus:text-destructive"
               >
                 Delete

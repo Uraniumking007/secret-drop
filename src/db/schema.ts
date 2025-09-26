@@ -19,6 +19,7 @@ export const environment = pgTable(
       .notNull()
       .default(sql`gen_random_uuid()`),
     name: text().notNull(),
+    slug: text().notNull().unique(),
     description: text(),
     variables: text().notNull(),
     variablesPassword: text("variables_password"),
@@ -31,11 +32,15 @@ export const environment = pgTable(
     createdAt: timestamp("created_at", {
       precision: 6,
       mode: "date",
-    }).notNull(),
+    })
+      .notNull()
+      .defaultNow(),
     updatedAt: timestamp("updated_at", {
       precision: 6,
       mode: "date",
-    }).notNull(),
+    })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     index("env_owner_idx").using(
@@ -59,7 +64,9 @@ export const environmentOrg = pgTable(
     createdAt: timestamp("created_at", {
       precision: 6,
       mode: "date",
-    }).notNull(),
+    })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     foreignKey({

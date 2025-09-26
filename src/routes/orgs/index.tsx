@@ -1,28 +1,38 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useLoaderData,
+  useNavigate,
+} from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { Building2, Users, Layers, Plus } from "lucide-react";
 import { useState } from "react";
-import { createOrg } from "@/server/org/org";
+import { createOrg, getUserOrgs } from "@/server/org/org";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/orgs/")({
   component: OrgsHub,
+  loader: async () => {
+    const { organizations } = await getUserOrgs();
+    // console.log("organizations loader", organizations);
+
+    return { organizations };
+  },
 });
 
 function OrgsHub() {
   const navigate = useNavigate();
+  const { organizations } = useLoaderData({
+    from: "/orgs/",
+  });
   const [showCreate, setShowCreate] = useState(false);
-  // Replace with real data loading
-  const orgs: Array<{
-    id: string;
-    name: string;
-    role: string;
-    members: number;
-    teams: number;
-  }> = [];
+
+  const handleOrgSelect = (orgId: string) => {
+    navigate({ to: `/orgs/${orgId}`, search: { tab: "general" } });
+  };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout organizations={organizations.map((org) => org)}>
       <div className="min-h-screen">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
@@ -36,7 +46,7 @@ function OrgsHub() {
         </div>
 
         {/* List or Empty State */}
-        {orgs.length === 0 ? (
+        {organizations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center border border-border rounded-xl bg-card/40">
             <div className="mb-5 inline-flex h-20 w-20 items-center justify-center rounded-full bg-muted/40 border border-border">
               <Building2 className="h-10 w-10 text-muted-foreground" />
@@ -57,7 +67,7 @@ function OrgsHub() {
           </div>
         ) : (
           <div className="grid gap-4">
-            {orgs.map((org) => (
+            {organizations.map((org) => (
               <div
                 key={org.id}
                 className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card/40 p-4"
@@ -71,16 +81,17 @@ function OrgsHub() {
                   </div>
                   <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
-                      <Users className="h-3 w-3" /> {org.members}
+                      <Users className="h-3 w-3" /> {org.userCount}
                     </span>
                     <span className="inline-flex items-center gap-1">
-                      <Layers className="h-3 w-3" /> {org.teams}
+                      <Layers className="h-3 w-3" /> {org.teamCount}
                     </span>
                   </div>
                 </div>
                 <Link
                   to="/orgs/$orgId"
                   params={{ orgId: org.id }}
+                  search={{ tab: "general" }}
                   className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-border hover:bg-accent/40"
                 >
                   Manage →
