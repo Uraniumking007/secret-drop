@@ -12,12 +12,17 @@ export interface Secret {
   id: string;
   slug: string;
   name: string;
+  description?: string;
   createdAt: string;
   status: "active" | "expired" | "viewed";
   viewCount: number;
   viewLimit: number | null; // null means unlimited
   hasPassword: boolean;
-  expiresAt?: string;
+  expiresAt?: string | null;
+  isExpiring: boolean;
+  deletedAt?: string | null;
+  variablesHint?: string;
+  isPublic: boolean;
   ownerOrTeam?: string; // user.name or teams.name
   teamName?: string; // team name for organization context
   sparklinePoints?: number[]; // last 7 days views
@@ -82,6 +87,7 @@ export function SecretCard({
     const days = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
     return `Expires in ${days} day${days !== 1 ? "s" : ""}`;
   };
+  console.log(secret);
 
   return (
     <div className="group rounded-xl bg-card border border-border p-4 hover:border-border/80 transition-colors">
@@ -139,6 +145,9 @@ export function SecretCard({
               <span className="text-xs text-muted-foreground">
                 {getExpiryText()}
               </span>
+            )}
+            {secret.deletedAt && (
+              <span className="text-xs text-muted-foreground">Deleted</span>
             )}
           </div>
         </div>
