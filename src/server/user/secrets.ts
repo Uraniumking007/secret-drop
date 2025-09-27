@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/lib/db";
 import { environment, secretView } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { auth } from "@/lib/auth";
 import { customAlphabet } from "nanoid";
@@ -9,7 +9,11 @@ import { customAlphabet } from "nanoid";
 // Helper functions to convert form data to boolean and date
 const toBool = (v: unknown) =>
   typeof v === "string" ? v === "true" : Boolean(v);
-const toDate = (v: unknown) => (v ? new Date(String(v)) : null);
+const toDate = (v: unknown) => {
+  if (!v || String(v).trim() === "") return undefined;
+  const date = new Date(String(v));
+  return isNaN(date.getTime()) ? undefined : date;
+};
 
 // Helper function to get authenticated user ID
 const getAuthenticatedUserId = async () => {
@@ -36,6 +40,7 @@ export const getUserSecrets = createServerFn({ method: "GET" }).handler(
       .select()
       .from(environment)
       .where(eq(environment.ownerId, session.user.id));
+
     return { secrets };
   }
 );
@@ -68,7 +73,7 @@ export const createSecret = createServerFn({ method: "POST" })
       variablesHint: data.get("variablesHint")?.toString() || "",
       expiresAt: toDate(data.get("expiresAt")),
       isExpiring: toBool(data.get("isExpiring")),
-      deletedAt: null as Date | null,
+      deletedAt: undefined as Date | undefined,
     };
   })
   .handler(async ({ data }) => {
@@ -76,6 +81,15 @@ export const createSecret = createServerFn({ method: "POST" })
     const cookie = getRequestHeader("cookie");
     if (cookie) headers.set("cookie", cookie);
     const session = await auth.api.getSession({ headers });
+    if (
+      data.variablesPassword === "undefined" ||
+      data.variablesPassword === "null"
+    ) {
+      data.variablesPassword = "";
+    }
+    if (data.variablesHint === "undefined" || data.variablesHint === "null") {
+      data.variablesHint = "";
+    }
     const [secret] = await db
       .insert(environment)
       .values({
@@ -109,7 +123,7 @@ export const updateSecret = createServerFn({ method: "POST" })
       variablesHint: data.get("variablesHint")?.toString() || "",
       expiresAt: toDate(data.get("expiresAt")),
       isExpiring: toBool(data.get("isExpiring")),
-      deletedAt: null as Date | null,
+      deletedAt: undefined as Date | undefined,
     };
   })
   .handler(async ({ data }) => {
@@ -117,6 +131,15 @@ export const updateSecret = createServerFn({ method: "POST" })
     const cookie = getRequestHeader("cookie");
     if (cookie) headers.set("cookie", cookie);
     const session = await getAuthenticatedUserId();
+    if (
+      data.variablesPassword === "undefined" ||
+      data.variablesPassword === "null"
+    ) {
+      data.variablesPassword = "";
+    }
+    if (data.variablesHint === "undefined" || data.variablesHint === "null") {
+      data.variablesHint = "";
+    }
     const secret = await db
       .update(environment)
       .set(data)
@@ -178,7 +201,11 @@ export const getSecret = createServerFn({ method: "GET" })
       .select()
       .from(environment)
       .where(
-        and(eq(environment.id, data.id), eq(environment.ownerId, session))
+        and(
+          eq(environment.id, data.id),
+          eq(environment.ownerId, session),
+          isNull(environment.deletedAt)
+        )
       );
     return { secret: secret[0] };
   });
@@ -198,7 +225,11 @@ export const getSecretBySlug = createServerFn({ method: "GET" })
       .select()
       .from(environment)
       .where(
-        and(eq(environment.slug, data.slug), eq(environment.ownerId, session))
+        and(
+          eq(environment.slug, data.slug),
+          eq(environment.ownerId, session),
+          isNull(environment.deletedAt)
+        )
       );
     return { secret: secret[0] };
   });
@@ -212,7 +243,9 @@ export const getSecretBySlugPublic = createServerFn({ method: "GET" })
     const secret = await db
       .select()
       .from(environment)
-      .where(eq(environment.slug, data.slug));
+      .where(
+        and(eq(environment.slug, data.slug), isNull(environment.deletedAt))
+      );
     return { secret: secret[0] };
   });
 
@@ -231,7 +264,9 @@ export const getSecretLink = createServerFn({ method: "GET" })
     const secret = await db
       .select()
       .from(environment)
-      .where(and(eq(environment.slug, data.slug)));
+      .where(
+        and(eq(environment.slug, data.slug), isNull(environment.deletedAt))
+      );
     if (!secret) {
       throw new Error("Secret not found");
     }
