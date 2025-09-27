@@ -2,7 +2,6 @@ import { PersonalDashboard } from "@/components/dashboard/PersonalDashboard";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { getUserOrgs } from "@/server/org/org";
 import { getUserSecrets } from "@/server/user/secrets";
-import { Secret } from "@/server/user/types/secrets";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/user/secrets")({
