@@ -8,10 +8,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface NewDropModalProps {
+interface NewSecretModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: NewDropData) => void;
+  onSubmit: (data: NewSecretData) => void;
   // Optional org context for team assignment
   orgContext?: {
     organizationId: string;
@@ -19,14 +19,14 @@ interface NewDropModalProps {
   } | null;
 }
 
-export interface NewDropData {
+export interface NewSecretData {
   name: string;
   description?: string;
   variables: string; // The actual secret content
   variablesPassword?: string; // Password protection
   variablesHint?: string; // Optional hint for password
   isPublic: boolean;
-  expiresAt?: string; // ISO timestamp
+  expiresAt?: string | null; // ISO timestamp
   isExpiring: boolean;
   teamId?: string | null; // when in org context
 }
@@ -39,21 +39,21 @@ const EXPIRATION_OPTIONS = [
   { value: "never", label: "Never" },
 ];
 
-export function NewDropModal({
+export function NewSecretModal({
   isOpen,
   onClose,
   onSubmit,
   orgContext,
-}: NewDropModalProps) {
-  const [formData, setFormData] = useState<NewDropData>({
+}: NewSecretModalProps) {
+  const [formData, setFormData] = useState<NewSecretData>({
     name: "",
     description: "",
     variables: "",
     variablesPassword: "",
     variablesHint: "",
     isPublic: false,
-    expiresAt: undefined,
-    isExpiring: true,
+    expiresAt: null,
+    isExpiring: false,
     teamId: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,15 +96,15 @@ export function NewDropModal({
       variablesPassword: "",
       variablesHint: "",
       isPublic: false,
-      expiresAt: undefined,
-      isExpiring: true,
+      expiresAt: null,
+      isExpiring: false,
       teamId: null,
     });
     setErrors({});
     onClose();
   };
 
-  const handleInputChange = (field: keyof NewDropData, value: any) => {
+  const handleInputChange = (field: keyof NewSecretData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => {
@@ -264,13 +264,14 @@ export function NewDropModal({
               </label>
               <Select
                 value={formData.isExpiring ? "7d" : "never"}
+                defaultValue="never"
                 onValueChange={(value) => {
                   const isExpiring = value !== "never";
                   const expiresAt = isExpiring
                     ? new Date(
                         Date.now() + getExpirationMs(value)
                       ).toISOString()
-                    : undefined;
+                    : null;
                   handleInputChange("isExpiring", isExpiring);
                   handleInputChange("expiresAt", expiresAt);
                 }}
