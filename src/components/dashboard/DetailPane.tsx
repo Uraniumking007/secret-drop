@@ -5,8 +5,12 @@ export interface SecretDetailMeta {
   name: string;
   description?: string;
   createdAt: string;
-  expiresAt?: string;
+  expiresAt?: string | null;
+  isExpiring: boolean;
+  variablesHint?: string;
+  isPublic: boolean;
   variablesPassword?: string;
+  variables?: string;
 }
 
 export interface SecretViewItem {

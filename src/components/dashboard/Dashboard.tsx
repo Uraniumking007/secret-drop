@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { ActionBar } from "./ActionBar";
 import { SecretCard, type Secret } from "./SecretCard";
 import { EmptyState } from "./EmptyState";
-import { NewDropModal, type NewDropData } from "./NewDropModal";
+import { NewSecretModal, type NewSecretData } from "./NewSecretModal";
 import {
   DetailPane,
   type SecretDetailMeta,
@@ -81,7 +81,7 @@ export function Dashboard() {
     setIsNewDropModalOpen(true);
   };
 
-  const handleCreateSecret = async (data: NewDropData) => {
+  const handleCreateSecret = async (data: NewSecretData) => {
     // TODO: Replace with actual API call
     const newSecret: Secret = {
       id: Math.random().toString(36).substr(2, 9),
@@ -201,7 +201,7 @@ export function Dashboard() {
         onClose={handleCloseDetail}
       />
 
-      <NewDropModal
+      <NewSecretModal
         isOpen={isNewDropModalOpen}
         onClose={() => setIsNewDropModalOpen(false)}
         onSubmit={handleCreateSecret}
