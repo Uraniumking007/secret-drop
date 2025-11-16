@@ -9,7 +9,7 @@ export const auth = betterAuth({
   database: pool,
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true, // Enable email verification
+    requireEmailVerification: false, // Allow login without email verification
   },
   baseURL: process.env.SERVER_URL || 'http://localhost:3000',
   basePath: '/api/auth',

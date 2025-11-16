@@ -1,16 +1,35 @@
 import nodemailer from 'nodemailer'
-import { env } from '@/env'
+import { config } from 'dotenv'
+
+// Load environment variables
+config()
 
 // Create reusable transporter using Zoho SMTP
-const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST || 'smtp.zoho.com',
-  port: parseInt(env.SMTP_PORT || '587'),
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: env.SMTP_USER,
-    pass: env.SMTP_PASSWORD,
-  },
-})
+// Zoho SMTP Settings (matching working configuration):
+// - Host: smtp.zoho.in (India), smtp.zoho.com (US), smtp.zoho.eu (Europe)
+// - Port: 465 (SSL) - recommended, or 587 (TLS)
+// - Security: SSL for port 465, TLS for port 587
+const smtpHost = process.env.SMTP_HOST || 'smtp.zoho.in'
+const smtpPort = parseInt(process.env.SMTP_PORT || '465')
+const useSSL = smtpPort === 465
+const smtpUser = process.env.SMTP_USER
+const smtpPassword = process.env.SMTP_PASSWORD
+
+// Create transporter matching working configuration
+const transporterConfig = {
+  host: smtpHost,
+  port: smtpPort,
+  secure: useSSL, // true for 465 (SSL), false for 587 (TLS)
+  auth:
+    smtpUser && smtpPassword
+      ? {
+          user: smtpUser,
+          pass: smtpPassword,
+        }
+      : undefined,
+}
+
+const transporter = nodemailer.createTransport(transporterConfig as any)
 
 export interface EmailOptions {
   to: string
@@ -20,14 +39,23 @@ export interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
-  if (!env.SMTP_USER || !env.SMTP_PASSWORD) {
+  const smtpUser = process.env.SMTP_USER
+  const smtpPassword = process.env.SMTP_PASSWORD
+
+  if (!smtpUser || !smtpPassword) {
     console.warn('SMTP not configured, email not sent:', { to, subject })
+    console.warn('Please set SMTP_USER and SMTP_PASSWORD environment variables')
     return { success: false, error: 'SMTP not configured' }
   }
 
   try {
+    const fromName = process.env.SMTP_FROM_NAME || 'SecretDrop'
+    const fromEmail = process.env.SMTP_FROM_EMAIL || smtpUser
+
+    // Don't verify connection - just try to send
+    // Verification can fail even when sending works
     const info = await transporter.sendMail({
-      from: `"${env.SMTP_FROM_NAME || 'SecretDrop'}" <${env.SMTP_FROM_EMAIL || env.SMTP_USER}>`,
+      from: `"${fromName}" <${fromEmail}>`,
       to,
       subject,
       text: text || html.replace(/<[^>]*>/g, ''), // Strip HTML for text version
@@ -37,13 +65,39 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
     return { success: true, messageId: info.messageId }
   } catch (error) {
     console.error('Error sending email:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+
+    let errorMessage = 'Unknown error'
+    if (error instanceof Error) {
+      errorMessage = error.message
+
+      // Provide helpful error messages for common issues
+      if (
+        errorMessage.includes('535') ||
+        errorMessage.includes('Authentication Failed')
+      ) {
+        errorMessage =
+          'SMTP Authentication Failed. Please check:\n' +
+          '1. Your SMTP_USER and SMTP_PASSWORD are correct\n' +
+          '2. If you have 2FA enabled on Zoho, use an App Password instead of your regular password\n' +
+          '3. IMAP/POP access is enabled in your Zoho Mail settings\n' +
+          '4. Your Zoho account is not locked or suspended'
+      } else if (errorMessage.includes('EAUTH')) {
+        errorMessage =
+          'SMTP Authentication Error. Please verify your credentials.'
+      }
+    }
+
+    return {
+      success: false,
+      error: errorMessage,
+    }
   }
 }
 
 export async function sendVerificationEmail(email: string, token: string) {
-  const verificationUrl = `${env.SERVER_URL || 'http://localhost:3000'}/auth/verify-email?token=${token}`
-  
+  const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
+  const verificationUrl = `${serverUrl}/auth/verify-email?token=${token}`
+
   const html = `
     <!DOCTYPE html>
     <html>

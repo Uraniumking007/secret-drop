@@ -10,6 +10,7 @@ interface EmailVerificationButtonProps {
 
 export function EmailVerificationButton({ email }: EmailVerificationButtonProps) {
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const trpc = useTRPC()
 
   const { mutate: sendVerification, isPending } = useMutation(
@@ -17,10 +18,15 @@ export function EmailVerificationButton({ email }: EmailVerificationButtonProps)
   )
 
   const handleClick = () => {
+    setError(null)
     sendVerification(undefined, {
       onSuccess: () => {
         setSent(true)
         setTimeout(() => setSent(false), 5000)
+      },
+      onError: (err) => {
+        setError(err.message || 'Failed to send verification email')
+        setTimeout(() => setError(null), 5000)
       },
     })
   }
@@ -28,6 +34,12 @@ export function EmailVerificationButton({ email }: EmailVerificationButtonProps)
   if (sent) {
     return (
       <span className="text-xs text-green-600">Verification email sent!</span>
+    )
+  }
+
+  if (error) {
+    return (
+      <span className="text-xs text-destructive">{error}</span>
     )
   }
 

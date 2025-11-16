@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and, isNull, desc, sql, gte, inArray } from 'drizzle-orm'
+import { eq, and, isNull, desc, gte, inArray } from 'drizzle-orm'
 import { db } from '@/db'
 import {
   user,
@@ -12,8 +12,9 @@ import {
   apiTokens,
   session,
   twoFactor,
+  verification,
 } from '@/db/schema'
-import { protectedProcedure, createTRPCRouter } from '../init'
+import { protectedProcedure, publicProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
 
 export const usersRouter = {
@@ -42,12 +43,7 @@ export const usersRouter = {
     const secretsList = await db
       .select()
       .from(secrets)
-      .where(
-        and(
-          inArray(secrets.orgId, orgIds),
-          isNull(secrets.deletedAt)
-        )
-      )
+      .where(and(inArray(secrets.orgId, orgIds), isNull(secrets.deletedAt)))
     const secretsCount = { count: secretsList.length }
 
     // Count organizations
@@ -61,25 +57,21 @@ export const usersRouter = {
     const userSecretIds = await db
       .select({ id: secrets.id })
       .from(secrets)
-      .where(
-        and(
-          inArray(secrets.orgId, orgIds),
-          isNull(secrets.deletedAt)
-        )
-      )
+      .where(and(inArray(secrets.orgId, orgIds), isNull(secrets.deletedAt)))
     const secretIds = userSecretIds.map((s) => s.id)
 
-    const activityList = secretIds.length > 0
-      ? await db
-          .select()
-          .from(secretAccessLogs)
-          .where(
-            and(
-              inArray(secretAccessLogs.secretId, secretIds),
-              gte(secretAccessLogs.accessedAt, sevenDaysAgo)
+    const activityList =
+      secretIds.length > 0
+        ? await db
+            .select()
+            .from(secretAccessLogs)
+            .where(
+              and(
+                inArray(secretAccessLogs.secretId, secretIds),
+                gte(secretAccessLogs.accessedAt, sevenDaysAgo),
+              ),
             )
-          )
-      : []
+        : []
     const activityCount = { count: activityList.length }
 
     // Count API tokens
@@ -102,7 +94,7 @@ export const usersRouter = {
     .input(
       z.object({
         limit: z.number().min(1).max(20).default(10),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -134,12 +126,7 @@ export const usersRouter = {
         })
         .from(secrets)
         .innerJoin(organizations, eq(secrets.orgId, organizations.id))
-        .where(
-          and(
-            inArray(secrets.orgId, orgIds),
-            isNull(secrets.deletedAt)
-          )
-        )
+        .where(and(inArray(secrets.orgId, orgIds), isNull(secrets.deletedAt)))
         .orderBy(desc(secrets.createdAt))
         .limit(input.limit)
 
@@ -151,7 +138,7 @@ export const usersRouter = {
     .input(
       z.object({
         limit: z.number().min(1).max(50).default(20),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -172,31 +159,27 @@ export const usersRouter = {
       const userSecretIds = await db
         .select({ id: secrets.id })
         .from(secrets)
-        .where(
-          and(
-            inArray(secrets.orgId, orgIds),
-            isNull(secrets.deletedAt)
-          )
-        )
+        .where(and(inArray(secrets.orgId, orgIds), isNull(secrets.deletedAt)))
       const secretIds = userSecretIds.map((s) => s.id)
 
       // Get recent activity
-      const recentActivity = secretIds.length > 0
-        ? await db
-            .select({
-              id: secretAccessLogs.id,
-              secretId: secretAccessLogs.secretId,
-              secretName: secrets.name,
-              action: secretAccessLogs.action,
-              ipAddress: secretAccessLogs.ipAddress,
-              accessedAt: secretAccessLogs.accessedAt,
-            })
-            .from(secretAccessLogs)
-            .innerJoin(secrets, eq(secretAccessLogs.secretId, secrets.id))
-            .where(inArray(secretAccessLogs.secretId, secretIds))
-            .orderBy(desc(secretAccessLogs.accessedAt))
-            .limit(input.limit)
-        : []
+      const recentActivity =
+        secretIds.length > 0
+          ? await db
+              .select({
+                id: secretAccessLogs.id,
+                secretId: secretAccessLogs.secretId,
+                secretName: secrets.name,
+                action: secretAccessLogs.action,
+                ipAddress: secretAccessLogs.ipAddress,
+                accessedAt: secretAccessLogs.accessedAt,
+              })
+              .from(secretAccessLogs)
+              .innerJoin(secrets, eq(secretAccessLogs.secretId, secrets.id))
+              .where(inArray(secretAccessLogs.secretId, secretIds))
+              .orderBy(desc(secretAccessLogs.accessedAt))
+              .limit(input.limit)
+          : []
 
       return recentActivity
     }),
@@ -236,7 +219,7 @@ export const usersRouter = {
         name: z.string().min(1).optional(),
         bio: z.string().nullable().optional(),
         image: z.string().url().nullable().optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -318,7 +301,7 @@ export const usersRouter = {
         language: z.string().optional(),
         emailNotifications: z.boolean().optional(),
         theme: z.string().nullable().optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -403,10 +386,7 @@ export const usersRouter = {
       })
       .from(session)
       .where(
-        and(
-          eq(session.userId, userId),
-          gte(session.expiresAt, new Date())
-        )
+        and(eq(session.userId, userId), gte(session.expiresAt, new Date())),
       )
       .orderBy(desc(session.createdAt))
 
@@ -423,12 +403,7 @@ export const usersRouter = {
       const [sessionData] = await db
         .select()
         .from(session)
-        .where(
-          and(
-            eq(session.id, input.sessionId),
-            eq(session.userId, userId)
-          )
-        )
+        .where(and(eq(session.id, input.sessionId), eq(session.userId, userId)))
         .limit(1)
 
       if (!sessionData) {
@@ -442,6 +417,77 @@ export const usersRouter = {
       await db.delete(session).where(eq(session.id, input.sessionId))
 
       return { success: true }
+    }),
+
+  // Verify email with token (public - doesn't require login)
+  verifyEmail: publicProcedure
+    .input(z.object({ token: z.string() }))
+    .mutation(async ({ input }) => {
+      // Find verification token
+      const [verificationData] = await db
+        .select()
+        .from(verification)
+        .where(eq(verification.value, input.token))
+        .limit(1)
+
+      if (!verificationData) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Invalid verification token',
+        })
+      }
+
+      // Check if token is expired
+      if (new Date() > verificationData.expiresAt) {
+        // Delete expired token
+        await db
+          .delete(verification)
+          .where(eq(verification.id, verificationData.id))
+
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Verification token has expired. Please request a new one.',
+        })
+      }
+
+      // Find user by email (from verification identifier)
+      const [userData] = await db
+        .select()
+        .from(user)
+        .where(eq(user.email, verificationData.identifier))
+        .limit(1)
+
+      if (!userData) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found',
+        })
+      }
+
+      if (userData.emailVerified) {
+        // Delete token even if already verified
+        await db
+          .delete(verification)
+          .where(eq(verification.id, verificationData.id))
+
+        return { success: true, message: 'Email already verified' }
+      }
+
+      // Update user's emailVerified status
+      await db
+        .update(user)
+        .set({
+          emailVerified: true,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.email, verificationData.identifier))
+
+      // Delete the verification token (one-time use)
+      await db
+        .delete(verification)
+        .where(eq(verification.id, verificationData.id))
+
+      return { success: true, message: 'Email verified successfully' }
     }),
 
   // Send email verification
@@ -469,9 +515,36 @@ export const usersRouter = {
       })
     }
 
-    // Generate verification token (Better Auth handles this, but we can create our own)
-    // For now, we'll use Better Auth's built-in verification
-    // This would typically be handled by Better Auth's email verification flow
+    // Generate a verification token
+    const { randomBytes } = await import('node:crypto')
+    const token = randomBytes(32).toString('hex')
+    const expiresAt = new Date()
+    expiresAt.setHours(expiresAt.getHours() + 24) // Token expires in 24 hours
+
+    // Delete any existing verification tokens for this email
+    await db
+      .delete(verification)
+      .where(eq(verification.identifier, userData.email))
+
+    // Insert new verification token
+    await db.insert(verification).values({
+      id: randomBytes(16).toString('hex'),
+      identifier: userData.email,
+      value: token,
+      expiresAt,
+    })
+
+    // Send verification email
+    const { sendVerificationEmail } = await import('@/lib/email')
+    const emailResult = await sendVerificationEmail(userData.email, token)
+
+    if (!emailResult.success) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: emailResult.error || 'Failed to send verification email',
+      })
+    }
+
     return { success: true, message: 'Verification email sent' }
   }),
 
@@ -524,7 +597,8 @@ export const usersRouter = {
     }
 
     // Generate secret and backup codes
-    const { generateTOTPSecret, generateBackupCodes, getQRCodeURL } = await import('@/lib/two-factor')
+    const { generateTOTPSecret, generateBackupCodes, getQRCodeURL } =
+      await import('@/lib/two-factor')
     const secret = generateTOTPSecret()
     const backupCodes = generateBackupCodes(10)
     const qrCodeURL = getQRCodeURL(secret, userData.email)
@@ -535,9 +609,14 @@ export const usersRouter = {
         .update(twoFactor)
         .set({
           secret,
-          backupCodes: JSON.stringify(backupCodes.map((code) => 
-            require('node:crypto').createHash('sha256').update(code).digest('hex')
-          )),
+          backupCodes: JSON.stringify(
+            backupCodes.map((code) =>
+              require('node:crypto')
+                .createHash('sha256')
+                .update(code)
+                .digest('hex'),
+            ),
+          ),
           updatedAt: new Date(),
         })
         .where(eq(twoFactor.userId, userId))
@@ -546,9 +625,14 @@ export const usersRouter = {
         userId,
         secret,
         enabled: false,
-        backupCodes: JSON.stringify(backupCodes.map((code) =>
-          require('node:crypto').createHash('sha256').update(code).digest('hex')
-        )),
+        backupCodes: JSON.stringify(
+          backupCodes.map((code) =>
+            require('node:crypto')
+              .createHash('sha256')
+              .update(code)
+              .digest('hex'),
+          ),
+        ),
       })
     }
 
@@ -587,7 +671,11 @@ export const usersRouter = {
 
       // Verify token
       const { verifyTOTP } = await import('@/lib/two-factor')
-      const isValid = verifyTOTP(twoFactorData.secret, input.token, userData.email)
+      const isValid = verifyTOTP(
+        twoFactorData.secret,
+        input.token,
+        userData.email,
+      )
 
       if (!isValid) {
         throw new TRPCError({
@@ -636,7 +724,11 @@ export const usersRouter = {
 
       // Verify token before disabling
       const { verifyTOTP } = await import('@/lib/two-factor')
-      const isValid = verifyTOTP(twoFactorData.secret, input.token, userData.email)
+      const isValid = verifyTOTP(
+        twoFactorData.secret,
+        input.token,
+        userData.email,
+      )
 
       if (!isValid) {
         throw new TRPCError({
@@ -656,5 +748,34 @@ export const usersRouter = {
 
       return { success: true }
     }),
+
+  // Get ImageKit authentication parameters for client-side upload
+  getImageKitAuth: protectedProcedure.query(async () => {
+    if (!process.env.IMAGEKIT_PUBLIC_KEY || !process.env.IMAGEKIT_PRIVATE_KEY) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'ImageKit is not configured',
+      })
+    }
+
+    // Generate authentication token for ImageKit
+    const ImageKit = (await import('imagekit')).default
+    const imagekit = new ImageKit({
+      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+      privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || '',
+    })
+
+    // Generate authentication parameters
+    const authenticationParameters = imagekit.getAuthenticationParameters()
+
+    return {
+      token: authenticationParameters.token,
+      signature: authenticationParameters.signature,
+      expire: authenticationParameters.expire,
+      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || '',
+    }
+  }),
 } satisfies TRPCRouterRecord
 

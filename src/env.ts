@@ -18,12 +18,18 @@ export const env = createEnv({
     SSO_AZURE_CLIENT_ID: z.string().optional(),
     SSO_AZURE_CLIENT_SECRET: z.string().optional(),
     // SMTP Configuration for Zoho
-    SMTP_HOST: z.string().optional(),
-    SMTP_PORT: z.string().optional(),
+    // Host: smtp.zoho.com
+    // Port: 587 (TLS) or 465 (SSL)
+    SMTP_HOST: z.string().default('smtp.zoho.com'),
+    SMTP_PORT: z.string().default('587'), // 587 for TLS, 465 for SSL
     SMTP_USER: z.string().email().optional(),
     SMTP_PASSWORD: z.string().optional(),
     SMTP_FROM_EMAIL: z.string().email().optional(),
     SMTP_FROM_NAME: z.string().optional(),
+    // ImageKit Configuration
+    IMAGEKIT_PUBLIC_KEY: z.string().optional(),
+    IMAGEKIT_PRIVATE_KEY: z.string().optional(),
+    IMAGEKIT_URL_ENDPOINT: z.string().url().optional(),
   },
 
   /**
@@ -35,6 +41,8 @@ export const env = createEnv({
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
     VITE_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+    VITE_IMAGEKIT_PUBLIC_KEY: z.string().optional(),
+    VITE_IMAGEKIT_URL_ENDPOINT: z.string().url().optional(),
   },
 
   /**

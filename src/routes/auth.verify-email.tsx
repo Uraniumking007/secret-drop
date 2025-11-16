@@ -1,8 +1,15 @@
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { useSession } from '@/lib/auth-client'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
@@ -17,26 +24,46 @@ export const Route = createFileRoute('/auth/verify-email')({
 })
 
 function VerifyEmailPage() {
-  const navigate = useNavigate()
   const search = Route.useSearch()
   const trpc = useTRPC()
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
+  const queryClient = useQueryClient()
+  const { data: session } = useSession()
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
+    'verifying',
+  )
   const [errorMessage, setErrorMessage] = useState<string>('')
 
-  // Note: Better Auth handles email verification, but we can create a custom endpoint
-  // For now, this is a placeholder that shows the verification flow
+  const { mutate: verifyEmail } = useMutation(
+    trpc.users.verifyEmail.mutationOptions(),
+  )
+
   useEffect(() => {
-    if (search.token) {
-      // In a real implementation, you would call a verification endpoint here
-      // For Better Auth, this would typically be handled by the auth API
-      setTimeout(() => {
-        setStatus('success')
-      }, 1000)
-    } else {
+    if (!search.token) {
       setStatus('error')
       setErrorMessage('No verification token provided')
+      return
     }
-  }, [search.token])
+
+    // Verify the email token (works without login)
+    verifyEmail(
+      { token: search.token },
+      {
+        onSuccess: () => {
+          setStatus('success')
+          // Invalidate profile query if user is logged in
+          if (session) {
+            queryClient.invalidateQueries({
+              queryKey: ['trpc', 'users', 'getProfile'],
+            })
+          }
+        },
+        onError: (error) => {
+          setStatus('error')
+          setErrorMessage(error.message || 'Verification failed')
+        },
+      },
+    )
+  }, [search.token, verifyEmail, queryClient, session])
 
   if (status === 'verifying') {
     return (
@@ -45,7 +72,9 @@ function VerifyEmailPage() {
           <CardContent className="py-12 text-center">
             <Loader2 className="h-12 w-12 mx-auto mb-4 animate-spin text-primary" />
             <CardTitle className="mb-2">Verifying Email</CardTitle>
-            <CardDescription>Please wait while we verify your email address...</CardDescription>
+            <CardDescription>
+              Please wait while we verify your email address...
+            </CardDescription>
           </CardContent>
         </Card>
       </div>
@@ -66,12 +95,12 @@ function VerifyEmailPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Link to="/dashboard">
-              <Button className="w-full">Go to Dashboard</Button>
+            <Link to="/profile">
+              <Button className="w-full">Go to Profile</Button>
             </Link>
-            <Link to="/auth/login">
+            <Link to="/dashboard">
               <Button variant="outline" className="w-full">
-                Sign In
+                Go to Dashboard
               </Button>
             </Link>
           </CardContent>
@@ -104,4 +133,3 @@ function VerifyEmailPage() {
     </div>
   )
 }
-
