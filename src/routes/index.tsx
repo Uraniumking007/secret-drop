@@ -1,52 +1,87 @@
-import { createFileRoute } from '@tanstack/react-router'
-import {
-  Zap,
-  Server,
-  Route as RouteIcon,
-  Shield,
-  Waves,
-  Sparkles,
-} from 'lucide-react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { useSession } from '@/lib/auth-client'
+import { useTRPC } from '@/integrations/trpc/react'
+import { Shield, Lock, Clock, Users, Zap, Building2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({ component: App })
 
 function App() {
+  const navigate = useNavigate()
+  const { data: session } = useSession()
+  const trpc = useTRPC()
+  const { data: orgs } = useQuery({
+    ...trpc.organizations.list.queryOptions(),
+    enabled: !!session,
+  })
+
+  // Auto-create personal workspace if user is logged in and has no orgs
+  const { mutate: createPersonalWorkspace } = useMutation(
+    trpc.organizations.getOrCreatePersonal.mutationOptions(),
+  )
+
+  useEffect(() => {
+    if (session && orgs && orgs.length === 0) {
+      createPersonalWorkspace()
+    }
+  }, [session, orgs, createPersonalWorkspace])
+
+  // Redirect to secrets if logged in
+  useEffect(() => {
+    if (session && orgs && orgs.length > 0) {
+      navigate({ to: '/secrets', search: { orgId: orgs[0]?.id } })
+    }
+  }, [session, orgs, navigate])
+
+  if (session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg">Loading your workspace...</p>
+        </div>
+      </div>
+    )
+  }
+
   const features = [
     {
-      icon: <Zap className="w-12 h-12 text-cyan-400" />,
-      title: 'Powerful Server Functions',
-      description:
-        'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
-    },
-    {
-      icon: <Server className="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
-      description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
-    },
-    {
-      icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
-      title: 'API Routes',
-      description:
-        'Build type-safe API endpoints alongside your application. No separate backend needed.',
-    },
-    {
       icon: <Shield className="w-12 h-12 text-cyan-400" />,
-      title: 'Strongly Typed Everything',
+      title: 'End-to-End Encryption',
       description:
-        'End-to-end type safety from server to client. Catch errors before they reach production.',
+        'AES-256 client-side encryption ensures your secrets are never exposed to our servers. Only you can decrypt them.',
     },
     {
-      icon: <Waves className="w-12 h-12 text-cyan-400" />,
-      title: 'Full Streaming Support',
+      icon: <Clock className="w-12 h-12 text-cyan-400" />,
+      title: 'Time-Based Expiration',
       description:
-        'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
+        'Set automatic expiration for your secrets. Choose from 1 hour to 30 days, or never expire.',
     },
     {
-      icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
-      title: 'Next Generation Ready',
+      icon: <Lock className="w-12 h-12 text-cyan-400" />,
+      title: 'Password Protection',
       description:
-        'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
+        'Add an extra layer of security with password-protected secret links. Perfect for sharing sensitive data.',
+    },
+    {
+      icon: <Users className="w-12 h-12 text-cyan-400" />,
+      title: 'Team Collaboration',
+      description:
+        'Create organizations and teams to share secrets securely with your colleagues. Role-based access control included.',
+    },
+    {
+      icon: <Zap className="w-12 h-12 text-cyan-400" />,
+      title: 'Burn-on-Read',
+      description:
+        'Pro Team feature: Secrets can be automatically deleted after the first view for maximum security.',
+    },
+    {
+      icon: <Building2 className="w-12 h-12 text-cyan-400" />,
+      title: 'Enterprise Ready',
+      description:
+        'SSO, IP allowlisting, compliance logs, and more. Built for teams of all sizes, from solo developers to enterprises.',
     },
   ]
 
@@ -55,47 +90,39 @@ function App() {
       <section className="relative py-20 px-6 text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
         <div className="relative max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <img
-              src="/tanstack-circle-logo.png"
-              alt="TanStack Logo"
-              className="w-24 h-24 md:w-32 md:h-32"
-            />
-            <h1 className="text-6xl md:text-7xl font-black text-white [letter-spacing:-0.08em]">
-              <span className="text-gray-300">TANSTACK</span>{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                START
-              </span>
-            </h1>
-          </div>
+          <h1 className="text-6xl md:text-7xl font-black text-white [letter-spacing:-0.08em] mb-6">
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              SecretDrop
+            </span>
+          </h1>
           <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-            The framework for next generation AI applications
+            Secure Secret Management for Developers
           </p>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-8">
-            Full-stack framework powered by TanStack Router for React and Solid.
-            Build modern applications with server functions, streaming, and type
-            safety.
+            Store and share environment variables and secrets with end-to-end
+            encryption. Built for individuals, teams, and enterprises.
           </p>
           <div className="flex flex-col items-center gap-4">
-            <a
-              href="https://tanstack.com/start"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
-            >
-              Documentation
-            </a>
+            <Link to="/auth/signup">
+              <Button
+                size="lg"
+                className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
+              >
+                Get Started Free
+              </Button>
+            </Link>
             <p className="text-gray-400 text-sm mt-2">
-              Begin your TanStack Start journey by editing{' '}
-              <code className="px-2 py-1 bg-slate-700 rounded text-cyan-400">
-                /src/routes/index.tsx
-              </code>
+              Free tier includes personal workspace, AES-256 encryption, and
+              basic features
             </p>
           </div>
         </div>
       </section>
 
       <section className="py-16 px-6 max-w-7xl mx-auto">
+        <h2 className="text-3xl font-bold text-white text-center mb-12">
+          Features
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <div

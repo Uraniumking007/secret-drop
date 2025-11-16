@@ -18,6 +18,17 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  optimizeDeps: {
+    include: [
+      '@noble/hashes/pbkdf2.js',
+      '@noble/hashes/sha2.js',
+      '@noble/ciphers/aes.js',
+      '@noble/ciphers/utils.js',
+    ],
+  },
+  ssr: {
+    noExternal: ['@noble/hashes', '@noble/ciphers'],
+  },
 })
 
 export default config

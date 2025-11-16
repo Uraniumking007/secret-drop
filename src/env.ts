@@ -4,6 +4,19 @@ import { z } from 'zod'
 export const env = createEnv({
   server: {
     SERVER_URL: z.string().url().optional(),
+    DATABASE_URL: z
+      .string()
+      .url()
+      .default('postgresql://localhost:5432/secretdrop'),
+    STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    ENCRYPTION_SALT: z.string().min(16).optional(),
+    SSO_GOOGLE_CLIENT_ID: z.string().optional(),
+    SSO_GOOGLE_CLIENT_SECRET: z.string().optional(),
+    SSO_OKTA_CLIENT_ID: z.string().optional(),
+    SSO_OKTA_CLIENT_SECRET: z.string().optional(),
+    SSO_AZURE_CLIENT_ID: z.string().optional(),
+    SSO_AZURE_CLIENT_SECRET: z.string().optional(),
   },
 
   /**
@@ -14,6 +27,7 @@ export const env = createEnv({
 
   client: {
     VITE_APP_TITLE: z.string().min(1).optional(),
+    VITE_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   },
 
   /**

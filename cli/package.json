@@ -1,0 +1,23 @@
+{
+  "name": "@secretdrop/cli",
+  "version": "1.0.0",
+  "description": "SecretDrop CLI tool for managing secrets from the command line",
+  "type": "module",
+  "bin": {
+    "secretdrop": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.2"
+  }
+}
+

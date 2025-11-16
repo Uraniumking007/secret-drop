@@ -1,6 +1,11 @@
 import { z } from 'zod'
 
 import { createTRPCRouter, publicProcedure } from './init'
+import { secretsRouter } from './routers/secrets'
+import { organizationsRouter } from './routers/organizations'
+import { teamsRouter } from './routers/teams'
+import { billingRouter } from './routers/billing'
+import { apiTokensRouter } from './routers/api-tokens'
 
 import type { TRPCRouterRecord } from '@trpc/server'
 
@@ -23,5 +28,10 @@ const todosRouter = {
 
 export const trpcRouter = createTRPCRouter({
   todos: todosRouter,
+  secrets: secretsRouter,
+  organizations: organizationsRouter,
+  teams: teamsRouter,
+  billing: billingRouter,
+  apiTokens: apiTokensRouter,
 })
 export type TRPCRouter = typeof trpcRouter
