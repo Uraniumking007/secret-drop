@@ -21,7 +21,7 @@ export const Route = createFileRoute('/secrets/$secretId')({
 function SecretViewPage() {
   const navigate = useNavigate()
   const { secretId } = Route.useParams()
-  const { search } = Route.useSearch()
+  const search = Route.useSearch()
   const orgId = search.orgId
 
   const [password, setPassword] = useState('')

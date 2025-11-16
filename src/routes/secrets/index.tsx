@@ -20,7 +20,7 @@ export const Route = createFileRoute('/secrets/')({
 })
 
 function SecretsPage() {
-  const { search } = Route.useSearch()
+  const search = Route.useSearch()
   const trpc = useTRPC()
   const { data: orgs } = useQuery(trpc.organizations.list.queryOptions())
   const orgId = search.orgId || orgs?.[0]?.id
@@ -34,7 +34,7 @@ function SecretsPage() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const filteredSecrets = secrets?.filter((secret) =>
-    secret.name.toLowerCase().includes(searchQuery.toLowerCase())
+    secret.name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   if (!orgId) {
@@ -48,9 +48,7 @@ function SecretsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link to="/organizations/create">
-              <Button>Create Organization</Button>
-            </Link>
+            <Button disabled>Create Organization</Button>
           </CardContent>
         </Card>
       </div>

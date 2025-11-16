@@ -18,7 +18,7 @@ export const Route = createFileRoute('/secrets/create')({
 
 function CreateSecretPage() {
   const navigate = useNavigate()
-  const { search } = Route.useSearch()
+  const search = Route.useSearch()
   const trpc = useTRPC()
   const { data: orgs } = useQuery(trpc.organizations.list.queryOptions())
   const orgId = search.orgId || orgs?.[0]?.id
