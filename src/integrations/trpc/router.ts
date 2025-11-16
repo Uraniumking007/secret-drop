@@ -6,6 +6,7 @@ import { organizationsRouter } from './routers/organizations'
 import { teamsRouter } from './routers/teams'
 import { billingRouter } from './routers/billing'
 import { apiTokensRouter } from './routers/api-tokens'
+import { usersRouter } from './routers/users'
 
 import type { TRPCRouterRecord } from '@trpc/server'
 
@@ -33,5 +34,6 @@ export const trpcRouter = createTRPCRouter({
   teams: teamsRouter,
   billing: billingRouter,
   apiTokens: apiTokensRouter,
+  users: usersRouter,
 })
 export type TRPCRouter = typeof trpcRouter

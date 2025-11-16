@@ -54,6 +54,7 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('emailVerified').notNull(),
   image: text('image'),
+  bio: text('bio'),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -452,6 +453,29 @@ export const secretSharesRelations = relations(secretShares, ({ one }) => ({
     references: [secrets.id],
   }),
 }))
+
+// User preferences
+export const userPreferences = pgTable(
+  'user_preferences',
+  {
+    id: serial('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .unique()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    timezone: text('timezone').default('UTC'),
+    language: text('language').default('en'),
+    emailNotifications: boolean('email_notifications')
+      .default(true)
+      .notNull(),
+    theme: text('theme'), // 'light', 'dark', 'system' - may be redundant with existing theme system
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index('user_preferences_user_id_idx').on(table.userId),
+  })
+)
 
 // Keep todos table for backward compatibility (can be removed later)
 export const todos = pgTable('todos', {

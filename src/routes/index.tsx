@@ -29,10 +29,10 @@ function App() {
     }
   }, [session, orgs, createPersonalWorkspace])
 
-  // Redirect to secrets if logged in
+  // Redirect to dashboard if logged in
   useEffect(() => {
     if (session && orgs && orgs.length > 0) {
-      navigate({ to: '/secrets', search: { orgId: orgs[0]?.id } })
+      navigate({ to: '/dashboard' })
     }
   }, [session, orgs, navigate])
 

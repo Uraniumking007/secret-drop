@@ -35,6 +35,7 @@ import {
   User,
   Shield,
   Settings,
+  LayoutDashboard,
 } from 'lucide-react'
 
 export default function Header() {
@@ -79,6 +80,11 @@ export default function Header() {
           <div className="flex items-center gap-2">
             {session && (
               <>
+                <Link to="/dashboard" className="hidden md:block">
+                  <Button variant="ghost" size="sm">
+                    Dashboard
+                  </Button>
+                </Link>
                 <Link to="/secrets" className="hidden md:block">
                   <Button variant="ghost" size="sm">
                     Secrets
@@ -108,6 +114,12 @@ export default function Header() {
                         </p>
                       </div>
                     </DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/settings">
@@ -176,18 +188,32 @@ export default function Header() {
             <span className="font-medium">Home</span>
           </Link>
           {session && (
-            <Link
-              to="/secrets"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors mb-2"
-              activeProps={{
-                className:
-                  'flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mb-2',
-              }}
-            >
-              <Shield size={20} />
-              <span className="font-medium">Secrets</span>
-            </Link>
+            <>
+              <Link
+                to="/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors mb-2"
+                activeProps={{
+                  className:
+                    'flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mb-2',
+                }}
+              >
+                <LayoutDashboard size={20} />
+                <span className="font-medium">Dashboard</span>
+              </Link>
+              <Link
+                to="/secrets"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors mb-2"
+                activeProps={{
+                  className:
+                    'flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mb-2',
+                }}
+              >
+                <Shield size={20} />
+                <span className="font-medium">Secrets</span>
+              </Link>
+            </>
           )}
 
           {/* Demo Links Start */}

@@ -15,6 +15,13 @@
       "when": 1763275170904,
       "tag": "0001_blue_texas_twister",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1763276352184,
+      "tag": "0002_charming_supernaut",
+      "breakpoints": true
     }
   ]
 }
