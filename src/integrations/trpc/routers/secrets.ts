@@ -178,7 +178,7 @@ export const secretsRouter = {
         encryptionLibrary: z.enum(['webcrypto', 'crypto-js', 'noble']).default('webcrypto'),
       })
     )
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
 
       // Get secret
