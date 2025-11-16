@@ -17,6 +17,13 @@ export const env = createEnv({
     SSO_OKTA_CLIENT_SECRET: z.string().optional(),
     SSO_AZURE_CLIENT_ID: z.string().optional(),
     SSO_AZURE_CLIENT_SECRET: z.string().optional(),
+    // SMTP Configuration for Zoho
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.string().optional(),
+    SMTP_USER: z.string().email().optional(),
+    SMTP_PASSWORD: z.string().optional(),
+    SMTP_FROM_EMAIL: z.string().email().optional(),
+    SMTP_FROM_NAME: z.string().optional(),
   },
 
   /**

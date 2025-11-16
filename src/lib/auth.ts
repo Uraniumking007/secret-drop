@@ -9,9 +9,17 @@ export const auth = betterAuth({
   database: pool,
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true, // Enable email verification
   },
   baseURL: process.env.SERVER_URL || 'http://localhost:3000',
   basePath: '/api/auth',
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url, token }) => {
+      // Use our custom email service
+      const { sendVerificationEmail } = await import('./email')
+      await sendVerificationEmail(user.email, token)
+    },
+  },
 })
 

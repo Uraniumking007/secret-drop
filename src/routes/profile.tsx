@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
 import { useSession } from '@/lib/auth-client'
 import { ProfileForm } from '@/components/profile/ProfileForm'
+import { EmailVerificationButton } from '@/components/profile/EmailVerificationButton'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Settings, User } from 'lucide-react'
@@ -93,11 +94,16 @@ function ProfilePage() {
               <div>
                 <h3 className="text-sm font-medium mb-2">Account Information</h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Email Verified</span>
-                    <span className={profile.emailVerified ? 'text-green-600' : 'text-yellow-600'}>
-                      {profile.emailVerified ? 'Verified' : 'Not Verified'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={profile.emailVerified ? 'text-green-600' : 'text-yellow-600'}>
+                        {profile.emailVerified ? 'Verified' : 'Not Verified'}
+                      </span>
+                      {!profile.emailVerified && (
+                        <EmailVerificationButton email={profile.email} />
+                      )}
+                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Member Since</span>

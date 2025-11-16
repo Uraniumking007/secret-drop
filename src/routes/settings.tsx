@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { SecuritySettings } from '@/components/settings/SecuritySettings'
 import { ApiTokensSettings } from '@/components/settings/ApiTokensSettings'
+import { TwoFactorSettings } from '@/components/settings/TwoFactorSettings'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Shield, Key, User, Lock } from 'lucide-react'
@@ -63,29 +64,8 @@ function SettingsPage() {
         </Card>
 
         <SecuritySettings />
+        <TwoFactorSettings />
         <ApiTokensSettings />
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Two-Factor Authentication</CardTitle>
-            <CardDescription>
-              Add an extra layer of security to your account.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Two-factor authentication is not yet available.
-                </p>
-              </div>
-              <Button variant="outline" disabled>
-                <Lock className="mr-2 h-4 w-4" />
-                Coming Soon
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )
