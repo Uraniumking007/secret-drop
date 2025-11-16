@@ -201,18 +201,18 @@ export default function Header() {
                 <LayoutDashboard size={20} />
                 <span className="font-medium">Dashboard</span>
               </Link>
-              <Link
-                to="/secrets"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mb-2',
-                }}
-              >
-                <Shield size={20} />
-                <span className="font-medium">Secrets</span>
-              </Link>
+            <Link
+              to="/secrets"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors mb-2"
+              activeProps={{
+                className:
+                  'flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors mb-2',
+              }}
+            >
+              <Shield size={20} />
+              <span className="font-medium">Secrets</span>
+            </Link>
             </>
           )}
 
