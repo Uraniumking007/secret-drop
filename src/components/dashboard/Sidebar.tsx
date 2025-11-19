@@ -1,6 +1,5 @@
 import type { ComponentType, ReactNode, SVGProps } from 'react'
-import { Link } from '@tanstack/react-router'
-import { motion } from 'motion/react'
+import { Link, useLocation } from '@tanstack/react-router'
 import {
   LayoutDashboard,
   Lock,
@@ -12,6 +11,8 @@ import {
 import {
   Sidebar as SidebarRoot,
   SidebarBody,
+  DesktopSidebar,
+  MobileSidebar,
   useSidebar,
 } from '@/components/ui/sidebar'
 import { OrgSwitcher } from './OrgSwitcher'
@@ -19,7 +20,23 @@ import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useSession } from '@/lib/auth-client'
 
-const navSections = [
+type SidebarSectionConfig = {
+  title: string
+  links: SidebarLinkConfig[]
+}
+
+type SidebarLinkConfig = {
+  to: string
+  label: string
+  icon: ComponentType<SVGProps<SVGSVGElement>>
+}
+
+type SidebarChildLink = {
+  to: string
+  label: string
+}
+
+const navSections: SidebarSectionConfig[] = [
   {
     title: 'Overview',
     links: [
@@ -32,31 +49,44 @@ const navSections = [
     title: 'Configuration',
     links: [{ to: '/dashboard/settings', label: 'Settings', icon: Settings }],
   },
-]
+] as const
 
 export function Sidebar() {
   return (
-    <SidebarRoot>
-      <SidebarBody className="bg-sidebar text-sidebar-foreground/90 border-border/40 md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:overflow-y-auto md:border-r md:bg-sidebar/70">
-        <SidebarContent />
+    <SidebarRoot animate={false}>
+      <SidebarBody className="w-full text-sidebar-foreground">
+        <DesktopSidebar className="border-r border-white/15 bg-linear-to-b from-sidebar via-sidebar/80 to-background/60 text-white backdrop-blur-xl md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:overflow-y-auto">
+          <SidebarContent />
+        </DesktopSidebar>
+        <MobileSidebar className="bg-sidebar text-sidebar-foreground">
+          <SidebarContent isMobile />
+        </MobileSidebar>
       </SidebarBody>
     </SidebarRoot>
   )
 }
 
-function SidebarContent() {
+function SidebarContent({ isMobile = false }: { isMobile?: boolean } = {}) {
   const { data: session } = useSession()
+  const location = useLocation()
+  const pathname = location.pathname ?? '/dashboard'
+  const computedSections = buildSectionsWithChildren(pathname)
 
   return (
-    <div className="flex h-full flex-col justify-between gap-8">
-      <div className="space-y-6">
+    <div className="flex h-full flex-col justify-between gap-10">
+      <div className="space-y-7">
         <SidebarBrand />
         <SidebarOrgSwitcher />
-        <nav className="space-y-6">
-          {navSections.map((section) => (
+        <nav className="space-y-7">
+          {computedSections.map((section) => (
             <SidebarSection key={section.title} title={section.title}>
               {section.links.map((link) => (
-                <SidebarNavLink key={link.to} {...link} />
+                <SidebarNavLink
+                  key={link.to}
+                  {...link}
+                  pathname={pathname}
+                  isMobile={isMobile}
+                />
               ))}
             </SidebarSection>
           ))}
@@ -76,45 +106,26 @@ function SidebarContent() {
 export { SidebarContent as DashboardSidebarContent }
 
 function SidebarBrand() {
-  const { open, animate } = useSidebar()
-
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-sm font-semibold text-white">
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-sidebar">
+    <div className="flex items-center gap-3 rounded-3xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
+      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sidebar">
         <Shield className="h-5 w-5" />
       </div>
-      <motion.span
-        animate={{
-          opacity: animate ? (open ? 1 : 0) : 1,
-          display: animate ? (open ? 'inline-flex' : 'none') : 'inline-flex',
-        }}
-        className="flex flex-col leading-tight"
-      >
-        <span className="text-xs uppercase tracking-wider text-white/70">
+      <div className="flex flex-col leading-tight">
+        <span className="text-xs uppercase tracking-[0.4em] text-white/70">
           SecretDrop
         </span>
-        <span className="text-base font-bold">Acet Labs</span>
-      </motion.span>
+        <span className="text-lg font-bold">Acet Labs</span>
+      </div>
     </div>
   )
 }
 
 function SidebarOrgSwitcher() {
-  const { open, animate } = useSidebar()
-
   return (
-    <motion.div
-      animate={{
-        opacity: animate ? (open ? 1 : 0) : 1,
-      }}
-      className="overflow-hidden transition-[margin-top]"
-      style={{
-        height: animate && !open ? 0 : 'auto',
-        marginTop: animate && !open ? 0 : '0.75rem',
-      }}
-    >
-      <OrgSwitcher className="bg-background" />
-    </motion.div>
+    <div className="rounded-3xl border border-white/10 bg-black/20 p-3 shadow-[0_15px_45px_rgba(10,10,10,0.65)]">
+      <OrgSwitcher className="bg-transparent text-foreground" />
+    </div>
   )
 }
 
@@ -125,20 +136,12 @@ function SidebarSection({
   title: string
   children: ReactNode
 }) {
-  const { open, animate } = useSidebar()
-
   return (
-    <div className="space-y-2">
-      <motion.p
-        animate={{
-          opacity: animate ? (open ? 0.6 : 0) : 0.6,
-          display: animate ? (open ? 'block' : 'none') : 'block',
-        }}
-        className="px-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/70"
-      >
+    <div className="space-y-3">
+      <p className="px-1 text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
         {title}
-      </motion.p>
-      <div className="space-y-1.5">{children}</div>
+      </p>
+      <div className="space-y-2">{children}</div>
     </div>
   )
 }
@@ -147,47 +150,84 @@ function SidebarNavLink({
   to,
   label,
   icon: Icon,
+  pathname,
+  childrenLinks,
+  isMobile = false,
 }: {
   to: string
   label: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
+  pathname: string
+  childrenLinks?: SidebarChildLink[]
+  isMobile?: boolean
 }) {
-  const { open, animate, setOpen } = useSidebar()
+  const { setOpen } = useSidebar()
+  const isActive = matchPath(pathname, to)
 
   return (
-    <Link
-      to={to}
-      preload="intent"
-      className={cn(
-        'group/sidebar flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white',
-      )}
-      activeProps={{
-        className:
-          'group/sidebar flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium text-white bg-white/15',
-      }}
-      onClick={() => setOpen(false)}
-    >
-      <Icon className="h-4 w-4 shrink-0" />
-      <motion.span
-        animate={{
-          opacity: animate ? (open ? 1 : 0) : 1,
-          display: animate ? (open ? 'inline-flex' : 'none') : 'inline-flex',
+    <div className="space-y-1.5">
+      <Link
+        to={to}
+        preload="intent"
+        className={cn(
+          'group flex items-center gap-3 rounded-3xl border px-3 py-3 transition-all duration-300',
+          isActive
+            ? 'border-white/40 bg-white/15 text-white shadow-lg shadow-white/10'
+            : 'border-white/5 bg-white/5 text-white/70 hover:border-white/20 hover:bg-white/10 hover:text-white',
+        )}
+        onClick={() => {
+          if (isMobile) {
+            setOpen(false)
+          }
         }}
-        className="whitespace-pre text-sm"
       >
-        {label}
-      </motion.span>
-    </Link>
+        <span
+          className={cn(
+            'flex h-9 w-9 items-center justify-center rounded-2xl bg-white/10 text-white transition group-hover:bg-white/20',
+            isActive && 'bg-white text-sidebar',
+          )}
+        >
+          <Icon className={cn('h-4 w-4', isActive && 'text-sidebar')} />
+        </span>
+        <div className="flex flex-1 flex-col">
+          <span className="text-sm font-semibold leading-tight">{label}</span>
+          <span className="text-xs text-white/60">
+            {childrenLinks?.length
+              ? 'Quick actions available'
+              : 'Navigate to section'}
+          </span>
+        </div>
+      </Link>
+      {childrenLinks && childrenLinks.length > 0 && (
+        <div className="space-y-1 pl-12">
+          {childrenLinks.map((child) => (
+            <Link
+              key={child.to}
+              to={child.to}
+              preload="intent"
+              className={cn(
+                'flex items-center justify-between rounded-2xl px-3 py-2 text-sm transition-colors',
+                matchPath(pathname, child.to)
+                  ? 'bg-white/15 text-white'
+                  : 'text-white/70 hover:text-white hover:bg-white/10',
+              )}
+              onClick={() => {
+                if (isMobile) {
+                  setOpen(false)
+                }
+              }}
+            >
+              {child.label}
+              <span className="text-xs text-white/50">↗</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
-function SidebarUserCard({
-  name,
-  email,
-}: {
-  name: string
-  email: string
-}) {
+function SidebarUserCard({ name, email }: { name: string; email: string }) {
   const initials =
     name
       .split(' ')
@@ -196,43 +236,73 @@ function SidebarUserCard({
       .slice(0, 2)
       .toUpperCase() || 'U'
 
-  const { open, animate, setOpen } = useSidebar()
-
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+    <div className="rounded-3xl border border-white/10 bg-linear-to-br from-white/10 to-white/5 p-4 shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
       <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10 border border-white/20">
-          <AvatarFallback className="bg-white/20 text-white">
+        <Avatar className="h-12 w-12 border border-white/30">
+          <AvatarFallback className="bg-white/30 text-white">
             {initials}
           </AvatarFallback>
         </Avatar>
-        <motion.div
-          animate={{
-            opacity: animate ? (open ? 1 : 0) : 1,
-            display: animate ? (open ? 'flex' : 'none') : 'flex',
-          }}
-          className="flex flex-1 flex-col text-sm"
-        >
+        <div className="flex flex-1 flex-col text-sm">
           <span className="font-semibold text-white">{name}</span>
           <span className="text-xs text-white/70">{email}</span>
-        </motion.div>
+        </div>
       </div>
-      <motion.div
-        animate={{
-          opacity: animate ? (open ? 1 : 0) : 1,
-          display: animate ? (open ? 'flex' : 'none') : 'flex',
-        }}
-        className="mt-3 gap-2 text-xs text-white/70"
-      >
+      <div className="mt-4 gap-2 text-xs text-white/70">
         <Link
           to="/dashboard/profile"
-          onClick={() => setOpen(false)}
-          className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 font-medium text-white hover:bg-white/20"
+          className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 font-medium text-white hover:bg-white/30"
         >
           <User className="h-3.5 w-3.5" />
           View profile
         </Link>
-      </motion.div>
+      </div>
     </div>
   )
+}
+
+function buildSectionsWithChildren(pathname: string): Array<
+  SidebarSectionConfig & {
+    links: Array<SidebarLinkConfig & { childrenLinks?: SidebarChildLink[] }>
+  }
+> {
+  return navSections.map((section) => ({
+    ...section,
+    links: section.links.map((link) => ({
+      ...link,
+      childrenLinks: computeChildLinks(link.to, pathname),
+    })),
+  }))
+}
+
+function computeChildLinks(
+  linkTo: string,
+  pathname: string,
+): SidebarChildLink[] | undefined {
+  if (
+    linkTo.startsWith('/dashboard/secrets') &&
+    pathname.startsWith('/dashboard/secrets')
+  ) {
+    return [
+      { label: 'Secrets', to: '/dashboard/secrets' },
+      { label: 'Create Secret', to: '/dashboard/secrets/create' },
+    ]
+  }
+
+  if (
+    linkTo.startsWith('/dashboard/settings') &&
+    pathname.startsWith('/dashboard/settings')
+  ) {
+    return [
+      { label: 'API Tokens', to: '/dashboard/settings/api-tokens' },
+      { label: 'Organizations', to: '/dashboard/settings/organization' },
+    ]
+  }
+
+  return undefined
+}
+
+function matchPath(pathname: string, target: string) {
+  return pathname === target || pathname.startsWith(`${target}/`)
 }
