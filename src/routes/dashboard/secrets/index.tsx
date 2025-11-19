@@ -3,13 +3,15 @@ import { useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
 import { SecretTable } from '@/components/secrets/SecretTable'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { TierBadge } from '@/components/TierBadge'
 import { Plus, Shield, Search } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { EmptyState } from '@/components/secrets/EmptyState'
+import { PageContainer } from '@/components/layout/PageContainer'
+import { PageState } from '@/components/layout/PageState'
 
 export const Route = createFileRoute('/dashboard/secrets/')({
   component: SecretsPage,
@@ -40,24 +42,16 @@ function SecretsPage() {
 
   if (!orgId) {
     return (
-      <div className="container mx-auto p-4 md:p-6 max-w-4xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>No Organization</CardTitle>
-            <CardDescription>
-              Please create or join an organization to manage secrets.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button disabled>Create Organization</Button>
-          </CardContent>
-        </Card>
-      </div>
+      <PageState
+        title="No organization selected"
+        description="Please create or join an organization to manage secrets."
+        action={<Button disabled>Create Organization</Button>}
+      />
     )
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6 max-w-7xl">
+    <PageContainer>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -107,6 +101,6 @@ function SecretsPage() {
       ) : (
         <EmptyState orgId={orgId} searchQuery={searchQuery} />
       )}
-    </div>
+    </PageContainer>
   )
 }

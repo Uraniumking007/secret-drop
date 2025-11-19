@@ -6,7 +6,8 @@ import { DashboardStats } from '@/components/dashboard/DashboardStats'
 import { RecentSecrets } from '@/components/dashboard/RecentSecrets'
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed'
 import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton'
-import { Card, CardContent } from '@/components/ui/card'
+import { PageContainer } from '@/components/layout/PageContainer'
+import { PageState } from '@/components/layout/PageState'
 
 export const Route = createFileRoute('/dashboard/')({
   component: DashboardPage,
@@ -44,20 +45,16 @@ function DashboardPage() {
 
   if (!session) {
     return (
-      <div className="container mx-auto p-4 md:p-6 max-w-7xl">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              Please sign in to view your dashboard.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <PageState
+        maxWidth="sm"
+        title="Sign in required"
+        description="Please sign in to view your dashboard."
+      />
     )
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6 max-w-7xl">
+    <PageContainer>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">
           {getGreeting()}, {session.user.name || session.user.email}
@@ -88,6 +85,6 @@ function DashboardPage() {
           </div>
         </>
       ) : null}
-    </div>
+    </PageContainer>
   )
 }

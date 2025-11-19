@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { SettingsLayout } from '@/components/settings/SettingsLayout'
 import { useSession } from '@/lib/auth-client'
-import { Card, CardContent } from '@/components/ui/card'
+import { PageState } from '@/components/layout/PageState'
 
 export const Route = createFileRoute('/dashboard/settings')({
   component: SettingsPage,
@@ -12,15 +12,10 @@ function SettingsPage() {
 
   if (!session) {
     return (
-      <div className="container mx-auto p-4 md:p-6 max-w-4xl">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              Please sign in to view settings.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <PageState
+        title="Sign in required"
+        description="Please sign in to view settings."
+      />
     )
   }
 

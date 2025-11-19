@@ -6,7 +6,9 @@ import { ProfileForm } from '@/components/profile/ProfileForm'
 import { EmailVerificationButton } from '@/components/profile/EmailVerificationButton'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Settings, User } from 'lucide-react'
+import { Settings } from 'lucide-react'
+import { PageContainer } from '@/components/layout/PageContainer'
+import { PageState } from '@/components/layout/PageState'
 
 export const Route = createFileRoute('/dashboard/profile')({
   component: ProfilePage,
@@ -17,50 +19,39 @@ function ProfilePage() {
   const trpc = useTRPC()
 
   const { data: profile, isLoading } = useQuery(
-    trpc.users.getProfile.queryOptions()
+    trpc.users.getProfile.queryOptions(),
   )
 
   if (!session) {
     return (
-      <div className="container mx-auto p-4 md:p-6 max-w-4xl">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              Please sign in to view your profile.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <PageState
+        title="Sign in required"
+        description="Please sign in to view your profile."
+      />
     )
   }
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 md:p-6 max-w-4xl">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-4 text-muted-foreground">Loading profile...</p>
-          </CardContent>
-        </Card>
-      </div>
+      <PageState title="Loading profile" description="Fetching your details.">
+        <div className="flex justify-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      </PageState>
     )
   }
 
   if (!profile) {
     return (
-      <div className="container mx-auto p-4 md:p-6 max-w-4xl">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">Profile not found.</p>
-          </CardContent>
-        </Card>
-      </div>
+      <PageState
+        title="Profile not found"
+        description="We couldn't find your profile. Please try again."
+      />
     )
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6 max-w-4xl">
+    <PageContainer maxWidth="sm">
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
@@ -92,12 +83,22 @@ function ProfilePage() {
           <CardContent className="pt-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium mb-2">Account Information</h3>
+                <h3 className="text-sm font-medium mb-2">
+                  Account Information
+                </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Email Verified</span>
+                    <span className="text-muted-foreground">
+                      Email Verified
+                    </span>
                     <div className="flex items-center gap-2">
-                      <span className={profile.emailVerified ? 'text-green-600' : 'text-yellow-600'}>
+                      <span
+                        className={
+                          profile.emailVerified
+                            ? 'text-green-600'
+                            : 'text-yellow-600'
+                        }
+                      >
                         {profile.emailVerified ? 'Verified' : 'Not Verified'}
                       </span>
                       {!profile.emailVerified && (
@@ -117,6 +118,6 @@ function ProfilePage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   )
 }

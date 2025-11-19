@@ -19,7 +19,7 @@ import { Link } from '@tanstack/react-router'
 import { formatDistanceToNow } from 'date-fns'
 
 type Secret = {
-  id: string
+  id: number
   name: string
   viewCount: number
   maxViews: number | null

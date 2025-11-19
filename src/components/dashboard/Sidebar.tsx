@@ -5,6 +5,24 @@ import { cn } from '@/lib/utils'
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
+const navSections = [
+  {
+    title: 'Overview',
+    links: [
+      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { to: '/dashboard/secrets', label: 'Secrets', icon: Lock },
+      { to: '/dashboard/teams', label: 'Team', icon: Users },
+    ],
+  },
+  {
+    title: 'Configuration',
+    links: [{ to: '/dashboard/settings', label: 'Settings', icon: Settings }],
+  },
+]
+
+const linkBaseClasses =
+  'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+
 export function Sidebar({ className }: SidebarProps) {
   return (
     <div
@@ -18,58 +36,29 @@ export function Sidebar({ className }: SidebarProps) {
           <div className="mb-6 px-3">
             <OrgSwitcher />
           </div>
-          <h2 className="mb-2 px-4 text-xs font-semibold tracking-tight text-muted-foreground">
-            Overview
-          </h2>
-          <div className="space-y-1">
-            <Link
-              to="/dashboard"
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-              activeProps={{
-                className: 'bg-sidebar-accent text-sidebar-accent-foreground',
-              }}
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
-            </Link>
-            <Link
-              to="/dashboard/secrets"
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-              activeProps={{
-                className: 'bg-sidebar-accent text-sidebar-accent-foreground',
-              }}
-            >
-              <Lock className="h-4 w-4" />
-              Secrets
-            </Link>
-            <Link
-              to="/dashboard/teams"
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-              activeProps={{
-                className: 'bg-sidebar-accent text-sidebar-accent-foreground',
-              }}
-            >
-              <Users className="h-4 w-4" />
-              Team
-            </Link>
-          </div>
-        </div>
-        <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-xs font-semibold tracking-tight text-muted-foreground">
-            Configuration
-          </h2>
-          <div className="space-y-1">
-            <Link
-              to="/dashboard/settings"
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-              activeProps={{
-                className: 'bg-sidebar-accent text-sidebar-accent-foreground',
-              }}
-            >
-              <Settings className="h-4 w-4" />
-              Settings
-            </Link>
-          </div>
+          {navSections.map((section) => (
+            <div key={section.title} className="mt-6 first:mt-0">
+              <h2 className="mb-2 px-4 text-xs font-semibold tracking-tight text-muted-foreground">
+                {section.title}
+              </h2>
+              <div className="space-y-1">
+                {section.links.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className={linkBaseClasses}
+                    activeProps={{
+                      className:
+                        'bg-sidebar-accent text-sidebar-accent-foreground',
+                    }}
+                  >
+                    <link.icon className="h-4 w-4" />
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

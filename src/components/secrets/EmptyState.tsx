@@ -44,7 +44,7 @@ export function EmptyState({ orgId, searchQuery }: EmptyStateProps) {
             : 'Create your first secret to get started with secure secret management.'}
         </CardDescription>
         {!searchQuery && (
-          <Link to="/secrets/create" search={{ orgId }}>
+          <Link to="/dashboard/secrets/create" search={{ orgId }}>
             <Button size="lg">
               <Plus className="mr-2 h-4 w-4" />
               Create Secret

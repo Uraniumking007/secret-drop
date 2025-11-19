@@ -2,6 +2,7 @@ import { Link, Outlet } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { Shield, Key, User, Users } from 'lucide-react'
+import { PageContainer } from '@/components/layout/PageContainer'
 
 const sidebarNavItems = [
   {
@@ -28,7 +29,7 @@ const sidebarNavItems = [
 
 export function SettingsLayout() {
   return (
-    <div className="container mx-auto p-4 md:p-6 max-w-6xl">
+    <PageContainer maxWidth="md">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground mt-2">
@@ -61,6 +62,6 @@ export function SettingsLayout() {
           <Outlet />
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }
