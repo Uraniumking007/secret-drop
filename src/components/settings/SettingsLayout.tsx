@@ -7,12 +7,12 @@ import { PageContainer } from '@/components/layout/PageContainer'
 const sidebarNavItems = [
   {
     title: 'Profile',
-    href: '/profile',
+    href: '/dashboard/profile',
     icon: User,
   },
   {
     title: 'Security',
-    href: '/settings',
+    href: '/dashboard/settings',
     icon: Shield,
   },
   {
@@ -22,7 +22,7 @@ const sidebarNavItems = [
   },
   {
     title: 'API Tokens',
-    href: '/settings/api-tokens',
+    href: '/dashboard/settings/api-tokens',
     icon: Key,
   },
 ]

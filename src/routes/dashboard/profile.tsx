@@ -60,7 +60,7 @@ function ProfilePage() {
               Manage your profile information
             </p>
           </div>
-          <Link to="/settings">
+          <Link to="/dashboard/settings">
             <Button variant="outline">
               <Settings className="mr-2 h-4 w-4" />
               Settings

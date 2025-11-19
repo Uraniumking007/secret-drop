@@ -11,41 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as SettingsApiTokensRouteImport } from './routes/settings/api-tokens'
 import { Route as OrganizationsCreateRouteImport } from './routes/organizations/create'
-import { Route as DemoTrpcTodoRouteImport } from './routes/demo/trpc-todo'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
-import { Route as DemoTanchatRouteImport } from './routes/demo/tanchat'
-import { Route as DemoTableRouteImport } from './routes/demo/table'
-import { Route as DemoStoreRouteImport } from './routes/demo/store'
-import { Route as DemoDrizzleRouteImport } from './routes/demo/drizzle'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
-import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
 import { Route as DashboardTeamsIndexRouteImport } from './routes/dashboard/teams/index'
+import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as DashboardSecretsIndexRouteImport } from './routes/dashboard/secrets/index'
-import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.guitars/$guitarId'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
-import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
-import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
-import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
-import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
-import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
-import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DashboardSettingsOrganizationRouteImport } from './routes/dashboard/settings/organization'
+import { Route as DashboardSettingsApiTokensRouteImport } from './routes/dashboard/settings/api-tokens'
 import { Route as DashboardSecretsCreateRouteImport } from './routes/dashboard/secrets/create'
 import { Route as DashboardSecretsSecretIdRouteImport } from './routes/dashboard/secrets/$secretId'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
-import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
-import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
-import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
-import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -57,54 +38,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsIndexRoute = SettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
-const SettingsApiTokensRoute = SettingsApiTokensRouteImport.update({
-  id: '/settings/api-tokens',
-  path: '/settings/api-tokens',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const OrganizationsCreateRoute = OrganizationsCreateRouteImport.update({
   id: '/organizations/create',
   path: '/organizations/create',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTrpcTodoRoute = DemoTrpcTodoRouteImport.update({
-  id: '/demo/trpc-todo',
-  path: '/demo/trpc-todo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTanchatRoute = DemoTanchatRouteImport.update({
-  id: '/demo/tanchat',
-  path: '/demo/tanchat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTableRoute = DemoTableRouteImport.update({
-  id: '/demo/table',
-  path: '/demo/table',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStoreRoute = DemoStoreRouteImport.update({
-  id: '/demo/store',
-  path: '/demo/store',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoDrizzleRoute = DemoDrizzleRouteImport.update({
-  id: '/demo/drizzle',
-  path: '/demo/drizzle',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
@@ -132,65 +73,31 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExampleGuitarsIndexRoute = ExampleGuitarsIndexRouteImport.update({
-  id: '/example/guitars/',
-  path: '/example/guitars/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardTeamsIndexRoute = DashboardTeamsIndexRouteImport.update({
   id: '/teams/',
   path: '/teams/',
   getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardSettingsRoute,
 } as any)
 const DashboardSecretsIndexRoute = DashboardSecretsIndexRouteImport.update({
   id: '/secrets/',
   path: '/secrets/',
   getParentRoute: () => DashboardRoute,
 } as any)
-const ExampleGuitarsGuitarIdRoute = ExampleGuitarsGuitarIdRouteImport.update({
-  id: '/example/guitars/$guitarId',
-  path: '/example/guitars/$guitarId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
-  id: '/demo/form/simple',
-  path: '/demo/form/simple',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
-  id: '/demo/form/address',
-  path: '/demo/form/address',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiTqTodosRoute = DemoApiTqTodosRouteImport.update({
-  id: '/demo/api/tq-todos',
-  path: '/demo/api/tq-todos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiTanchatRoute = DemoApiTanchatRouteImport.update({
-  id: '/demo/api/tanchat',
-  path: '/demo/api/tanchat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
-  id: '/demo/api/names',
-  path: '/demo/api/names',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardSettingsOrganizationRoute =
   DashboardSettingsOrganizationRouteImport.update({
     id: '/organization',
     path: '/organization',
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any)
+const DashboardSettingsApiTokensRoute =
+  DashboardSettingsApiTokensRouteImport.update({
+    id: '/api-tokens',
+    path: '/api-tokens',
     getParentRoute: () => DashboardSettingsRoute,
   } as any)
 const DashboardSecretsCreateRoute = DashboardSecretsCreateRouteImport.update({
@@ -214,26 +121,6 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
-  id: '/demo/start/ssr/',
-  path: '/demo/start/ssr/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
-  id: '/demo/start/ssr/spa-mode',
-  path: '/demo/start/ssr/spa-mode',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrFullSsrRoute = DemoStartSsrFullSsrRouteImport.update({
-  id: '/demo/start/ssr/full-ssr',
-  path: '/demo/start/ssr/full-ssr',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
-  id: '/demo/start/ssr/data-only',
-  path: '/demo/start/ssr/data-only',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -243,36 +130,17 @@ export interface FileRoutesByFullPath {
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/store': typeof DemoStoreRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanchat': typeof DemoTanchatRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/trpc-todo': typeof DemoTrpcTodoRoute
   '/organizations/create': typeof OrganizationsCreateRoute
-  '/settings/api-tokens': typeof SettingsApiTokensRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/settings': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
+  '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/api/tanchat': typeof DemoApiTanchatRoute
-  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/dashboard/secrets': typeof DashboardSecretsIndexRoute
+  '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/teams': typeof DashboardTeamsIndexRoute
-  '/example/guitars': typeof ExampleGuitarsIndexRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -280,37 +148,17 @@ export interface FileRoutesByTo {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/dashboard/profile': typeof DashboardProfileRoute
-  '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/store': typeof DemoStoreRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanchat': typeof DemoTanchatRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/trpc-todo': typeof DemoTrpcTodoRoute
   '/organizations/create': typeof OrganizationsCreateRoute
-  '/settings/api-tokens': typeof SettingsApiTokensRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/settings': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
+  '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/api/tanchat': typeof DemoApiTanchatRoute
-  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/dashboard/secrets': typeof DashboardSecretsIndexRoute
+  '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/dashboard/teams': typeof DashboardTeamsIndexRoute
-  '/example/guitars': typeof ExampleGuitarsIndexRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -321,36 +169,17 @@ export interface FileRoutesById {
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/store': typeof DemoStoreRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanchat': typeof DemoTanchatRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/trpc-todo': typeof DemoTrpcTodoRoute
   '/organizations/create': typeof OrganizationsCreateRoute
-  '/settings/api-tokens': typeof SettingsApiTokensRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/settings/': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
+  '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/api/tanchat': typeof DemoApiTanchatRoute
-  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
   '/dashboard/secrets/': typeof DashboardSecretsIndexRoute
+  '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/teams/': typeof DashboardTeamsIndexRoute
-  '/example/guitars/': typeof ExampleGuitarsIndexRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -362,36 +191,17 @@ export interface FileRouteTypes {
     | '/auth/verify-email'
     | '/dashboard/profile'
     | '/dashboard/settings'
-    | '/demo/drizzle'
-    | '/demo/store'
-    | '/demo/table'
-    | '/demo/tanchat'
-    | '/demo/tanstack-query'
-    | '/demo/trpc-todo'
     | '/organizations/create'
-    | '/settings/api-tokens'
     | '/dashboard/'
-    | '/settings'
     | '/api/auth/$'
     | '/api/trpc/$'
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
+    | '/dashboard/settings/api-tokens'
     | '/dashboard/settings/organization'
-    | '/demo/api/names'
-    | '/demo/api/tanchat'
-    | '/demo/api/tq-todos'
-    | '/demo/form/address'
-    | '/demo/form/simple'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/example/guitars/$guitarId'
     | '/dashboard/secrets'
+    | '/dashboard/settings/'
     | '/dashboard/teams'
-    | '/example/guitars'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -399,37 +209,17 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/dashboard/profile'
-    | '/dashboard/settings'
-    | '/demo/drizzle'
-    | '/demo/store'
-    | '/demo/table'
-    | '/demo/tanchat'
-    | '/demo/tanstack-query'
-    | '/demo/trpc-todo'
     | '/organizations/create'
-    | '/settings/api-tokens'
     | '/dashboard'
-    | '/settings'
     | '/api/auth/$'
     | '/api/trpc/$'
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
+    | '/dashboard/settings/api-tokens'
     | '/dashboard/settings/organization'
-    | '/demo/api/names'
-    | '/demo/api/tanchat'
-    | '/demo/api/tq-todos'
-    | '/demo/form/address'
-    | '/demo/form/simple'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/example/guitars/$guitarId'
     | '/dashboard/secrets'
+    | '/dashboard/settings'
     | '/dashboard/teams'
-    | '/example/guitars'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
   id:
     | '__root__'
     | '/'
@@ -439,36 +229,17 @@ export interface FileRouteTypes {
     | '/auth/verify-email'
     | '/dashboard/profile'
     | '/dashboard/settings'
-    | '/demo/drizzle'
-    | '/demo/store'
-    | '/demo/table'
-    | '/demo/tanchat'
-    | '/demo/tanstack-query'
-    | '/demo/trpc-todo'
     | '/organizations/create'
-    | '/settings/api-tokens'
     | '/dashboard/'
-    | '/settings/'
     | '/api/auth/$'
     | '/api/trpc/$'
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
+    | '/dashboard/settings/api-tokens'
     | '/dashboard/settings/organization'
-    | '/demo/api/names'
-    | '/demo/api/tanchat'
-    | '/demo/api/tq-todos'
-    | '/demo/form/address'
-    | '/demo/form/simple'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/example/guitars/$guitarId'
     | '/dashboard/secrets/'
+    | '/dashboard/settings/'
     | '/dashboard/teams/'
-    | '/example/guitars/'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -477,30 +248,9 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
-  DemoDrizzleRoute: typeof DemoDrizzleRoute
-  DemoStoreRoute: typeof DemoStoreRoute
-  DemoTableRoute: typeof DemoTableRoute
-  DemoTanchatRoute: typeof DemoTanchatRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
-  DemoTrpcTodoRoute: typeof DemoTrpcTodoRoute
   OrganizationsCreateRoute: typeof OrganizationsCreateRoute
-  SettingsApiTokensRoute: typeof SettingsApiTokensRoute
-  SettingsIndexRoute: typeof SettingsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
-  DemoApiNamesRoute: typeof DemoApiNamesRoute
-  DemoApiTanchatRoute: typeof DemoApiTanchatRoute
-  DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
-  DemoFormAddressRoute: typeof DemoFormAddressRoute
-  DemoFormSimpleRoute: typeof DemoFormSimpleRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
-  ExampleGuitarsGuitarIdRoute: typeof ExampleGuitarsGuitarIdRoute
-  ExampleGuitarsIndexRoute: typeof ExampleGuitarsIndexRoute
-  DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
-  DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
-  DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
-  DemoStartSsrIndexRoute: typeof DemoStartSsrIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -519,13 +269,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/': {
-      id: '/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard/': {
       id: '/dashboard/'
       path: '/'
@@ -533,60 +276,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/settings/api-tokens': {
-      id: '/settings/api-tokens'
-      path: '/settings/api-tokens'
-      fullPath: '/settings/api-tokens'
-      preLoaderRoute: typeof SettingsApiTokensRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/organizations/create': {
       id: '/organizations/create'
       path: '/organizations/create'
       fullPath: '/organizations/create'
       preLoaderRoute: typeof OrganizationsCreateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/trpc-todo': {
-      id: '/demo/trpc-todo'
-      path: '/demo/trpc-todo'
-      fullPath: '/demo/trpc-todo'
-      preLoaderRoute: typeof DemoTrpcTodoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/tanchat': {
-      id: '/demo/tanchat'
-      path: '/demo/tanchat'
-      fullPath: '/demo/tanchat'
-      preLoaderRoute: typeof DemoTanchatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/table': {
-      id: '/demo/table'
-      path: '/demo/table'
-      fullPath: '/demo/table'
-      preLoaderRoute: typeof DemoTableRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/store': {
-      id: '/demo/store'
-      path: '/demo/store'
-      fullPath: '/demo/store'
-      preLoaderRoute: typeof DemoStoreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/drizzle': {
-      id: '/demo/drizzle'
-      path: '/demo/drizzle'
-      fullPath: '/demo/drizzle'
-      preLoaderRoute: typeof DemoDrizzleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/settings': {
@@ -624,19 +318,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/example/guitars/': {
-      id: '/example/guitars/'
-      path: '/example/guitars'
-      fullPath: '/example/guitars'
-      preLoaderRoute: typeof ExampleGuitarsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard/teams/': {
       id: '/dashboard/teams/'
       path: '/teams'
       fullPath: '/dashboard/teams'
       preLoaderRoute: typeof DashboardTeamsIndexRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/settings/': {
+      id: '/dashboard/settings/'
+      path: '/'
+      fullPath: '/dashboard/settings/'
+      preLoaderRoute: typeof DashboardSettingsIndexRouteImport
+      parentRoute: typeof DashboardSettingsRoute
     }
     '/dashboard/secrets/': {
       id: '/dashboard/secrets/'
@@ -645,67 +339,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSecretsIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/example/guitars/$guitarId': {
-      id: '/example/guitars/$guitarId'
-      path: '/example/guitars/$guitarId'
-      fullPath: '/example/guitars/$guitarId'
-      preLoaderRoute: typeof ExampleGuitarsGuitarIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form/simple': {
-      id: '/demo/form/simple'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form/address': {
-      id: '/demo/form/address'
-      path: '/demo/form/address'
-      fullPath: '/demo/form/address'
-      preLoaderRoute: typeof DemoFormAddressRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/tq-todos': {
-      id: '/demo/api/tq-todos'
-      path: '/demo/api/tq-todos'
-      fullPath: '/demo/api/tq-todos'
-      preLoaderRoute: typeof DemoApiTqTodosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/tanchat': {
-      id: '/demo/api/tanchat'
-      path: '/demo/api/tanchat'
-      fullPath: '/demo/api/tanchat'
-      preLoaderRoute: typeof DemoApiTanchatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/names': {
-      id: '/demo/api/names'
-      path: '/demo/api/names'
-      fullPath: '/demo/api/names'
-      preLoaderRoute: typeof DemoApiNamesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard/settings/organization': {
       id: '/dashboard/settings/organization'
       path: '/organization'
       fullPath: '/dashboard/settings/organization'
       preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
+    '/dashboard/settings/api-tokens': {
+      id: '/dashboard/settings/api-tokens'
+      path: '/api-tokens'
+      fullPath: '/dashboard/settings/api-tokens'
+      preLoaderRoute: typeof DashboardSettingsApiTokensRouteImport
       parentRoute: typeof DashboardSettingsRoute
     }
     '/dashboard/secrets/create': {
@@ -736,43 +381,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/ssr/': {
-      id: '/demo/start/ssr/'
-      path: '/demo/start/ssr'
-      fullPath: '/demo/start/ssr'
-      preLoaderRoute: typeof DemoStartSsrIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/spa-mode': {
-      id: '/demo/start/ssr/spa-mode'
-      path: '/demo/start/ssr/spa-mode'
-      fullPath: '/demo/start/ssr/spa-mode'
-      preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/full-ssr': {
-      id: '/demo/start/ssr/full-ssr'
-      path: '/demo/start/ssr/full-ssr'
-      fullPath: '/demo/start/ssr/full-ssr'
-      preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/data-only': {
-      id: '/demo/start/ssr/data-only'
-      path: '/demo/start/ssr/data-only'
-      fullPath: '/demo/start/ssr/data-only'
-      preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 interface DashboardSettingsRouteChildren {
+  DashboardSettingsApiTokensRoute: typeof DashboardSettingsApiTokensRoute
   DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute
+  DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
 }
 
 const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
+  DashboardSettingsApiTokensRoute: DashboardSettingsApiTokensRoute,
   DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
+  DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
 }
 
 const DashboardSettingsRouteWithChildren =
@@ -808,30 +429,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
-  DemoDrizzleRoute: DemoDrizzleRoute,
-  DemoStoreRoute: DemoStoreRoute,
-  DemoTableRoute: DemoTableRoute,
-  DemoTanchatRoute: DemoTanchatRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
-  DemoTrpcTodoRoute: DemoTrpcTodoRoute,
   OrganizationsCreateRoute: OrganizationsCreateRoute,
-  SettingsApiTokensRoute: SettingsApiTokensRoute,
-  SettingsIndexRoute: SettingsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
-  DemoApiNamesRoute: DemoApiNamesRoute,
-  DemoApiTanchatRoute: DemoApiTanchatRoute,
-  DemoApiTqTodosRoute: DemoApiTqTodosRoute,
-  DemoFormAddressRoute: DemoFormAddressRoute,
-  DemoFormSimpleRoute: DemoFormSimpleRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
-  ExampleGuitarsGuitarIdRoute: ExampleGuitarsGuitarIdRoute,
-  ExampleGuitarsIndexRoute: ExampleGuitarsIndexRoute,
-  DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
-  DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
-  DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
-  DemoStartSsrIndexRoute: DemoStartSsrIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -24,7 +24,9 @@ export function ApiTokensSettings() {
         {isLoading ? (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <p className="mt-4 text-sm text-muted-foreground">Loading tokens...</p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Loading tokens...
+            </p>
           </div>
         ) : tokens && tokens.length > 0 ? (
           <div className="space-y-3 mb-4">
@@ -41,12 +43,14 @@ export function ApiTokensSettings() {
                     </div>
                     {token.lastUsedAt && (
                       <div>
-                        Last used: {new Date(token.lastUsedAt).toLocaleDateString()}
+                        Last used:{' '}
+                        {new Date(token.lastUsedAt).toLocaleDateString()}
                       </div>
                     )}
                     {token.expiresAt && (
                       <div>
-                        Expires: {new Date(token.expiresAt).toLocaleDateString()}
+                        Expires:{' '}
+                        {new Date(token.expiresAt).toLocaleDateString()}
                       </div>
                     )}
                   </div>
@@ -60,7 +64,7 @@ export function ApiTokensSettings() {
             <p className="text-muted-foreground mb-4">No API tokens yet.</p>
           </div>
         )}
-        <Link to="/settings/api-tokens">
+        <Link to="/dashboard/settings/api-tokens">
           <Button className="w-full">
             <Plus className="mr-2 h-4 w-4" />
             Manage API Tokens
