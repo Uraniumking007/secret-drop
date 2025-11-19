@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
-import { SecretCard } from '@/components/secrets/SecretCard'
+import { SecretTable } from '@/components/secrets/SecretTable'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { TierBadge } from '@/components/TierBadge'
@@ -9,8 +9,9 @@ import { Plus, Shield, Search } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
+import { EmptyState } from '@/components/secrets/EmptyState'
 
-export const Route = createFileRoute('/secrets/')({
+export const Route = createFileRoute('/dashboard/secrets/')({
   component: SecretsPage,
   validateSearch: (search: Record<string, unknown>) => {
     return {
@@ -70,7 +71,7 @@ function SecretsPage() {
             </p>
           )}
         </div>
-        <Link to="/secrets/create" search={{ orgId }}>
+        <Link to="/dashboard/secrets/create" search={{ orgId }}>
           <Button size="lg">
             <Plus className="mr-2 h-4 w-4" />
             Create Secret
@@ -98,44 +99,14 @@ function SecretsPage() {
           <p className="mt-4 text-muted-foreground">Loading secrets...</p>
         </div>
       ) : filteredSecrets && filteredSecrets.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredSecrets.map((secret) => (
-            <SecretCard
-              key={secret.id}
-              id={secret.id}
-              name={secret.name}
-              viewCount={secret.viewCount}
-              maxViews={secret.maxViews}
-              expiresAt={secret.expiresAt}
-              burnOnRead={secret.burnOnRead}
-              orgId={secret.orgId}
-            />
-          ))}
-        </div>
-      ) : (
         <Card>
-          <CardContent className="py-12 text-center">
-            <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <CardTitle className="mb-2">
-              {searchQuery ? 'No secrets found' : 'No secrets yet'}
-            </CardTitle>
-            <CardDescription className="mb-6">
-              {searchQuery
-                ? 'Try adjusting your search query'
-                : 'Create your first secret to get started with secure secret management.'}
-            </CardDescription>
-            {!searchQuery && (
-              <Link to="/secrets/create" search={{ orgId }}>
-                <Button size="lg">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Secret
-                </Button>
-              </Link>
-            )}
+          <CardContent>
+            <SecretTable secrets={filteredSecrets} />
           </CardContent>
         </Card>
+      ) : (
+        <EmptyState orgId={orgId} searchQuery={searchQuery} />
       )}
     </div>
   )
 }
-

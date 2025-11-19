@@ -7,6 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import type { ExpirationOption } from '@/lib/secret-utils'
 import type { EncryptionLibrary } from '@/lib/encryption'
+import { useQuery } from '@tanstack/react-query'
+import { useTRPC } from '@/integrations/trpc/react'
+import { Loader2 } from 'lucide-react'
 
 interface SecretFormProps {
   onSubmit: (data: {
@@ -17,8 +20,11 @@ interface SecretFormProps {
     maxViews?: number | null
     password?: string
     burnOnRead: boolean
+    teamId?: number
   }) => Promise<void>
   isLoading?: boolean
+  userTier?: 'free' | 'pro_team' | 'business'
+  orgId?: number
   initialData?: {
     name?: string
     data?: string
@@ -29,7 +35,7 @@ interface SecretFormProps {
   }
 }
 
-export function SecretForm({ onSubmit, isLoading, initialData }: SecretFormProps) {
+export function SecretForm({ onSubmit, isLoading, initialData, userTier = 'free', orgId }: SecretFormProps) {
   const [name, setName] = useState(initialData?.name || '')
   const [data, setData] = useState(initialData?.data || '')
   const [encryptionLibrary, setEncryptionLibrary] = useState<EncryptionLibrary>('webcrypto')
@@ -42,6 +48,7 @@ export function SecretForm({ onSubmit, isLoading, initialData }: SecretFormProps
   const [password, setPassword] = useState(initialData?.password || '')
   const [burnOnRead, setBurnOnRead] = useState(initialData?.burnOnRead || false)
   const [showPassword, setShowPassword] = useState(false)
+  const [teamId, setTeamId] = useState<number | undefined>(undefined)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,7 +59,8 @@ export function SecretForm({ onSubmit, isLoading, initialData }: SecretFormProps
       expiration,
       maxViews: maxViews ? parseInt(maxViews, 10) : null,
       password: password || undefined,
-      burnOnRead,
+      burnOnRead: userTier === 'free' ? false : burnOnRead,
+      teamId,
     })
   }
 
@@ -115,28 +123,43 @@ export function SecretForm({ onSubmit, isLoading, initialData }: SecretFormProps
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="never">Never</SelectItem>
+            {userTier !== 'free' && <SelectItem value="never">Never</SelectItem>}
             <SelectItem value="1h">1 Hour</SelectItem>
             <SelectItem value="1d">1 Day</SelectItem>
             <SelectItem value="7d">7 Days</SelectItem>
-            <SelectItem value="30d">30 Days</SelectItem>
+            {userTier !== 'free' && <SelectItem value="30d">30 Days</SelectItem>}
           </SelectContent>
         </Select>
+        {userTier === 'free' && (
+          <p className="text-xs text-muted-foreground">
+            Free tier limited to 7 days expiration. Upgrade for longer durations.
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="maxViews">Max Views (leave empty for unlimited)</Label>
+        <Label htmlFor="maxViews">Max Views {userTier === 'free' ? '(Max 10)' : '(leave empty for unlimited)'}</Label>
         <Input
           id="maxViews"
           type="number"
           min="1"
+          max={userTier === 'free' ? 10 : undefined}
           value={maxViews}
-          onChange={(e) => setMaxViews(e.target.value)}
-          placeholder="e.g., 10"
+          onChange={(e) => {
+            const val = parseInt(e.target.value)
+            if (userTier === 'free' && val > 10) {
+              setMaxViews('10')
+            } else {
+              setMaxViews(e.target.value)
+            }
+          }}
+          placeholder={userTier === 'free' ? "Max 10" : "e.g., 10"}
           disabled={isLoading}
         />
         <p className="text-xs text-muted-foreground">
-          Free tier: Max 10 views. Leave empty for unlimited (Pro/Business tiers)
+          {userTier === 'free'
+            ? "Free tier: Max 10 views. Upgrade for unlimited."
+            : "Leave empty for unlimited views."}
         </p>
       </div>
 
@@ -169,17 +192,73 @@ export function SecretForm({ onSubmit, isLoading, initialData }: SecretFormProps
           id="burnOnRead"
           checked={burnOnRead}
           onCheckedChange={setBurnOnRead}
-          disabled={isLoading}
+          disabled={isLoading || userTier === 'free'}
         />
-        <Label htmlFor="burnOnRead" className="text-sm font-normal">
-          Burn on read (delete after first view) - Pro Team/Business tier only
+        <Label htmlFor="burnOnRead" className={`text-sm font-normal ${userTier === 'free' ? 'text-muted-foreground' : ''}`}>
+          Burn on read (delete after first view) {userTier === 'free' && '- Pro/Business only'}
         </Label>
       </div>
 
+      {userTier !== 'free' && orgId && (
+        <div className="space-y-2">
+          <Label htmlFor="team">Share with Team (Optional)</Label>
+          <TeamSelect orgId={orgId} value={teamId} onChange={setTeamId} disabled={isLoading} />
+          <p className="text-xs text-muted-foreground">
+            Select a team to share this secret with. Members of the team will be able to view it.
+          </p>
+        </div>
+      )}
+
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? 'Saving...' : 'Save Secret'}
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {initialData ? 'Updating...' : 'Creating...'}
+          </>
+        ) : (
+          initialData ? 'Update Secret' : 'Create Secret'
+        )}
       </Button>
     </form>
   )
 }
 
+function TeamSelect({
+  orgId,
+  value,
+  onChange,
+  disabled
+}: {
+  orgId: number
+  value?: number
+  onChange: (val?: number) => void
+  disabled?: boolean
+}) {
+  const trpc = useTRPC()
+  const { data: teams } = useQuery(
+    trpc.teams.list.queryOptions(
+      { orgId },
+      { enabled: !!orgId }
+    )
+  )
+
+  return (
+    <Select
+      value={value?.toString() || 'none'}
+      onValueChange={(val) => onChange(val === 'none' ? undefined : Number(val))}
+      disabled={disabled}
+    >
+      <SelectTrigger id="team">
+        <SelectValue placeholder="Select a team (optional)" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="none">None (Private / Link only)</SelectItem>
+        {teams?.map((team) => (
+          <SelectItem key={team.id} value={team.id.toString()}>
+            {team.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}

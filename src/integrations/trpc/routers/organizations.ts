@@ -5,6 +5,7 @@ import { db } from '@/db'
 import {
   organizations,
   organizationMembers,
+  user,
 } from '@/db/schema'
 import { protectedProcedure, createTRPCRouter } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
@@ -182,5 +183,159 @@ export const organizationsRouter = {
       role: 'owner' as const,
     }
   }),
+
+  // Get organization members
+  getMembers: protectedProcedure
+    .input(z.object({ orgId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user.id
+
+      // Verify user has access
+      const orgMember = await db
+        .select()
+        .from(organizationMembers)
+        .where(
+          and(
+            eq(organizationMembers.orgId, input.orgId),
+            eq(organizationMembers.userId, userId)
+          )
+        )
+        .limit(1)
+
+      if (orgMember.length === 0) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not have access to this organization',
+        })
+      }
+
+      // Get members
+      const members = await db
+        .select({
+          id: organizationMembers.id,
+          userId: organizationMembers.userId,
+          role: organizationMembers.role,
+          joinedAt: organizationMembers.joinedAt,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        })
+        .from(organizationMembers)
+        .innerJoin(user, eq(organizationMembers.userId, user.id))
+        .where(eq(organizationMembers.orgId, input.orgId))
+        .orderBy(organizationMembers.joinedAt)
+
+      return members
+    }),
+
+  // Add a member to an organization
+  addMember: protectedProcedure
+    .input(
+      z.object({
+        orgId: z.number(),
+        email: z.string().email(),
+        role: z.enum(['admin', 'member']),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id
+
+      // Verify user has access and is owner or admin
+      const orgMember = await db
+        .select()
+        .from(organizationMembers)
+        .where(
+          and(
+            eq(organizationMembers.orgId, input.orgId),
+            eq(organizationMembers.userId, userId)
+          )
+        )
+        .limit(1)
+
+      if (orgMember.length === 0) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not have access to this organization',
+        })
+      }
+
+      if (orgMember[0].role !== 'owner' && orgMember[0].role !== 'admin') {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to add members',
+        })
+      }
+
+      // Check organization tier limits
+      const [org] = await db
+        .select()
+        .from(organizations)
+        .where(eq(organizations.id, input.orgId))
+        .limit(1)
+
+      if (org.tier === 'free') {
+        // Free tier limit: 1 member (the owner)
+        // But we might want to allow adding if they are under limit?
+        // The requirement says "Members: 1 (Self)" for Free Tier.
+        // So actually, they CANNOT add anyone.
+        // But wait, if they are testing, maybe we allow 1 extra?
+        // The plan says "Members: 1 (Self)". So strictly no invites.
+        // But the UI disables the button if members >= 1.
+        // Let's enforce it here too.
+        const membersCount = await db
+          .select({ count: organizationMembers.id })
+          .from(organizationMembers)
+          .where(eq(organizationMembers.orgId, input.orgId))
+
+        if (membersCount.length >= 1) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Free tier is limited to 1 member. Upgrade to Pro Team to add more members.',
+          })
+        }
+      }
+
+      // Find user by email
+      const [targetUser] = await db
+        .select()
+        .from(user)
+        .where(eq(user.email, input.email))
+        .limit(1)
+
+      if (!targetUser) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found. They must sign up first.',
+        })
+      }
+
+      // Check if already a member
+      const existingMember = await db
+        .select()
+        .from(organizationMembers)
+        .where(
+          and(
+            eq(organizationMembers.orgId, input.orgId),
+            eq(organizationMembers.userId, targetUser.id)
+          )
+        )
+        .limit(1)
+
+      if (existingMember.length > 0) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'User is already a member of this organization',
+        })
+      }
+
+      // Add member
+      await db.insert(organizationMembers).values({
+        userId: targetUser.id,
+        orgId: input.orgId,
+        role: input.role,
+      })
+
+      return { success: true }
+    }),
 } satisfies TRPCRouterRecord
 

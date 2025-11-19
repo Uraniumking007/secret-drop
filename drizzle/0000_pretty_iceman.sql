@@ -3,6 +3,22 @@ CREATE TYPE "public"."member_role" AS ENUM('owner', 'admin', 'member');--> state
 CREATE TYPE "public"."sso_provider_type" AS ENUM('google', 'okta', 'azure', 'generic_oauth2');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status" AS ENUM('active', 'canceled', 'past_due', 'trialing');--> statement-breakpoint
 CREATE TYPE "public"."subscription_tier" AS ENUM('free', 'pro_team', 'business');--> statement-breakpoint
+CREATE TABLE "account" (
+	"id" text PRIMARY KEY NOT NULL,
+	"accountId" text NOT NULL,
+	"providerId" text NOT NULL,
+	"userId" text NOT NULL,
+	"accessToken" text,
+	"refreshToken" text,
+	"idToken" text,
+	"accessTokenExpiresAt" timestamp with time zone,
+	"refreshTokenExpiresAt" timestamp with time zone,
+	"scope" text,
+	"password" text,
+	"createdAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updatedAt" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "api_tokens" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
@@ -85,6 +101,19 @@ CREATE TABLE "secrets" (
 	"deleted_at" timestamp
 );
 --> statement-breakpoint
+CREATE TABLE "session" (
+	"id" text PRIMARY KEY NOT NULL,
+	"expiresAt" timestamp with time zone NOT NULL,
+	"token" text NOT NULL,
+	"createdAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updatedAt" timestamp with time zone NOT NULL,
+	"ipAddress" text,
+	"userAgent" text,
+	"userId" text NOT NULL,
+	"active_org_id" integer,
+	CONSTRAINT "session_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
 CREATE TABLE "sso_providers" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"org_id" integer NOT NULL,
@@ -146,6 +175,51 @@ CREATE TABLE "trash_bin" (
 	"expires_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "two_factor" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"secret" text NOT NULL,
+	"enabled" boolean DEFAULT false NOT NULL,
+	"backup_codes" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "two_factor_user_id_unique" UNIQUE("user_id")
+);
+--> statement-breakpoint
+CREATE TABLE "user" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"email" text NOT NULL,
+	"emailVerified" boolean NOT NULL,
+	"image" text,
+	"bio" text,
+	"createdAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updatedAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	CONSTRAINT "user_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
+CREATE TABLE "user_preferences" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"timezone" text DEFAULT 'UTC',
+	"language" text DEFAULT 'en',
+	"email_notifications" boolean DEFAULT true NOT NULL,
+	"theme" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "user_preferences_user_id_unique" UNIQUE("user_id")
+);
+--> statement-breakpoint
+CREATE TABLE "verification" (
+	"id" text PRIMARY KEY NOT NULL,
+	"identifier" text NOT NULL,
+	"value" text NOT NULL,
+	"expiresAt" timestamp with time zone NOT NULL,
+	"createdAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updatedAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "account" ADD CONSTRAINT "account_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "api_tokens" ADD CONSTRAINT "api_tokens_org_id_organizations_id_fk" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "api_tokens" ADD CONSTRAINT "api_tokens_team_id_teams_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."teams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ip_allowlist" ADD CONSTRAINT "ip_allowlist_org_id_organizations_id_fk" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -154,12 +228,16 @@ ALTER TABLE "secret_access_logs" ADD CONSTRAINT "secret_access_logs_secret_id_se
 ALTER TABLE "secret_shares" ADD CONSTRAINT "secret_shares_secret_id_secrets_id_fk" FOREIGN KEY ("secret_id") REFERENCES "public"."secrets"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "secrets" ADD CONSTRAINT "secrets_org_id_organizations_id_fk" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "secrets" ADD CONSTRAINT "secrets_team_id_teams_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."teams"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "session" ADD CONSTRAINT "session_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "session" ADD CONSTRAINT "session_active_org_id_organizations_id_fk" FOREIGN KEY ("active_org_id") REFERENCES "public"."organizations"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "sso_providers" ADD CONSTRAINT "sso_providers_org_id_organizations_id_fk" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_org_id_organizations_id_fk" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "team_members" ADD CONSTRAINT "team_members_team_id_teams_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."teams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "teams" ADD CONSTRAINT "teams_org_id_organizations_id_fk" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "trash_bin" ADD CONSTRAINT "trash_bin_secret_id_secrets_id_fk" FOREIGN KEY ("secret_id") REFERENCES "public"."secrets"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "trash_bin" ADD CONSTRAINT "trash_bin_org_id_organizations_id_fk" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "two_factor" ADD CONSTRAINT "two_factor_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_preferences" ADD CONSTRAINT "user_preferences_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "api_tokens_token_hash_idx" ON "api_tokens" USING btree ("token_hash");--> statement-breakpoint
 CREATE INDEX "api_tokens_user_id_idx" ON "api_tokens" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "api_tokens_org_id_idx" ON "api_tokens" USING btree ("org_id");--> statement-breakpoint
@@ -186,4 +264,6 @@ CREATE INDEX "team_members_user_id_idx" ON "team_members" USING btree ("user_id"
 CREATE INDEX "teams_org_id_idx" ON "teams" USING btree ("org_id");--> statement-breakpoint
 CREATE INDEX "trash_bin_org_id_idx" ON "trash_bin" USING btree ("org_id");--> statement-breakpoint
 CREATE INDEX "trash_bin_secret_id_idx" ON "trash_bin" USING btree ("secret_id");--> statement-breakpoint
-CREATE INDEX "trash_bin_expires_at_idx" ON "trash_bin" USING btree ("expires_at");
+CREATE INDEX "trash_bin_expires_at_idx" ON "trash_bin" USING btree ("expires_at");--> statement-breakpoint
+CREATE INDEX "two_factor_user_id_idx" ON "two_factor" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "user_preferences_user_id_idx" ON "user_preferences" USING btree ("user_id");

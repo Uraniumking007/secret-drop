@@ -9,23 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SecretsIndexRouteImport } from './routes/secrets/index'
-import { Route as SecretsCreateRouteImport } from './routes/secrets/create'
-import { Route as SecretsSecretIdRouteImport } from './routes/secrets/$secretId'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as SettingsApiTokensRouteImport } from './routes/settings/api-tokens'
+import { Route as OrganizationsCreateRouteImport } from './routes/organizations/create'
 import { Route as DemoTrpcTodoRouteImport } from './routes/demo/trpc-todo'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoTanchatRouteImport } from './routes/demo/tanchat'
 import { Route as DemoTableRouteImport } from './routes/demo/table'
 import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as DemoDrizzleRouteImport } from './routes/demo/drizzle'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
+import { Route as DashboardTeamsIndexRouteImport } from './routes/dashboard/teams/index'
+import { Route as DashboardSecretsIndexRouteImport } from './routes/dashboard/secrets/index'
 import { Route as ExampleGuitarsGuitarIdRouteImport } from './routes/example.guitars/$guitarId'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
@@ -34,6 +37,9 @@ import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiTanchatRouteImport } from './routes/demo/api.tanchat'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
+import { Route as DashboardSettingsOrganizationRouteImport } from './routes/dashboard/settings/organization'
+import { Route as DashboardSecretsCreateRouteImport } from './routes/dashboard/secrets/create'
+import { Route as DashboardSecretsSecretIdRouteImport } from './routes/dashboard/secrets/$secretId'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
@@ -41,16 +47,6 @@ import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -61,19 +57,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SecretsIndexRoute = SecretsIndexRouteImport.update({
-  id: '/secrets/',
-  path: '/secrets/',
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SecretsCreateRoute = SecretsCreateRouteImport.update({
-  id: '/secrets/create',
-  path: '/secrets/create',
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const SettingsApiTokensRoute = SettingsApiTokensRouteImport.update({
+  id: '/settings/api-tokens',
+  path: '/settings/api-tokens',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SecretsSecretIdRoute = SecretsSecretIdRouteImport.update({
-  id: '/secrets/$secretId',
-  path: '/secrets/$secretId',
+const OrganizationsCreateRoute = OrganizationsCreateRouteImport.update({
+  id: '/organizations/create',
+  path: '/organizations/create',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTrpcTodoRoute = DemoTrpcTodoRouteImport.update({
@@ -106,6 +107,16 @@ const DemoDrizzleRoute = DemoDrizzleRouteImport.update({
   path: '/demo/drizzle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
   id: '/auth/verify-email',
   path: '/auth/verify-email',
@@ -125,6 +136,16 @@ const ExampleGuitarsIndexRoute = ExampleGuitarsIndexRouteImport.update({
   id: '/example/guitars/',
   path: '/example/guitars/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardTeamsIndexRoute = DashboardTeamsIndexRouteImport.update({
+  id: '/teams/',
+  path: '/teams/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSecretsIndexRoute = DashboardSecretsIndexRouteImport.update({
+  id: '/secrets/',
+  path: '/secrets/',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const ExampleGuitarsGuitarIdRoute = ExampleGuitarsGuitarIdRouteImport.update({
   id: '/example/guitars/$guitarId',
@@ -166,6 +187,23 @@ const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
   path: '/demo/api/names',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardSettingsOrganizationRoute =
+  DashboardSettingsOrganizationRouteImport.update({
+    id: '/organization',
+    path: '/organization',
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any)
+const DashboardSecretsCreateRoute = DashboardSecretsCreateRouteImport.update({
+  id: '/secrets/create',
+  path: '/secrets/create',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSecretsSecretIdRoute =
+  DashboardSecretsSecretIdRouteImport.update({
+    id: '/secrets/$secretId',
+    path: '/secrets/$secretId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -199,23 +237,27 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/profile': typeof ProfileRoute
-  '/settings': typeof SettingsRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
-  '/secrets/$secretId': typeof SecretsSecretIdRoute
-  '/secrets/create': typeof SecretsCreateRoute
-  '/secrets': typeof SecretsIndexRoute
+  '/organizations/create': typeof OrganizationsCreateRoute
+  '/settings/api-tokens': typeof SettingsApiTokensRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
+  '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
+  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -224,6 +266,8 @@ export interface FileRoutesByFullPath {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
+  '/dashboard/secrets': typeof DashboardSecretsIndexRoute
+  '/dashboard/teams': typeof DashboardTeamsIndexRoute
   '/example/guitars': typeof ExampleGuitarsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -232,23 +276,26 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/profile': typeof ProfileRoute
-  '/settings': typeof SettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
-  '/secrets/$secretId': typeof SecretsSecretIdRoute
-  '/secrets/create': typeof SecretsCreateRoute
-  '/secrets': typeof SecretsIndexRoute
+  '/organizations/create': typeof OrganizationsCreateRoute
+  '/settings/api-tokens': typeof SettingsApiTokensRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
+  '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
+  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -257,6 +304,8 @@ export interface FileRoutesByTo {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
+  '/dashboard/secrets': typeof DashboardSecretsIndexRoute
+  '/dashboard/teams': typeof DashboardTeamsIndexRoute
   '/example/guitars': typeof ExampleGuitarsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -266,23 +315,27 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/profile': typeof ProfileRoute
-  '/settings': typeof SettingsRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
   '/demo/drizzle': typeof DemoDrizzleRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanchat': typeof DemoTanchatRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/trpc-todo': typeof DemoTrpcTodoRoute
-  '/secrets/$secretId': typeof SecretsSecretIdRoute
-  '/secrets/create': typeof SecretsCreateRoute
-  '/secrets/': typeof SecretsIndexRoute
+  '/organizations/create': typeof OrganizationsCreateRoute
+  '/settings/api-tokens': typeof SettingsApiTokensRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
+  '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
+  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tanchat': typeof DemoApiTanchatRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -291,6 +344,8 @@ export interface FileRoutesById {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/example/guitars/$guitarId': typeof ExampleGuitarsGuitarIdRoute
+  '/dashboard/secrets/': typeof DashboardSecretsIndexRoute
+  '/dashboard/teams/': typeof DashboardTeamsIndexRoute
   '/example/guitars/': typeof ExampleGuitarsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -302,22 +357,26 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
-    | '/profile'
-    | '/settings'
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/dashboard/profile'
+    | '/dashboard/settings'
     | '/demo/drizzle'
     | '/demo/store'
     | '/demo/table'
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
-    | '/secrets/$secretId'
-    | '/secrets/create'
-    | '/secrets'
+    | '/organizations/create'
+    | '/settings/api-tokens'
+    | '/dashboard/'
+    | '/settings'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/dashboard/secrets/$secretId'
+    | '/dashboard/secrets/create'
+    | '/dashboard/settings/organization'
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/tq-todos'
@@ -326,6 +385,8 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
+    | '/dashboard/secrets'
+    | '/dashboard/teams'
     | '/example/guitars'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -334,23 +395,26 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
-    | '/profile'
-    | '/settings'
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/dashboard/profile'
+    | '/dashboard/settings'
     | '/demo/drizzle'
     | '/demo/store'
     | '/demo/table'
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
-    | '/secrets/$secretId'
-    | '/secrets/create'
-    | '/secrets'
+    | '/organizations/create'
+    | '/settings/api-tokens'
+    | '/dashboard'
+    | '/settings'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/dashboard/secrets/$secretId'
+    | '/dashboard/secrets/create'
+    | '/dashboard/settings/organization'
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/tq-todos'
@@ -359,6 +423,8 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
+    | '/dashboard/secrets'
+    | '/dashboard/teams'
     | '/example/guitars'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -368,22 +434,26 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
-    | '/profile'
-    | '/settings'
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/dashboard/profile'
+    | '/dashboard/settings'
     | '/demo/drizzle'
     | '/demo/store'
     | '/demo/table'
     | '/demo/tanchat'
     | '/demo/tanstack-query'
     | '/demo/trpc-todo'
-    | '/secrets/$secretId'
-    | '/secrets/create'
-    | '/secrets/'
+    | '/organizations/create'
+    | '/settings/api-tokens'
+    | '/dashboard/'
+    | '/settings/'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/dashboard/secrets/$secretId'
+    | '/dashboard/secrets/create'
+    | '/dashboard/settings/organization'
     | '/demo/api/names'
     | '/demo/api/tanchat'
     | '/demo/api/tq-todos'
@@ -392,6 +462,8 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/example/guitars/$guitarId'
+    | '/dashboard/secrets/'
+    | '/dashboard/teams/'
     | '/example/guitars/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -401,9 +473,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  ProfileRoute: typeof ProfileRoute
-  SettingsRoute: typeof SettingsRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
@@ -413,9 +483,9 @@ export interface RootRouteChildren {
   DemoTanchatRoute: typeof DemoTanchatRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoTrpcTodoRoute: typeof DemoTrpcTodoRoute
-  SecretsSecretIdRoute: typeof SecretsSecretIdRoute
-  SecretsCreateRoute: typeof SecretsCreateRoute
-  SecretsIndexRoute: typeof SecretsIndexRoute
+  OrganizationsCreateRoute: typeof OrganizationsCreateRoute
+  SettingsApiTokensRoute: typeof SettingsApiTokensRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
@@ -435,20 +505,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -463,25 +519,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/secrets/': {
-      id: '/secrets/'
-      path: '/secrets'
-      fullPath: '/secrets'
-      preLoaderRoute: typeof SecretsIndexRouteImport
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/secrets/create': {
-      id: '/secrets/create'
-      path: '/secrets/create'
-      fullPath: '/secrets/create'
-      preLoaderRoute: typeof SecretsCreateRouteImport
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/settings/api-tokens': {
+      id: '/settings/api-tokens'
+      path: '/settings/api-tokens'
+      fullPath: '/settings/api-tokens'
+      preLoaderRoute: typeof SettingsApiTokensRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/secrets/$secretId': {
-      id: '/secrets/$secretId'
-      path: '/secrets/$secretId'
-      fullPath: '/secrets/$secretId'
-      preLoaderRoute: typeof SecretsSecretIdRouteImport
+    '/organizations/create': {
+      id: '/organizations/create'
+      path: '/organizations/create'
+      fullPath: '/organizations/create'
+      preLoaderRoute: typeof OrganizationsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/trpc-todo': {
@@ -526,6 +589,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoDrizzleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/auth/verify-email': {
       id: '/auth/verify-email'
       path: '/auth/verify-email'
@@ -553,6 +630,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/example/guitars'
       preLoaderRoute: typeof ExampleGuitarsIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/teams/': {
+      id: '/dashboard/teams/'
+      path: '/teams'
+      fullPath: '/dashboard/teams'
+      preLoaderRoute: typeof DashboardTeamsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/secrets/': {
+      id: '/dashboard/secrets/'
+      path: '/secrets'
+      fullPath: '/dashboard/secrets'
+      preLoaderRoute: typeof DashboardSecretsIndexRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/example/guitars/$guitarId': {
       id: '/example/guitars/$guitarId'
@@ -610,6 +701,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoApiNamesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/settings/organization': {
+      id: '/dashboard/settings/organization'
+      path: '/organization'
+      fullPath: '/dashboard/settings/organization'
+      preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
+    '/dashboard/secrets/create': {
+      id: '/dashboard/secrets/create'
+      path: '/secrets/create'
+      fullPath: '/dashboard/secrets/create'
+      preLoaderRoute: typeof DashboardSecretsCreateRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/secrets/$secretId': {
+      id: '/dashboard/secrets/$secretId'
+      path: '/secrets/$secretId'
+      fullPath: '/dashboard/secrets/$secretId'
+      preLoaderRoute: typeof DashboardSecretsSecretIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -655,11 +767,44 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardSettingsRouteChildren {
+  DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute
+}
+
+const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
+  DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
+}
+
+const DashboardSettingsRouteWithChildren =
+  DashboardSettingsRoute._addFileChildren(DashboardSettingsRouteChildren)
+
+interface DashboardRouteChildren {
+  DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRouteWithChildren
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardSecretsSecretIdRoute: typeof DashboardSecretsSecretIdRoute
+  DashboardSecretsCreateRoute: typeof DashboardSecretsCreateRoute
+  DashboardSecretsIndexRoute: typeof DashboardSecretsIndexRoute
+  DashboardTeamsIndexRoute: typeof DashboardTeamsIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardProfileRoute: DashboardProfileRoute,
+  DashboardSettingsRoute: DashboardSettingsRouteWithChildren,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardSecretsSecretIdRoute: DashboardSecretsSecretIdRoute,
+  DashboardSecretsCreateRoute: DashboardSecretsCreateRoute,
+  DashboardSecretsIndexRoute: DashboardSecretsIndexRoute,
+  DashboardTeamsIndexRoute: DashboardTeamsIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
-  ProfileRoute: ProfileRoute,
-  SettingsRoute: SettingsRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
@@ -669,9 +814,9 @@ const rootRouteChildren: RootRouteChildren = {
   DemoTanchatRoute: DemoTanchatRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoTrpcTodoRoute: DemoTrpcTodoRoute,
-  SecretsSecretIdRoute: SecretsSecretIdRoute,
-  SecretsCreateRoute: SecretsCreateRoute,
-  SecretsIndexRoute: SecretsIndexRoute,
+  OrganizationsCreateRoute: OrganizationsCreateRoute,
+  SettingsApiTokensRoute: SettingsApiTokensRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,

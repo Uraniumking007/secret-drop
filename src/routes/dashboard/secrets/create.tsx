@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { EncryptionLibrary } from '@/lib/encryption'
 import type { ExpirationOption } from '@/lib/secret-utils'
 
-export const Route = createFileRoute('/secrets/create')({
+export const Route = createFileRoute('/dashboard/secrets/create')({
   component: CreateSecretPage,
   validateSearch: (search: Record<string, unknown>) => {
     return {
@@ -23,7 +23,7 @@ function CreateSecretPage() {
   const { data: orgs } = useQuery(trpc.organizations.list.queryOptions())
   const orgId = search.orgId || orgs?.[0]?.id
 
-  const { mutateAsync: createSecret } = useMutation(trpc.secrets.create.mutationOptions())
+  const { mutateAsync: createSecret, isPending } = useMutation(trpc.secrets.create.mutationOptions())
 
   const [error, setError] = useState<string | null>(null)
 
@@ -50,6 +50,7 @@ function CreateSecretPage() {
     maxViews?: number | null
     password?: string
     burnOnRead: boolean
+    teamId?: number
   }) => {
     setError(null)
     try {
@@ -62,6 +63,7 @@ function CreateSecretPage() {
         maxViews: data.maxViews,
         password: data.password,
         burnOnRead: data.burnOnRead,
+        teamId: data.teamId,
       })
 
       // Store encryption key in sessionStorage (client-side only)
@@ -70,7 +72,7 @@ function CreateSecretPage() {
       }
 
       navigate({
-        to: '/secrets/$secretId',
+        to: '/dashboard/secrets/$secretId',
         params: { secretId: result.id.toString() },
         search: { orgId },
       })
@@ -91,10 +93,14 @@ function CreateSecretPage() {
               {error}
             </div>
           )}
-          <SecretForm onSubmit={handleSubmit} isLoading={createSecret.isPending} />
+          <SecretForm
+            onSubmit={handleSubmit}
+            isLoading={isPending}
+            userTier={orgs?.find(o => o.id === orgId)?.tier || 'free'}
+            orgId={orgId}
+          />
         </CardContent>
       </Card>
     </div>
   )
 }
-

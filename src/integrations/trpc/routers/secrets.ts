@@ -1,12 +1,14 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and, isNull, desc } from 'drizzle-orm'
+import { eq, and, isNull, desc, gte, inArray, or } from 'drizzle-orm'
 import { db } from '@/db'
 import {
   secrets,
   organizations,
   organizationMembers,
   secretAccessLogs,
+  teams,
+  teamMembers,
 } from '@/db/schema'
 import { protectedProcedure, createTRPCRouter } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
@@ -347,6 +349,44 @@ export const secretsRouter = {
         })
       }
 
+      const role = orgMember[0].role
+
+      // Get user's teams in this org
+      const userTeams = await db
+        .select({ teamId: teamMembers.teamId })
+        .from(teamMembers)
+        .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+        .where(
+          and(
+            eq(teamMembers.userId, userId),
+            eq(teams.orgId, input.orgId)
+          )
+        )
+
+      const userTeamIds = userTeams.map(t => t.teamId)
+
+      // Build conditions
+      const conditions = [
+        eq(secrets.orgId, input.orgId),
+        isNull(secrets.deletedAt)
+      ]
+
+      if (input.teamId) {
+        conditions.push(eq(secrets.teamId, input.teamId))
+      }
+
+      // Access control filter
+      if (role !== 'owner' && role !== 'admin') {
+        // Regular member: can see own secrets OR secrets shared with their teams
+        const accessCondition = or(
+          eq(secrets.createdBy, userId),
+          userTeamIds.length > 0 ? inArray(secrets.teamId, userTeamIds) : undefined
+        )
+        if (accessCondition) {
+          conditions.push(accessCondition)
+        }
+      }
+
       // Get secrets
       const secretList = await db
         .select({
@@ -362,13 +402,7 @@ export const secretsRouter = {
           createdBy: secrets.createdBy,
         })
         .from(secrets)
-        .where(
-          and(
-            eq(secrets.orgId, input.orgId),
-            input.teamId ? eq(secrets.teamId, input.teamId) : undefined,
-            isNull(secrets.deletedAt)
-          )
-        )
+        .where(and(...conditions))
         .orderBy(desc(secrets.createdAt))
 
       return secretList
@@ -612,8 +646,14 @@ export const secretsRouter = {
 
       // Verify user has access
       const orgMember = await db
-        .select()
+        .select({
+          role: organizationMembers.role,
+          organization: {
+            tier: organizations.tier,
+          },
+        })
         .from(organizationMembers)
+        .innerJoin(organizations, eq(organizationMembers.orgId, organizations.id))
         .where(
           and(
             eq(organizationMembers.orgId, secret.orgId),
@@ -630,14 +670,31 @@ export const secretsRouter = {
       }
 
       // Get logs
+      let timeFilter = undefined
+      if (orgMember[0].organization.tier === 'free') {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+        timeFilter = gte(secretAccessLogs.accessedAt, twentyFourHoursAgo)
+      } else if (orgMember[0].organization.tier === 'pro_team') {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        timeFilter = gte(secretAccessLogs.accessedAt, thirtyDaysAgo)
+      }
+
       const logs = await db
         .select()
         .from(secretAccessLogs)
-        .where(eq(secretAccessLogs.secretId, input.secretId))
+        .where(
+          and(
+            eq(secretAccessLogs.secretId, input.secretId),
+            timeFilter
+          )
+        )
         .orderBy(desc(secretAccessLogs.accessedAt))
         .limit(input.limit)
 
-      return logs
+      return {
+        logs,
+        tier: orgMember[0].organization.tier,
+      }
     }),
 } satisfies TRPCRouterRecord
 

@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, Copy, Trash2, Edit } from 'lucide-react'
 import { formatExpiration } from '@/lib/secret-utils'
+import { SecretActivityLog } from '@/components/secrets/SecretActivityLog'
 
-export const Route = createFileRoute('/secrets/$secretId')({
+export const Route = createFileRoute('/dashboard/secrets/$secretId')({
   component: SecretViewPage,
   validateSearch: (search: Record<string, unknown>) => {
     return {
@@ -75,7 +76,7 @@ function SecretViewPage() {
 
     try {
       await deleteSecret({ id: Number(secretId) })
-      navigate({ to: '/secrets', search: { orgId } })
+      navigate({ to: '/dashboard/secrets', search: { orgId } })
     } catch (err: any) {
       setError(err.message || 'Failed to delete secret')
     }
@@ -175,9 +176,12 @@ function SecretViewPage() {
               </Button>
             </>
           )}
+
+          <div className="pt-6 border-t">
+            <SecretActivityLog secretId={Number(secretId)} />
+          </div>
         </CardContent>
       </Card>
-    </div>
+    </div >
   )
 }
-

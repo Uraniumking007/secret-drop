@@ -8,8 +8,7 @@ import netlify from '@netlify/vite-plugin-tanstack-start'
 
 const config = defineConfig({
   plugins: [
-    devtools(),
-    netlify(),
+    // devtools(),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],

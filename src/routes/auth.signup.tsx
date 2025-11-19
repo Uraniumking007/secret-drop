@@ -1,9 +1,18 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { signUp, useSession } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Shield } from 'lucide-react'
 
 export const Route = createFileRoute('/auth/signup')({
   component: SignupPage,
@@ -49,81 +58,99 @@ function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 rounded-lg border bg-card p-8 shadow-lg">
-        <div>
-          <h1 className="text-2xl font-bold">Sign Up</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Create a new account to get started
+    <div className="min-h-screen flex items-center justify-center bg-muted p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="flex flex-col items-center space-y-2 text-center">
+          <div className="flex items-center justify-center rounded-full bg-background p-3">
+            <Shield className="h-10 w-10 text-primary" />
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Create an account
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Enter your information to get started
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Sign Up</CardTitle>
+            <CardDescription>
+              Create a new account to access all features
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="bg-background"
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="bg-background"
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isLoading}
-              minLength={8}
-            />
-            <p className="text-xs text-muted-foreground">
-              Must be at least 8 characters
-            </p>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  minLength={8}
+                  className="bg-background"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Must be at least 8 characters long
+                </p>
+              </div>
 
-          {error && (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
+              {error && (
+                <div className="rounded-md bg-destructive/15 p-3 text-sm font-medium text-destructive">
+                  {error}
+                </div>
+              )}
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Creating account...' : 'Create Account'}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-center border-t p-6">
+            <div className="text-sm text-muted-foreground">
+              Already have an account?{' '}
+              <Link
+                to="/auth/login"
+                className="font-medium text-primary hover:underline"
+              >
+                Sign in
+              </Link>
             </div>
-          )}
-
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Creating account...' : 'Sign Up'}
-          </Button>
-        </form>
-
-        <div className="text-center text-sm">
-          <span className="text-muted-foreground">Already have an account? </span>
-          <a
-            href="/auth/login"
-            className="text-primary hover:underline"
-          >
-            Sign in
-          </a>
-        </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   )
 }
-

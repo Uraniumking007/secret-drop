@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1763271475100,
-      "tag": "0000_plain_the_twelve",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1763275170904,
-      "tag": "0001_blue_texas_twister",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1763276352184,
-      "tag": "0002_charming_supernaut",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1763279591879,
-      "tag": "0003_lean_otto_octavius",
+      "when": 1763559897560,
+      "tag": "0000_pretty_iceman",
       "breakpoints": true
     }
   ]
