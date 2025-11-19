@@ -7,14 +7,9 @@ export const Route = createFileRoute('/dashboard')({
 
 function DashboardLayout() {
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] bg-muted/10">
-      {/* Sidebar Wrapper: Sticky and Fixed Width */}
-      <aside className="hidden w-64 flex-col border-r bg-sidebar md:flex sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
-        <Sidebar />
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-muted/10 md:flex-row">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <Outlet />
       </main>
     </div>
