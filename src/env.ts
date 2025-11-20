@@ -39,6 +39,7 @@ export const env = createEnv({
   clientPrefix: 'VITE_',
 
   client: {
+    VITE_ENV: z.string().optional().default('production'),
     VITE_APP_TITLE: z.string().min(1).optional(),
     VITE_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
     VITE_IMAGEKIT_PUBLIC_KEY: z.string().optional(),

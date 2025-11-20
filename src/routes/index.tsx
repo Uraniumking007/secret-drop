@@ -1,10 +1,12 @@
-import { Link, createFileRoute, useNavigate  } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Building2, Clock, Lock, Shield, Users, Zap } from 'lucide-react'
 import { useSession } from '@/lib/auth-client'
 import { useTRPC } from '@/integrations/trpc/react'
 import { Button } from '@/components/ui/button'
+import Header from '@/components/Header'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/')({ component: App })
 
@@ -31,6 +33,7 @@ function App() {
   // Redirect to dashboard if logged in
   useEffect(() => {
     if (session && orgs && orgs.length > 0) {
+      toast(`Redirected from Home, Welcome! ${session.user.name}`)
       navigate({ to: '/dashboard' })
     }
   }, [session, orgs, navigate])
@@ -86,6 +89,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      <Header />
       <section className="relative py-20 px-6 text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
         <div className="relative max-w-5xl mx-auto">
