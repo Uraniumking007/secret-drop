@@ -5,11 +5,11 @@
  * Command-line interface for managing secrets
  */
 
-import { Command } from 'commander'
-import { config } from 'dotenv'
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
+import { config } from 'dotenv'
+import { Command } from 'commander'
 
 config()
 
@@ -42,7 +42,7 @@ function saveConfig(config: Config) {
 
 async function apiRequest(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<any> {
   const config = loadConfig()
   const token = process.env.SECRETDROP_TOKEN || config.apiToken
@@ -62,7 +62,9 @@ async function apiRequest(
   })
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: response.statusText }))
+    const error = await response
+      .json()
+      .catch(() => ({ message: response.statusText }))
     throw new Error(error.message || `API error: ${response.statusText}`)
   }
 
@@ -147,4 +149,3 @@ program
   })
 
 program.parse()
-

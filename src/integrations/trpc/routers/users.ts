@@ -1,21 +1,21 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and, isNull, desc, gte, inArray } from 'drizzle-orm'
-import { db } from '@/db'
-import {
-  user,
-  userPreferences,
-  organizations,
-  organizationMembers,
-  secrets,
-  secretAccessLogs,
-  apiTokens,
-  session,
-  twoFactor,
-  verification,
-} from '@/db/schema'
+import { and, desc, eq, gte, inArray, isNull } from 'drizzle-orm'
 import { protectedProcedure, publicProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
+import { db } from '@/db'
+import {
+  apiTokens,
+  organizationMembers,
+  organizations,
+  secretAccessLogs,
+  secrets,
+  session,
+  twoFactor,
+  user,
+  userPreferences,
+  verification,
+} from '@/db/schema'
 
 export const usersRouter = {
   // Get dashboard statistics
@@ -778,4 +778,3 @@ export const usersRouter = {
     }
   }),
 } satisfies TRPCRouterRecord
-

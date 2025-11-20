@@ -33,4 +33,3 @@ describe('secret lifecycle integration', () => {
     vi.useRealTimers()
   })
 })
-

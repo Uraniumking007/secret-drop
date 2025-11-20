@@ -1,4 +1,5 @@
 <!-- Integration & security suite plan -->
+
 # Cross-Cutting Integration & Security Tests
 
 Focus: multi-step flows across backend, frontend, and developer tooling using Vitest with `@tanstack/router` test harness + supertest-alike HTTP layer. Suites stored in `tests/integration/**`.
@@ -40,4 +41,3 @@ Focus: multi-step flows across backend, frontend, and developer tooling using Vi
 - **Coverage:** CLI package, API token backend, audit log UI.
 
 > These suites rely on shared fixtures `tests/integration/fixtures/system.ts` (bootstraps app server) and `tests/integration/fixtures/user-sessions.ts`.
-

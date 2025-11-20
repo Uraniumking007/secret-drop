@@ -1,3 +1,6 @@
+import { Eye, MoreHorizontal, Trash2 } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { formatDistanceToNow } from 'date-fns'
 import {
   Table,
   TableBody,
@@ -14,9 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Eye, Trash2 } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
-import { formatDistanceToNow } from 'date-fns'
 
 type Secret = {
   id: number
@@ -29,7 +29,7 @@ type Secret = {
 }
 
 interface SecretTableProps {
-  secrets: Secret[]
+  secrets: Array<Secret>
 }
 
 export function SecretTable({ secrets }: SecretTableProps) {
@@ -72,7 +72,10 @@ export function SecretTable({ secrets }: SecretTableProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link to={`/secrets/${secret.id}`} search={{ orgId: secret.orgId }}>
+                    <Link
+                      to={`/secrets/${secret.id}`}
+                      search={{ orgId: secret.orgId }}
+                    >
                       <Eye className="mr-2 h-4 w-4" />
                       View
                     </Link>

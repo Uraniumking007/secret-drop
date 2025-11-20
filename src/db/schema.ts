@@ -1,17 +1,16 @@
 import {
+  boolean,
+  index,
+  integer,
+  pgEnum,
   pgTable,
   serial,
   text,
   timestamp,
-  integer,
-  boolean,
-  pgEnum,
-  varchar,
-  index,
   unique,
+  varchar,
 } from 'drizzle-orm/pg-core'
-import { relations } from 'drizzle-orm'
-import { sql } from 'drizzle-orm'
+import { relations, sql  } from 'drizzle-orm'
 
 // Enums
 export const subscriptionTierEnum = pgEnum('subscription_tier', [
@@ -135,7 +134,7 @@ export const twoFactor = pgTable(
   },
   (table) => ({
     userIdIdx: index('two_factor_user_id_idx').on(table.userId),
-  })
+  }),
 )
 
 // Organizations table
@@ -153,7 +152,7 @@ export const organizations = pgTable(
   (table) => ({
     slugIdx: index('organizations_slug_idx').on(table.slug),
     ownerIdx: index('organizations_owner_id_idx').on(table.ownerId),
-  })
+  }),
 )
 
 // Organization members (RBAC)
@@ -171,11 +170,11 @@ export const organizationMembers = pgTable(
   (table) => ({
     userOrgIdx: unique('organization_members_user_org_unique').on(
       table.userId,
-      table.orgId
+      table.orgId,
     ),
     orgIdx: index('organization_members_org_id_idx').on(table.orgId),
     userIdx: index('organization_members_user_id_idx').on(table.userId),
-  })
+  }),
 )
 
 // Teams (sub-groups within organizations)
@@ -193,7 +192,7 @@ export const teams = pgTable(
   (table) => ({
     orgSlugIdx: unique('teams_org_slug_unique').on(table.orgId, table.slug),
     orgIdx: index('teams_org_id_idx').on(table.orgId),
-  })
+  }),
 )
 
 // Team members
@@ -210,11 +209,11 @@ export const teamMembers = pgTable(
   (table) => ({
     userTeamIdx: unique('team_members_user_team_unique').on(
       table.userId,
-      table.teamId
+      table.teamId,
     ),
     teamIdx: index('team_members_team_id_idx').on(table.teamId),
     userIdx: index('team_members_user_id_idx').on(table.userId),
-  })
+  }),
 )
 
 // Secrets table
@@ -246,7 +245,7 @@ export const secrets = pgTable(
     teamIdx: index('secrets_team_id_idx').on(table.teamId),
     createdByIdx: index('secrets_created_by_idx').on(table.createdBy),
     deletedAtIdx: index('secrets_deleted_at_idx').on(table.deletedAt),
-  })
+  }),
 )
 
 // Secret access logs (audit trail)
@@ -267,9 +266,9 @@ export const secretAccessLogs = pgTable(
     secretIdx: index('secret_access_logs_secret_id_idx').on(table.secretId),
     userIdIdx: index('secret_access_logs_user_id_idx').on(table.userId),
     accessedAtIdx: index('secret_access_logs_accessed_at_idx').on(
-      table.accessedAt
+      table.accessedAt,
     ),
-  })
+  }),
 )
 
 // Secret shares (shareable links)
@@ -291,7 +290,7 @@ export const secretShares = pgTable(
   (table) => ({
     tokenIdx: index('secret_shares_token_idx').on(table.shareToken),
     secretIdx: index('secret_shares_secret_id_idx').on(table.secretId),
-  })
+  }),
 )
 
 // Subscriptions
@@ -317,9 +316,9 @@ export const subscriptions = pgTable(
     userIdIdx: index('subscriptions_user_id_idx').on(table.userId),
     orgIdIdx: index('subscriptions_org_id_idx').on(table.orgId),
     stripeSubIdx: index('subscriptions_stripe_subscription_id_idx').on(
-      table.stripeSubscriptionId
+      table.stripeSubscriptionId,
     ),
-  })
+  }),
 )
 
 // IP allowlist (Business tier)
@@ -336,7 +335,7 @@ export const ipAllowlist = pgTable(
   },
   (table) => ({
     orgIdx: index('ip_allowlist_org_id_idx').on(table.orgId),
-  })
+  }),
 )
 
 // SSO providers
@@ -360,7 +359,7 @@ export const ssoProviders = pgTable(
   },
   (table) => ({
     orgIdx: index('sso_providers_org_id_idx').on(table.orgId),
-  })
+  }),
 )
 
 // Trash bin (soft-deleted secrets for recovery)
@@ -382,7 +381,7 @@ export const trashBin = pgTable(
     orgIdx: index('trash_bin_org_id_idx').on(table.orgId),
     secretIdx: index('trash_bin_secret_id_idx').on(table.secretId),
     expiresAtIdx: index('trash_bin_expires_at_idx').on(table.expiresAt),
-  })
+  }),
 )
 
 // API tokens for CLI/CI-CD
@@ -407,7 +406,7 @@ export const apiTokens = pgTable(
     tokenHashIdx: index('api_tokens_token_hash_idx').on(table.tokenHash),
     userIdIdx: index('api_tokens_user_id_idx').on(table.userId),
     orgIdx: index('api_tokens_org_id_idx').on(table.orgId),
-  })
+  }),
 )
 
 // Relations (for Drizzle queries)
@@ -428,7 +427,7 @@ export const organizationMembersRelations = relations(
       fields: [organizationMembers.orgId],
       references: [organizations.id],
     }),
-  })
+  }),
 )
 
 export const teamsRelations = relations(teams, ({ one, many }) => ({
@@ -467,7 +466,7 @@ export const secretAccessLogsRelations = relations(
       fields: [secretAccessLogs.secretId],
       references: [secrets.id],
     }),
-  })
+  }),
 )
 
 export const secretSharesRelations = relations(secretShares, ({ one }) => ({
@@ -488,16 +487,14 @@ export const userPreferences = pgTable(
       .references(() => user.id, { onDelete: 'cascade' }),
     timezone: text('timezone').default('UTC'),
     language: text('language').default('en'),
-    emailNotifications: boolean('email_notifications')
-      .default(true)
-      .notNull(),
+    emailNotifications: boolean('email_notifications').default(true).notNull(),
     theme: text('theme'), // 'light', 'dark', 'system' - may be redundant with existing theme system
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
     userIdIdx: index('user_preferences_user_id_idx').on(table.userId),
-  })
+  }),
 )
 
 // Keep todos table for backward compatibility (can be removed later)

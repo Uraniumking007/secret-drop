@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Loader2, Upload, X } from 'lucide-react'
+import ImageKit from 'imagekit-javascript'
 import { useTRPC } from '@/integrations/trpc/react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Upload, X, Loader2 } from 'lucide-react'
-import ImageKit from 'imagekit-javascript'
 
 interface ImageUploadProps {
   currentImageUrl?: string | null

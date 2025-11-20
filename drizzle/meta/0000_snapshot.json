@@ -94,12 +94,8 @@
           "name": "account_userId_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -222,12 +218,8 @@
           "name": "api_tokens_org_id_organizations_id_fk",
           "tableFrom": "api_tokens",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -235,12 +227,8 @@
           "name": "api_tokens_team_id_teams_id_fk",
           "tableFrom": "api_tokens",
           "tableTo": "teams",
-          "columnsFrom": [
-            "team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["team_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -250,9 +238,7 @@
         "api_tokens_token_hash_unique": {
           "name": "api_tokens_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {},
@@ -317,12 +303,8 @@
           "name": "ip_allowlist_org_id_organizations_id_fk",
           "tableFrom": "ip_allowlist",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -408,12 +390,8 @@
           "name": "organization_members_org_id_organizations_id_fk",
           "tableFrom": "organization_members",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -423,10 +401,7 @@
         "organization_members_user_org_unique": {
           "name": "organization_members_user_org_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id",
-            "org_id"
-          ]
+          "columns": ["user_id", "org_id"]
         }
       },
       "policies": {},
@@ -522,9 +497,7 @@
         "organizations_slug_unique": {
           "name": "organizations_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -632,12 +605,8 @@
           "name": "secret_access_logs_secret_id_secrets_id_fk",
           "tableFrom": "secret_access_logs",
           "tableTo": "secrets",
-          "columnsFrom": [
-            "secret_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["secret_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -746,12 +715,8 @@
           "name": "secret_shares_secret_id_secrets_id_fk",
           "tableFrom": "secret_shares",
           "tableTo": "secrets",
-          "columnsFrom": [
-            "secret_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["secret_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -761,9 +726,7 @@
         "secret_shares_share_token_unique": {
           "name": "secret_shares_share_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "share_token"
-          ]
+          "columns": ["share_token"]
         }
       },
       "policies": {},
@@ -936,12 +899,8 @@
           "name": "secrets_org_id_organizations_id_fk",
           "tableFrom": "secrets",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -949,12 +908,8 @@
           "name": "secrets_team_id_teams_id_fk",
           "tableFrom": "secrets",
           "tableTo": "teams",
-          "columnsFrom": [
-            "team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["team_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1031,12 +986,8 @@
           "name": "session_userId_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1044,12 +995,8 @@
           "name": "session_active_org_id_organizations_id_fk",
           "tableFrom": "session",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "active_org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["active_org_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1059,9 +1006,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -1171,12 +1116,8 @@
           "name": "sso_providers_org_id_organizations_id_fk",
           "tableFrom": "sso_providers",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1308,12 +1249,8 @@
           "name": "subscriptions_org_id_organizations_id_fk",
           "tableFrom": "subscriptions",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1323,9 +1260,7 @@
         "subscriptions_stripe_subscription_id_unique": {
           "name": "subscriptions_stripe_subscription_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "stripe_subscription_id"
-          ]
+          "columns": ["stripe_subscription_id"]
         }
       },
       "policies": {},
@@ -1399,12 +1334,8 @@
           "name": "team_members_team_id_teams_id_fk",
           "tableFrom": "team_members",
           "tableTo": "teams",
-          "columnsFrom": [
-            "team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["team_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1414,10 +1345,7 @@
         "team_members_user_team_unique": {
           "name": "team_members_user_team_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id",
-            "team_id"
-          ]
+          "columns": ["user_id", "team_id"]
         }
       },
       "policies": {},
@@ -1482,12 +1410,8 @@
           "name": "teams_org_id_organizations_id_fk",
           "tableFrom": "teams",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1497,10 +1421,7 @@
         "teams_org_slug_unique": {
           "name": "teams_org_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "org_id",
-            "slug"
-          ]
+          "columns": ["org_id", "slug"]
         }
       },
       "policies": {},
@@ -1633,12 +1554,8 @@
           "name": "trash_bin_secret_id_secrets_id_fk",
           "tableFrom": "trash_bin",
           "tableTo": "secrets",
-          "columnsFrom": [
-            "secret_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["secret_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1646,12 +1563,8 @@
           "name": "trash_bin_org_id_organizations_id_fk",
           "tableFrom": "trash_bin",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1734,12 +1647,8 @@
           "name": "two_factor_user_id_user_id_fk",
           "tableFrom": "two_factor",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1749,9 +1658,7 @@
         "two_factor_user_id_unique": {
           "name": "two_factor_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -1820,9 +1727,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -1909,12 +1814,8 @@
           "name": "user_preferences_user_id_user_id_fk",
           "tableFrom": "user_preferences",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1924,9 +1825,7 @@
         "user_preferences_user_id_unique": {
           "name": "user_preferences_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -1989,50 +1888,27 @@
     "public.access_action": {
       "name": "access_action",
       "schema": "public",
-      "values": [
-        "view",
-        "edit",
-        "delete",
-        "share"
-      ]
+      "values": ["view", "edit", "delete", "share"]
     },
     "public.member_role": {
       "name": "member_role",
       "schema": "public",
-      "values": [
-        "owner",
-        "admin",
-        "member"
-      ]
+      "values": ["owner", "admin", "member"]
     },
     "public.sso_provider_type": {
       "name": "sso_provider_type",
       "schema": "public",
-      "values": [
-        "google",
-        "okta",
-        "azure",
-        "generic_oauth2"
-      ]
+      "values": ["google", "okta", "azure", "generic_oauth2"]
     },
     "public.subscription_status": {
       "name": "subscription_status",
       "schema": "public",
-      "values": [
-        "active",
-        "canceled",
-        "past_due",
-        "trialing"
-      ]
+      "values": ["active", "canceled", "past_due", "trialing"]
     },
     "public.subscription_tier": {
       "name": "subscription_tier",
       "schema": "public",
-      "values": [
-        "free",
-        "pro_team",
-        "business"
-      ]
+      "values": ["free", "pro_team", "business"]
     }
   },
   "schemas": {},

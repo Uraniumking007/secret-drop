@@ -1,8 +1,8 @@
-import { TOTP } from 'otpauth'
 import { createHash, randomBytes } from 'node:crypto'
+import { TOTP } from 'otpauth'
+import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { twoFactor } from '@/db/schema'
-import { eq } from 'drizzle-orm'
 
 /**
  * Generate a TOTP secret for a user
@@ -36,7 +36,11 @@ export function getQRCodeURL(secret: string, email: string): string {
 /**
  * Verify a TOTP token
  */
-export function verifyTOTP(secret: string, token: string, email: string): boolean {
+export function verifyTOTP(
+  secret: string,
+  token: string,
+  email: string,
+): boolean {
   try {
     const totp = createTOTP(secret, email)
     const delta = totp.validate({ token, window: 1 })
@@ -49,8 +53,8 @@ export function verifyTOTP(secret: string, token: string, email: string): boolea
 /**
  * Generate backup codes
  */
-export function generateBackupCodes(count: number = 10): string[] {
-  const codes: string[] = []
+export function generateBackupCodes(count: number = 10): Array<string> {
+  const codes: Array<string> = []
   for (let i = 0; i < count; i++) {
     const code = randomBytes(4).toString('hex').toUpperCase()
     codes.push(code)
@@ -68,7 +72,7 @@ export function hashBackupCode(code: string): string {
 /**
  * Verify a backup code
  */
-export function verifyBackupCode(code: string, hashedCodes: string[]): boolean {
+export function verifyBackupCode(code: string, hashedCodes: Array<string>): boolean {
   const hashed = hashBackupCode(code)
   return hashedCodes.includes(hashed)
 }
@@ -92,7 +96,7 @@ export async function getTwoFactorStatus(userId: string) {
 export async function enableTwoFactor(
   userId: string,
   secret: string,
-  backupCodes: string[]
+  backupCodes: Array<string>,
 ) {
   const hashedBackupCodes = backupCodes.map(hashBackupCode)
 
@@ -144,4 +148,3 @@ export async function disableTwoFactor(userId: string) {
     })
     .where(eq(twoFactor.userId, userId))
 }
-

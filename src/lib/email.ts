@@ -131,4 +131,3 @@ export async function sendVerificationEmail(email: string, token: string) {
     html,
   })
 }
-

@@ -32,13 +32,6 @@ function DashboardPage() {
   const { data: orgs } = useQuery(trpc.organizations.list.queryOptions())
   const defaultOrgId = orgs?.[0]?.id
 
-  const getGreeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 18) return 'Good afternoon'
-    return 'Good evening'
-  }
-
   if (statsLoading || secretsLoading || activityLoading) {
     return <DashboardSkeleton />
   }
@@ -55,15 +48,6 @@ function DashboardPage() {
 
   return (
     <PageContainer>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">
-          {getGreeting()}, {session.user.name || session.user.email}
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Here's a summary of your account activity.
-        </p>
-      </div>
-
       {stats ? (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

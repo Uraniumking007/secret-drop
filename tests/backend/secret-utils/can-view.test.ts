@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import {
   calculateExpiration,
   canViewSecret,
@@ -18,7 +18,9 @@ describe('secret-utils view logic', () => {
 
   it('calculates expiration windows', () => {
     const oneHour = calculateExpiration('1h')
-    expect(oneHour?.getTime()).toEqual(new Date('2024-01-01T01:00:00Z').getTime())
+    expect(oneHour?.getTime()).toEqual(
+      new Date('2024-01-01T01:00:00Z').getTime(),
+    )
 
     const sevenDays = calculateExpiration('7d')
     expect(sevenDays?.getUTCDate()).toEqual(8)
@@ -34,11 +36,20 @@ describe('secret-utils view logic', () => {
   })
 
   it('prevents viewing when constraints violated', () => {
-    const expired = canViewSecret(0, null, new Date('2023-12-31T23:59:00Z'), false, false)
+    const expired = canViewSecret(
+      0,
+      null,
+      new Date('2023-12-31T23:59:00Z'),
+      false,
+      false,
+    )
     expect(expired).toEqual({ canView: false, reason: 'Secret has expired' })
 
     const overLimit = canViewSecret(5, 5, null, false, false)
-    expect(overLimit).toEqual({ canView: false, reason: 'Maximum view limit reached' })
+    expect(overLimit).toEqual({
+      canView: false,
+      reason: 'Maximum view limit reached',
+    })
 
     const burnOnRead = canViewSecret(1, null, null, true, true)
     expect(burnOnRead).toEqual({
@@ -50,4 +61,3 @@ describe('secret-utils view logic', () => {
     expect(ok.canView).toBe(true)
   })
 })
-

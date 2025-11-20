@@ -58,7 +58,7 @@ export function getPermissions(role: MemberRole): Permission {
 export function canPerformAction(
   userRole: MemberRole,
   action: keyof Permission,
-  isResourceOwner: boolean = false
+  isResourceOwner: boolean = false,
 ): boolean {
   const permissions = getPermissions(userRole)
 
@@ -77,7 +77,7 @@ export function canPerformAction(
  */
 export function canAssignRole(
   currentRole: MemberRole,
-  targetRole: MemberRole
+  targetRole: MemberRole,
 ): boolean {
   // Only owners and admins can assign roles
   if (currentRole === 'member') {
@@ -113,8 +113,7 @@ export function getRoleHierarchy(role: MemberRole): number {
  */
 export function hasHigherOrEqualRole(
   roleA: MemberRole,
-  roleB: MemberRole
+  roleB: MemberRole,
 ): boolean {
   return getRoleHierarchy(roleA) >= getRoleHierarchy(roleB)
 }
-

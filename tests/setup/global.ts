@@ -11,11 +11,13 @@ if (!globalThis.crypto.subtle) {
 
 // Polyfill atob/btoa for Node
 if (typeof globalThis.atob === 'undefined') {
-  globalThis.atob = (input: string) => Buffer.from(input, 'base64').toString('binary')
+  globalThis.atob = (input: string) =>
+    Buffer.from(input, 'base64').toString('binary')
 }
 
 if (typeof globalThis.btoa === 'undefined') {
-  globalThis.btoa = (input: string) => Buffer.from(input, 'binary').toString('base64')
+  globalThis.btoa = (input: string) =>
+    Buffer.from(input, 'binary').toString('base64')
 }
 
 // Helper to mock matchMedia in jsdom suites
@@ -31,4 +33,3 @@ if (typeof globalThis.matchMedia === 'undefined') {
       dispatchEvent: () => false,
     }) as MediaQueryList
 }
-

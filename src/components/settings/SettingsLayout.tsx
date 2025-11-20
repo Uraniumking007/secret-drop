@@ -1,13 +1,13 @@
 import { Link, Outlet } from '@tanstack/react-router'
+import { Key, Shield, User, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
-import { Shield, Key, User, Users } from 'lucide-react'
 import { PageContainer } from '@/components/layout/PageContainer'
 
 const sidebarNavItems = [
   {
     title: 'Profile',
-    href: '/dashboard/profile',
+    href: '/dashboard/settings/profile',
     icon: User,
   },
   {
@@ -36,32 +36,8 @@ export function SettingsLayout() {
           Manage your account settings and security preferences.
         </p>
       </div>
-      <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-        <aside className="-mx-4 lg:w-1/5">
-          <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
-            {sidebarNavItems.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                search={(prev: any) => prev}
-                className={cn(
-                  buttonVariants({ variant: 'ghost' }),
-                  'justify-start',
-                )}
-                activeProps={{
-                  className: 'bg-accent text-accent-foreground',
-                }}
-              >
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.title}
-              </Link>
-            ))}
-          </nav>
-        </aside>
-        <div className="flex-1 lg:max-w-4xl">
-          <Outlet />
-        </div>
-      </div>
+
+      <Outlet />
     </PageContainer>
   )
 }

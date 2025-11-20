@@ -5,6 +5,7 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { Toaster } from 'sonner'
 
 import Header from '../components/Header'
 import { ThemeProvider } from '../lib/theme'
@@ -71,6 +72,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               TanStackQueryDevtools,
             ]}
           />
+          <Toaster />
         </ThemeProvider>
         <Scripts />
       </body>

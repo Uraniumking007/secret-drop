@@ -1,6 +1,6 @@
-import { initTRPC, TRPCError } from '@trpc/server'
+import { TRPCError, initTRPC } from '@trpc/server'
 import superjson from 'superjson'
-import { auth } from '@/lib/auth'
+import type { auth } from '@/lib/auth'
 
 export interface Context {
   session: Awaited<ReturnType<typeof auth.api.getSession>> | null

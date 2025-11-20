@@ -9,7 +9,7 @@ export interface OAuth2Config {
   tokenUrl: string
   userInfoUrl: string
   redirectUri: string
-  scopes: string[]
+  scopes: Array<string>
 }
 
 export interface OAuth2TokenResponse {
@@ -47,7 +47,7 @@ export function generateAuthorizationUrl(config: OAuth2Config): string {
  */
 export async function exchangeCodeForToken(
   config: OAuth2Config,
-  code: string
+  code: string,
 ): Promise<OAuth2TokenResponse> {
   const response = await fetch(config.tokenUrl, {
     method: 'POST',
@@ -76,7 +76,7 @@ export async function exchangeCodeForToken(
  */
 export async function getUserInfo(
   config: OAuth2Config,
-  accessToken: string
+  accessToken: string,
 ): Promise<OAuth2UserInfo> {
   const response = await fetch(config.userInfoUrl, {
     headers: {
@@ -112,7 +112,9 @@ function generateState(): string {
     const randomBytes = crypto.randomBytes(32)
     array.set(randomBytes)
   }
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('')
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join(
+    '',
+  )
 }
 
 /**
@@ -132,10 +134,10 @@ export const providerConfigs = {
     defaultScopes: ['openid', 'email', 'profile'],
   },
   azure: {
-    authorizationUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+    authorizationUrl:
+      'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
     tokenUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
     userInfoUrl: 'https://graph.microsoft.com/v1.0/me',
     defaultScopes: ['openid', 'email', 'profile'],
   },
 }
-

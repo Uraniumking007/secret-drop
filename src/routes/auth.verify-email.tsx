@@ -1,18 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { Link, createFileRoute  } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
 import { useSession } from '@/lib/auth-client'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/auth/verify-email')({
   component: VerifyEmailPage,

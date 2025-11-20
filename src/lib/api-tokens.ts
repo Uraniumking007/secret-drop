@@ -2,8 +2,7 @@
  * API token management for CLI and CI/CD
  */
 
-import { randomBytes } from 'node:crypto'
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes  } from 'node:crypto'
 
 /**
  * Generate a new API token
@@ -39,4 +38,3 @@ export function verifyApiToken(token: string, hash: string): boolean {
 export function formatApiToken(token: string): string {
   return `${token.slice(0, 8)}...${token.slice(-4)}`
 }
-

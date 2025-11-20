@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
+import { ArrowRight, Plus, Shield } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Shield, Plus, ArrowRight } from 'lucide-react'
 
 interface RecentSecret {
   id: number
@@ -16,7 +16,7 @@ interface RecentSecret {
 }
 
 interface RecentSecretsProps {
-  secrets: RecentSecret[]
+  secrets: Array<RecentSecret>
   defaultOrgId?: number
 }
 
@@ -94,4 +94,3 @@ export function RecentSecrets({ secrets, defaultOrgId }: RecentSecretsProps) {
     </Card>
   )
 }
-

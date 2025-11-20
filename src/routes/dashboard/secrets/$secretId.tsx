@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { Copy, Edit, Eye, Trash2 } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Eye, Copy, Trash2, Edit } from 'lucide-react'
 import { formatExpiration } from '@/lib/secret-utils'
 import { SecretActivityLog } from '@/components/secrets/SecretActivityLog'
 
@@ -26,14 +26,20 @@ function SecretViewPage() {
   const orgId = search.orgId
 
   const [password, setPassword] = useState('')
-  const [encryptionLibrary, setEncryptionLibrary] = useState<'webcrypto' | 'crypto-js' | 'noble'>('webcrypto')
+  const [encryptionLibrary, setEncryptionLibrary] = useState<
+    'webcrypto' | 'crypto-js' | 'noble'
+  >('webcrypto')
   const [decryptedData, setDecryptedData] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const trpc = useTRPC()
-  const { mutateAsync: getSecret } = useMutation(trpc.secrets.get.mutationOptions())
-  const { mutateAsync: deleteSecret } = useMutation(trpc.secrets.delete.mutationOptions())
+  const { mutateAsync: getSecret } = useMutation(
+    trpc.secrets.get.mutationOptions(),
+  )
+  const { mutateAsync: deleteSecret } = useMutation(
+    trpc.secrets.delete.mutationOptions(),
+  )
 
   // Get encryption key from sessionStorage
   const encryptionKey = sessionStorage.getItem(`secret_key_${secretId}`)
@@ -70,7 +76,11 @@ function SecretViewPage() {
   }
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this secret? This action cannot be undone.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this secret? This action cannot be undone.',
+      )
+    ) {
       return
     }
 
@@ -111,7 +121,7 @@ function SecretViewPage() {
                   value={encryptionLibrary}
                   onChange={(e) =>
                     setEncryptionLibrary(
-                      e.target.value as 'webcrypto' | 'crypto-js' | 'noble'
+                      e.target.value as 'webcrypto' | 'crypto-js' | 'noble',
                     )
                   }
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -144,7 +154,8 @@ function SecretViewPage() {
 
               {!encryptionKey && (
                 <p className="text-sm text-muted-foreground">
-                  Encryption key not found. You can only view secrets you created in this session.
+                  Encryption key not found. You can only view secrets you
+                  created in this session.
                 </p>
               )}
             </>
@@ -182,6 +193,6 @@ function SecretViewPage() {
           </div>
         </CardContent>
       </Card>
-    </div >
+    </div>
   )
 }

@@ -50,4 +50,3 @@ export const useSession = (): EnhancedUseSessionReturn => {
 export type SessionData = EnhancedSessionData
 
 export const { signIn, signOut, signUp, getSession } = authClient
-

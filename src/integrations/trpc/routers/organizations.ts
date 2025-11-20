@@ -1,14 +1,10 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and } from 'drizzle-orm'
-import { db } from '@/db'
-import {
-  organizations,
-  organizationMembers,
-  user,
-} from '@/db/schema'
-import { protectedProcedure, createTRPCRouter } from '../init'
+import { and, eq } from 'drizzle-orm'
+import { createTRPCRouter, protectedProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
+import { db } from '@/db'
+import { organizationMembers, organizations, user } from '@/db/schema'
 
 export const organizationsRouter = {
   // Create a new organization (personal workspace for free tier)
@@ -16,8 +12,11 @@ export const organizationsRouter = {
     .input(
       z.object({
         name: z.string().min(1),
-        slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
-      })
+        slug: z
+          .string()
+          .min(1)
+          .regex(/^[a-z0-9-]+$/),
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -73,7 +72,7 @@ export const organizationsRouter = {
       .from(organizations)
       .innerJoin(
         organizationMembers,
-        eq(organizationMembers.orgId, organizations.id)
+        eq(organizationMembers.orgId, organizations.id),
       )
       .where(eq(organizationMembers.userId, userId))
 
@@ -93,8 +92,8 @@ export const organizationsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.id),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -141,14 +140,14 @@ export const organizationsRouter = {
       .from(organizations)
       .innerJoin(
         organizationMembers,
-        eq(organizationMembers.orgId, organizations.id)
+        eq(organizationMembers.orgId, organizations.id),
       )
       .where(
         and(
           eq(organizationMembers.userId, userId),
           eq(organizationMembers.role, 'owner'),
-          eq(organizations.tier, 'free')
-        )
+          eq(organizations.tier, 'free'),
+        ),
       )
       .limit(1)
 
@@ -197,8 +196,8 @@ export const organizationsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -235,7 +234,7 @@ export const organizationsRouter = {
         orgId: z.number(),
         email: z.string().email(),
         role: z.enum(['admin', 'member']),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -247,8 +246,8 @@ export const organizationsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -290,7 +289,8 @@ export const organizationsRouter = {
         if (membersCount.length >= 1) {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'Free tier is limited to 1 member. Upgrade to Pro Team to add more members.',
+            message:
+              'Free tier is limited to 1 member. Upgrade to Pro Team to add more members.',
           })
         }
       }
@@ -316,8 +316,8 @@ export const organizationsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, targetUser.id)
-          )
+            eq(organizationMembers.userId, targetUser.id),
+          ),
         )
         .limit(1)
 
@@ -338,4 +338,3 @@ export const organizationsRouter = {
       return { success: true }
     }),
 } satisfies TRPCRouterRecord
-

@@ -14,4 +14,3 @@ describe('TierBadge', () => {
     expect(screen.getByText('Business')).toBeTruthy()
   })
 })
-

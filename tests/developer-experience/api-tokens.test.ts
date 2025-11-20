@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { formatApiToken, generateApiToken, hashApiToken, verifyApiToken } from '@/lib/api-tokens'
+import {
+  formatApiToken,
+  generateApiToken,
+  hashApiToken,
+  verifyApiToken,
+} from '@/lib/api-tokens'
 
 describe('API token helpers', () => {
   it('generates url-safe tokens', () => {
@@ -21,4 +26,3 @@ describe('API token helpers', () => {
     expect(formatApiToken(token)).toEqual('abcdefgh...uvwx')
   })
 })
-

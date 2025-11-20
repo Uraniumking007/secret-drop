@@ -1,17 +1,14 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and } from 'drizzle-orm'
-import { db } from '@/db'
-import {
-  apiTokens,
-  organizationMembers,
-} from '@/db/schema'
-import { protectedProcedure, createTRPCRouter } from '../init'
+import { and, eq } from 'drizzle-orm'
+import { createTRPCRouter, protectedProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
+import { db } from '@/db'
+import { apiTokens, organizationMembers } from '@/db/schema'
 import {
+  formatApiToken,
   generateApiToken,
   hashApiToken,
-  formatApiToken,
 } from '@/lib/api-tokens'
 
 export const apiTokensRouter = {
@@ -23,7 +20,7 @@ export const apiTokensRouter = {
         orgId: z.number().optional(),
         teamId: z.number().optional(),
         expiresAt: z.date().optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -36,8 +33,8 @@ export const apiTokensRouter = {
           .where(
             and(
               eq(organizationMembers.orgId, input.orgId),
-              eq(organizationMembers.userId, userId)
-            )
+              eq(organizationMembers.userId, userId),
+            ),
           )
           .limit(1)
 
@@ -107,9 +104,7 @@ export const apiTokensRouter = {
       const [token] = await db
         .select()
         .from(apiTokens)
-        .where(
-          and(eq(apiTokens.id, input.id), eq(apiTokens.userId, userId))
-        )
+        .where(and(eq(apiTokens.id, input.id), eq(apiTokens.userId, userId)))
         .limit(1)
 
       if (!token) {
@@ -165,4 +160,3 @@ export const apiTokensRouter = {
       }
     }),
 } satisfies TRPCRouterRecord
-

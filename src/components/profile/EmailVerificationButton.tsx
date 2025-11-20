@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { Mail } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
 import { Button } from '@/components/ui/button'
-import { Mail } from 'lucide-react'
 
 interface EmailVerificationButtonProps {
   email: string
 }
 
-export function EmailVerificationButton({ email }: EmailVerificationButtonProps) {
+export function EmailVerificationButton({
+  email,
+}: EmailVerificationButtonProps) {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const trpc = useTRPC()
 
   const { mutate: sendVerification, isPending } = useMutation(
-    trpc.users.sendVerificationEmail.mutationOptions()
+    trpc.users.sendVerificationEmail.mutationOptions(),
   )
 
   const handleClick = () => {
@@ -38,9 +40,7 @@ export function EmailVerificationButton({ email }: EmailVerificationButtonProps)
   }
 
   if (error) {
-    return (
-      <span className="text-xs text-destructive">{error}</span>
-    )
+    return <span className="text-xs text-destructive">{error}</span>
   }
 
   return (
@@ -56,4 +56,3 @@ export function EmailVerificationButton({ email }: EmailVerificationButtonProps)
     </Button>
   )
 }
-

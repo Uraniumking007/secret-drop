@@ -1,14 +1,15 @@
 <!-- Coverage targets and tooling updates -->
+
 # Coverage Targets & Tooling Updates
 
 ## 1. Coverage Thresholds
 
-| Area | File Pattern | Target |
-| --- | --- | --- |
-| Backend logic | `src/lib/**/*.ts`, `src/db/**/*.ts`, `src/routes/api*.tsx` | 90% statements / 85% branches |
-| Frontend routes/components | `src/routes/**/*.tsx`, `src/components/**/*.tsx` | 85% statements / 80% branches |
-| Developer experience (CLI) | `cli/src/**/*.ts` | 90% statements / 90% branches |
-| Integration suites | `tests/integration/**/*.test.ts` | Scenario completeness tracked via checklist, no numeric gate |
+| Area                       | File Pattern                                               | Target                                                       |
+| -------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------ |
+| Backend logic              | `src/lib/**/*.ts`, `src/db/**/*.ts`, `src/routes/api*.tsx` | 90% statements / 85% branches                                |
+| Frontend routes/components | `src/routes/**/*.tsx`, `src/components/**/*.tsx`           | 85% statements / 80% branches                                |
+| Developer experience (CLI) | `cli/src/**/*.ts`                                          | 90% statements / 90% branches                                |
+| Integration suites         | `tests/integration/**/*.test.ts`                           | Scenario completeness tracked via checklist, no numeric gate |
 
 - Enforce thresholds in Vitest config via `coverage.thresholds` block and fail CI when unmet.
 
@@ -31,4 +32,3 @@
 - Add `docs/testing/README.md` summarizing structure (linking to traceability + plans) – optional but recommended.
 - Establish PR checklist item: “Touches feature? add/update tests per traceability matrix”.
 - Schedule weekly coverage report in CI pipeline, failing if coverage regresses >2% vs main.
-

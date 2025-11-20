@@ -15,9 +15,7 @@ export interface SecretOptions {
 /**
  * Calculate expiration timestamp from option
  */
-export function calculateExpiration(
-  option: ExpirationOption
-): Date | null {
+export function calculateExpiration(option: ExpirationOption): Date | null {
   if (option === 'never') {
     return null
   }
@@ -52,7 +50,7 @@ export function isExpired(expiresAt: Date | null): boolean {
  */
 export function hasReachedViewLimit(
   viewCount: number,
-  maxViews: number | null
+  maxViews: number | null,
 ): boolean {
   if (maxViews === null || maxViews === 0) {
     return false
@@ -68,7 +66,7 @@ export function canViewSecret(
   maxViews: number | null,
   expiresAt: Date | null,
   burnOnRead: boolean,
-  alreadyViewed: boolean
+  alreadyViewed: boolean,
 ): { canView: boolean; reason?: string } {
   if (isExpired(expiresAt)) {
     return { canView: false, reason: 'Secret has expired' }
@@ -89,8 +87,7 @@ export function canViewSecret(
  * Generate a share token (64 character random string)
  */
 export async function generateShareToken(): Promise<string> {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let token = ''
   const array = new Uint8Array(48) // 48 bytes = 64 base64 chars
 
@@ -192,4 +189,3 @@ export function getTierLimits(tier: 'free' | 'pro_team' | 'business') {
       return FREE_TIER_LIMITS
   }
 }
-

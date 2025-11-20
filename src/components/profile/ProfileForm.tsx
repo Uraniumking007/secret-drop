@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ImageUpload } from './ImageUpload'
 import { useTRPC } from '@/integrations/trpc/react'
 import { useSession } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
@@ -9,11 +10,10 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@/components/ui/card'
-import { ImageUpload } from './ImageUpload'
 
 interface ProfileFormProps {
   initialData: {

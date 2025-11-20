@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import type { ReactNode } from 'react'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { DashboardSidebarContent } from '@/components/dashboard/Sidebar'
-import type { ReactNode } from 'react'
 
 vi.mock('@/components/dashboard/OrgSwitcher', () => ({
   OrgSwitcher: () => <div data-testid="org-switcher" />,
@@ -80,4 +80,3 @@ describe('Dashboard Sidebar', () => {
     expect(screen.getByText('Team')).not.toBeVisible()
   })
 })
-

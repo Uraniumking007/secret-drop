@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { EncryptionLibrary } from '@/lib/encryption'
+import type { ExpirationOption } from '@/lib/secret-utils'
 import { useTRPC } from '@/integrations/trpc/react'
 import { SecretForm } from '@/components/secrets/SecretForm'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { EncryptionLibrary } from '@/lib/encryption'
-import type { ExpirationOption } from '@/lib/secret-utils'
 
 export const Route = createFileRoute('/dashboard/secrets/create')({
   component: CreateSecretPage,
@@ -23,7 +23,9 @@ function CreateSecretPage() {
   const { data: orgs } = useQuery(trpc.organizations.list.queryOptions())
   const orgId = search.orgId || orgs?.[0]?.id
 
-  const { mutateAsync: createSecret, isPending } = useMutation(trpc.secrets.create.mutationOptions())
+  const { mutateAsync: createSecret, isPending } = useMutation(
+    trpc.secrets.create.mutationOptions(),
+  )
 
   const [error, setError] = useState<string | null>(null)
 
@@ -96,7 +98,7 @@ function CreateSecretPage() {
           <SecretForm
             onSubmit={handleSubmit}
             isLoading={isPending}
-            userTier={orgs?.find(o => o.id === orgId)?.tier || 'free'}
+            userTier={orgs?.find((o) => o.id === orgId)?.tier || 'free'}
             orgId={orgId}
           />
         </CardContent>

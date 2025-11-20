@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { Shield } from 'lucide-react'
 import { signUp, useSession } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Shield } from 'lucide-react'
 
 export const Route = createFileRoute('/auth/signup')({
   component: SignupPage,

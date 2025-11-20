@@ -38,14 +38,14 @@ code {
   --border: oklch(0.92 0.01 255);
   --input: oklch(0.92 0.01 255);
   --ring: oklch(0.5 0.12 248);
-  
+
   /* Chart Colors */
   --chart-1: oklch(0.5 0.12 248);
   --chart-2: oklch(0.6 0.12 248);
   --chart-3: oklch(0.7 0.12 248);
   --chart-4: oklch(0.8 0.12 248);
   --chart-5: oklch(0.4 0.12 248);
-  
+
   --radius: 0.625rem;
 
   /* Sidebar - Light */

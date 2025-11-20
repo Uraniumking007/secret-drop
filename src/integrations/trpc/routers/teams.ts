@@ -1,14 +1,10 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and } from 'drizzle-orm'
-import { db } from '@/db'
-import {
-  teams,
-  teamMembers,
-  organizationMembers,
-} from '@/db/schema'
-import { protectedProcedure, createTRPCRouter } from '../init'
+import { and, eq } from 'drizzle-orm'
+import { createTRPCRouter, protectedProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
+import { db } from '@/db'
+import { organizationMembers, teamMembers, teams } from '@/db/schema'
 import { canPerformAction } from '@/lib/rbac'
 
 export const teamsRouter = {
@@ -18,8 +14,11 @@ export const teamsRouter = {
       z.object({
         orgId: z.number(),
         name: z.string().min(1),
-        slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
-      })
+        slug: z
+          .string()
+          .min(1)
+          .regex(/^[a-z0-9-]+$/),
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -31,8 +30,8 @@ export const teamsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -54,12 +53,7 @@ export const teamsRouter = {
       const existing = await db
         .select()
         .from(teams)
-        .where(
-          and(
-            eq(teams.orgId, input.orgId),
-            eq(teams.slug, input.slug)
-          )
-        )
+        .where(and(eq(teams.orgId, input.orgId), eq(teams.slug, input.slug)))
         .limit(1)
 
       if (existing.length > 0) {
@@ -101,8 +95,8 @@ export const teamsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -155,8 +149,8 @@ export const teamsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, team.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -188,7 +182,7 @@ export const teamsRouter = {
       z.object({
         teamId: z.number(),
         userId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const currentUserId = ctx.user.id
@@ -214,8 +208,8 @@ export const teamsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, team.orgId),
-            eq(organizationMembers.userId, currentUserId)
-          )
+            eq(organizationMembers.userId, currentUserId),
+          ),
         )
         .limit(1)
 
@@ -240,8 +234,8 @@ export const teamsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, team.orgId),
-            eq(organizationMembers.userId, input.userId)
-          )
+            eq(organizationMembers.userId, input.userId),
+          ),
         )
         .limit(1)
 
@@ -259,8 +253,8 @@ export const teamsRouter = {
         .where(
           and(
             eq(teamMembers.teamId, input.teamId),
-            eq(teamMembers.userId, input.userId)
-          )
+            eq(teamMembers.userId, input.userId),
+          ),
         )
         .limit(1)
 
@@ -286,7 +280,7 @@ export const teamsRouter = {
       z.object({
         teamId: z.number(),
         userId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const currentUserId = ctx.user.id
@@ -313,8 +307,8 @@ export const teamsRouter = {
           .where(
             and(
               eq(organizationMembers.orgId, team.orgId),
-              eq(organizationMembers.userId, currentUserId)
-            )
+              eq(organizationMembers.userId, currentUserId),
+            ),
           )
           .limit(1)
 
@@ -339,8 +333,8 @@ export const teamsRouter = {
         .where(
           and(
             eq(teamMembers.teamId, input.teamId),
-            eq(teamMembers.userId, input.userId)
-          )
+            eq(teamMembers.userId, input.userId),
+          ),
         )
 
       return { success: true }
@@ -373,8 +367,8 @@ export const teamsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, team.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -398,4 +392,3 @@ export const teamsRouter = {
       return { success: true }
     }),
 } satisfies TRPCRouterRecord
-

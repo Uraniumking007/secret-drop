@@ -1,6 +1,14 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useSession, signOut } from '@/lib/auth-client'
+import {
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Settings,
+  Shield,
+  User,
+  X,
+} from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
@@ -12,16 +20,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-import {
-  Menu,
-  X,
-  Shield,
-  User,
-  Settings,
-  LogOut,
-  LayoutDashboard,
-} from 'lucide-react'
 import { OrgSwitcher } from './dashboard/OrgSwitcher'
+import { signOut, useSession } from '@/lib/auth-client'
 
 export default function Header() {
   const navigate = useNavigate()

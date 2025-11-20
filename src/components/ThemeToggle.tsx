@@ -1,4 +1,4 @@
-import { Moon, Sun, Monitor } from 'lucide-react'
+import { Monitor, Moon, Sun } from 'lucide-react'
 import { useTheme } from '@/lib/theme'
 import { Button } from '@/components/ui/button'
 import {
@@ -42,4 +42,3 @@ export function ThemeToggle() {
     </DropdownMenu>
   )
 }
-

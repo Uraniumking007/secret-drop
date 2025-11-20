@@ -21,6 +21,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as DashboardTeamsIndexRouteImport } from './routes/dashboard/teams/index'
 import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as DashboardSecretsIndexRouteImport } from './routes/dashboard/secrets/index'
+import { Route as DashboardSettingsProfileRouteImport } from './routes/dashboard/settings/profile'
 import { Route as DashboardSettingsOrganizationRouteImport } from './routes/dashboard/settings/organization'
 import { Route as DashboardSettingsApiTokensRouteImport } from './routes/dashboard/settings/api-tokens'
 import { Route as DashboardSecretsCreateRouteImport } from './routes/dashboard/secrets/create'
@@ -88,6 +89,12 @@ const DashboardSecretsIndexRoute = DashboardSecretsIndexRouteImport.update({
   path: '/secrets/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardSettingsProfileRoute =
+  DashboardSettingsProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any)
 const DashboardSettingsOrganizationRoute =
   DashboardSettingsOrganizationRouteImport.update({
     id: '/organization',
@@ -138,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/secrets': typeof DashboardSecretsIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/teams': typeof DashboardTeamsIndexRoute
@@ -156,6 +164,7 @@ export interface FileRoutesByTo {
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/secrets': typeof DashboardSecretsIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/dashboard/teams': typeof DashboardTeamsIndexRoute
@@ -177,6 +186,7 @@ export interface FileRoutesById {
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/secrets/': typeof DashboardSecretsIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/teams/': typeof DashboardTeamsIndexRoute
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
     | '/dashboard/settings/organization'
+    | '/dashboard/settings/profile'
     | '/dashboard/secrets'
     | '/dashboard/settings/'
     | '/dashboard/teams'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
     | '/dashboard/settings/organization'
+    | '/dashboard/settings/profile'
     | '/dashboard/secrets'
     | '/dashboard/settings'
     | '/dashboard/teams'
@@ -237,6 +249,7 @@ export interface FileRouteTypes {
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
     | '/dashboard/settings/organization'
+    | '/dashboard/settings/profile'
     | '/dashboard/secrets/'
     | '/dashboard/settings/'
     | '/dashboard/teams/'
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSecretsIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/settings/profile': {
+      id: '/dashboard/settings/profile'
+      path: '/profile'
+      fullPath: '/dashboard/settings/profile'
+      preLoaderRoute: typeof DashboardSettingsProfileRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
     '/dashboard/settings/organization': {
       id: '/dashboard/settings/organization'
       path: '/organization'
@@ -387,12 +407,14 @@ declare module '@tanstack/react-router' {
 interface DashboardSettingsRouteChildren {
   DashboardSettingsApiTokensRoute: typeof DashboardSettingsApiTokensRoute
   DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute
+  DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
 }
 
 const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
   DashboardSettingsApiTokensRoute: DashboardSettingsApiTokensRoute,
   DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
+  DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
 }
 

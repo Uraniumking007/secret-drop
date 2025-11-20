@@ -1,5 +1,5 @@
+import { Activity, Edit, Eye, Share2, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Activity, Eye, Edit, Trash2, Share2 } from 'lucide-react'
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000)
@@ -26,7 +26,7 @@ interface ActivityItem {
 }
 
 interface ActivityFeedProps {
-  activities: ActivityItem[]
+  activities: Array<ActivityItem>
 }
 
 const actionIcons = {
@@ -99,4 +99,3 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
     </Card>
   )
 }
-

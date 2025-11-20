@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   canUseBurnOnRead,
   canUseIPAllowlisting,
-  canUseSecretRecovery,
   canUseSSO,
+  canUseSecretRecovery,
   getAuditLogDays,
   getMaxViews,
   hasFeatureAccess,
@@ -49,4 +49,3 @@ describe('subscription tier gates', () => {
     expect(validateFeatureUsage('pro_team', 'maxViews', 50).valid).toBe(true)
   })
 })
-

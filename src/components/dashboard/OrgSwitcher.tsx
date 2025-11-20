@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { PlusCircle } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 import { useTRPC } from '@/integrations/trpc/react'
 import {
   Select,
@@ -8,16 +10,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import { PlusCircle } from 'lucide-react'
-import { useNavigate } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { useSession } from '@/lib/auth-client'
 
 interface OrgSwitcherProps {
   className?: string
+  onOpenChange?: (open: boolean) => void
 }
 
-export function OrgSwitcher({ className }: OrgSwitcherProps) {
+export function OrgSwitcher({ className, onOpenChange }: OrgSwitcherProps) {
   const { data: session } = useSession()
   const currentOrgId =
     session?.activeOrgId ?? session?.session?.activeOrgId ?? null
@@ -52,7 +53,11 @@ export function OrgSwitcher({ className }: OrgSwitcherProps) {
 
   return (
     <div className={cn('w-full', className)}>
-      <Select value={selectValue} onValueChange={handleOrgChange}>
+      <Select
+        value={selectValue}
+        onValueChange={handleOrgChange}
+        onOpenChange={onOpenChange}
+      >
         <SelectTrigger className="w-full bg-background">
           <SelectValue placeholder="Select Organization">
             {activeOrg?.name}

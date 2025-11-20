@@ -1,28 +1,30 @@
-import type { ComponentType, ReactNode, SVGProps } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
 import {
+  Building2,
   LayoutDashboard,
   Lock,
   Settings,
-  Users,
-  User,
   Shield,
+  User,
+  Users,
 } from 'lucide-react'
+import { motion } from 'motion/react'
+import { OrgSwitcher } from './OrgSwitcher'
+import type { ComponentType, ReactNode, SVGProps } from 'react'
 import {
-  Sidebar as SidebarRoot,
-  SidebarBody,
   DesktopSidebar,
   MobileSidebar,
+  SidebarBody,
+  Sidebar as SidebarRoot,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { OrgSwitcher } from './OrgSwitcher'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useSession } from '@/lib/auth-client'
 
 type SidebarSectionConfig = {
   title: string
-  links: SidebarLinkConfig[]
+  links: Array<SidebarLinkConfig>
 }
 
 type SidebarLinkConfig = {
@@ -36,7 +38,7 @@ type SidebarChildLink = {
   label: string
 }
 
-const navSections: SidebarSectionConfig[] = [
+const navSections: Array<SidebarSectionConfig> = [
   {
     title: 'Overview',
     links: [
@@ -53,9 +55,9 @@ const navSections: SidebarSectionConfig[] = [
 
 export function Sidebar() {
   return (
-    <SidebarRoot animate={false}>
+    <SidebarRoot animate={true}>
       <SidebarBody className="w-full text-sidebar-foreground">
-        <DesktopSidebar className="border-r border-white/15 bg-linear-to-b from-sidebar via-sidebar/80 to-background/60 text-white backdrop-blur-xl md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:overflow-y-auto">
+        <DesktopSidebar className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:h-full md:overflow-y-auto">
           <SidebarContent />
         </DesktopSidebar>
         <MobileSidebar className="bg-sidebar text-sidebar-foreground">
@@ -106,25 +108,59 @@ function SidebarContent({ isMobile = false }: { isMobile?: boolean } = {}) {
 export { SidebarContent as DashboardSidebarContent }
 
 function SidebarBrand() {
+  const { open, animate } = useSidebar()
   return (
-    <div className="flex items-center gap-3 rounded-3xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
-      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sidebar">
+    <div
+      className={cn(
+        'flex items-center gap-3 rounded-xl border border-sidebar-border bg-sidebar-accent/50 px-4 py-3 text-sm font-semibold text-sidebar-foreground shadow-sm transition-all duration-300',
+        !open && animate
+          ? 'px-2 justify-center bg-transparent border-transparent shadow-none'
+          : '',
+      )}
+    >
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
         <Shield className="h-5 w-5" />
       </div>
-      <div className="flex flex-col leading-tight">
-        <span className="text-xs uppercase tracking-[0.4em] text-white/70">
-          SecretDrop
-        </span>
-        <span className="text-lg font-bold">Acet Labs</span>
-      </div>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, width: 0 }}
+          animate={{ opacity: 1, width: 'auto' }}
+          exit={{ opacity: 0, width: 0 }}
+          className="flex flex-col leading-tight overflow-hidden whitespace-nowrap"
+        >
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">
+            SecretDrop
+          </span>
+          <span className="text-lg font-bold">Acet Labs</span>
+        </motion.div>
+      )}
     </div>
   )
 }
 
 function SidebarOrgSwitcher() {
+  const { open, setLocked } = useSidebar()
   return (
-    <div className="rounded-3xl border border-white/10 bg-black/20 p-3 shadow-[0_15px_45px_rgba(10,10,10,0.65)]">
-      <OrgSwitcher className="bg-transparent text-foreground" />
+    <div
+      className={cn(
+        'rounded-xl border border-sidebar-border bg-sidebar-accent/30 p-1 shadow-sm transition-all',
+        !open && 'border-transparent bg-transparent shadow-none p-0',
+      )}
+    >
+      <OrgSwitcher
+        className={cn(
+          'bg-transparent text-sidebar-foreground',
+          !open && 'hidden',
+        )}
+        onOpenChange={setLocked}
+      />
+      {!open && (
+        <div className="flex justify-center">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-foreground">
+            <Building2 className="h-4 w-4" />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -136,12 +172,19 @@ function SidebarSection({
   title: string
   children: ReactNode
 }) {
+  const { open } = useSidebar()
   return (
-    <div className="space-y-3">
-      <p className="px-1 text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
-        {title}
-      </p>
-      <div className="space-y-2">{children}</div>
+    <div className="space-y-2">
+      {open && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70"
+        >
+          {title}
+        </motion.p>
+      )}
+      <div className="space-y-1">{children}</div>
     </div>
   )
 }
@@ -158,22 +201,23 @@ function SidebarNavLink({
   label: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
   pathname: string
-  childrenLinks?: SidebarChildLink[]
+  childrenLinks?: Array<SidebarChildLink>
   isMobile?: boolean
 }) {
-  const { setOpen } = useSidebar()
+  const { setOpen, open, animate } = useSidebar()
   const isActive = matchPath(pathname, to)
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <Link
         to={to}
         preload="intent"
         className={cn(
-          'group flex items-center gap-3 rounded-3xl border px-3 py-3 transition-all duration-300',
+          'group flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-200',
           isActive
-            ? 'border-white/40 bg-white/15 text-white shadow-lg shadow-white/10'
-            : 'border-white/5 bg-white/5 text-white/70 hover:border-white/20 hover:bg-white/10 hover:text-white',
+            ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+            : 'text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
+          !open && animate ? 'justify-center px-2' : '',
         )}
         onClick={() => {
           if (isMobile) {
@@ -183,33 +227,37 @@ function SidebarNavLink({
       >
         <span
           className={cn(
-            'flex h-9 w-9 items-center justify-center rounded-2xl bg-white/10 text-white transition group-hover:bg-white/20',
-            isActive && 'bg-white text-sidebar',
+            'flex h-5 w-5 items-center justify-center transition-colors',
+            isActive
+              ? 'text-sidebar-primary'
+              : 'text-muted-foreground group-hover:text-sidebar-foreground',
           )}
         >
-          <Icon className={cn('h-4 w-4', isActive && 'text-sidebar')} />
+          <Icon className={cn('h-5 w-5')} />
         </span>
-        <div className="flex flex-1 flex-col">
-          <span className="text-sm font-semibold leading-tight">{label}</span>
-          <span className="text-xs text-white/60">
-            {childrenLinks?.length
-              ? 'Quick actions available'
-              : 'Navigate to section'}
-          </span>
-        </div>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: 'auto' }}
+            exit={{ opacity: 0, width: 0 }}
+            className="flex flex-1 flex-col overflow-hidden whitespace-nowrap"
+          >
+            <span className="text-sm leading-tight">{label}</span>
+          </motion.div>
+        )}
       </Link>
-      {childrenLinks && childrenLinks.length > 0 && (
-        <div className="space-y-1 pl-12">
+      {open && childrenLinks && childrenLinks.length > 0 && (
+        <div className="space-y-0.5 pl-10">
           {childrenLinks.map((child) => (
             <Link
               key={child.to}
               to={child.to}
               preload="intent"
               className={cn(
-                'flex items-center justify-between rounded-2xl px-3 py-2 text-sm transition-colors',
+                'flex items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors',
                 matchPath(pathname, child.to)
-                  ? 'bg-white/15 text-white'
-                  : 'text-white/70 hover:text-white hover:bg-white/10',
+                  ? 'bg-sidebar-accent/50 text-sidebar-foreground'
+                  : 'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/30',
               )}
               onClick={() => {
                 if (isMobile) {
@@ -218,7 +266,6 @@ function SidebarNavLink({
               }}
             >
               {child.label}
-              <span className="text-xs text-white/50">↗</span>
             </Link>
           ))}
         </div>
@@ -228,6 +275,7 @@ function SidebarNavLink({
 }
 
 function SidebarUserCard({ name, email }: { name: string; email: string }) {
+  const { open, animate } = useSidebar()
   const initials =
     name
       .split(' ')
@@ -237,34 +285,63 @@ function SidebarUserCard({ name, email }: { name: string; email: string }) {
       .toUpperCase() || 'U'
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-linear-to-br from-white/10 to-white/5 p-4 shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
-      <div className="flex items-center gap-3">
-        <Avatar className="h-12 w-12 border border-white/30">
-          <AvatarFallback className="bg-white/30 text-white">
+    <div
+      className={cn(
+        'rounded-xl border border-sidebar-border bg-sidebar-accent/10 p-2 shadow-sm transition-all',
+        !open && animate
+          ? 'bg-transparent border-transparent shadow-none p-0 flex justify-center'
+          : '',
+      )}
+    >
+      <div
+        className={cn(
+          'flex items-center gap-3',
+          !open && animate ? 'justify-center' : '',
+        )}
+      >
+        <Avatar className="h-9 w-9 border border-sidebar-border">
+          <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground">
             {initials}
           </AvatarFallback>
         </Avatar>
-        <div className="flex flex-1 flex-col text-sm">
-          <span className="font-semibold text-white">{name}</span>
-          <span className="text-xs text-white/70">{email}</span>
-        </div>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: 'auto' }}
+            exit={{ opacity: 0, width: 0 }}
+            className="flex flex-1 flex-col text-sm overflow-hidden"
+          >
+            <span className="font-semibold text-sidebar-foreground truncate">
+              {name}
+            </span>
+            <span className="text-xs text-muted-foreground truncate">
+              {email}
+            </span>
+          </motion.div>
+        )}
       </div>
-      <div className="mt-4 gap-2 text-xs text-white/70">
-        <Link
-          to="/dashboard/profile"
-          className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 font-medium text-white hover:bg-white/30"
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="mt-3"
         >
-          <User className="h-3.5 w-3.5" />
-          View profile
-        </Link>
-      </div>
+          <Link
+            to="/dashboard/profile"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-sidebar-accent px-3 py-1.5 text-xs font-medium text-sidebar-accent-foreground hover:bg-sidebar-accent/80"
+          >
+            <User className="h-3.5 w-3.5" />
+            View profile
+          </Link>
+        </motion.div>
+      )}
     </div>
   )
 }
 
 function buildSectionsWithChildren(pathname: string): Array<
   SidebarSectionConfig & {
-    links: Array<SidebarLinkConfig & { childrenLinks?: SidebarChildLink[] }>
+    links: Array<SidebarLinkConfig & { childrenLinks?: Array<SidebarChildLink> }>
   }
 > {
   return navSections.map((section) => ({
@@ -279,7 +356,7 @@ function buildSectionsWithChildren(pathname: string): Array<
 function computeChildLinks(
   linkTo: string,
   pathname: string,
-): SidebarChildLink[] | undefined {
+): Array<SidebarChildLink> | undefined {
   if (
     linkTo.startsWith('/dashboard/secrets') &&
     pathname.startsWith('/dashboard/secrets')
@@ -295,6 +372,7 @@ function computeChildLinks(
     pathname.startsWith('/dashboard/settings')
   ) {
     return [
+      { label: 'Profile', to: '/dashboard/settings/profile' },
       { label: 'API Tokens', to: '/dashboard/settings/api-tokens' },
       { label: 'Organizations', to: '/dashboard/settings/organization' },
     ]

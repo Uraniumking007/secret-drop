@@ -1,18 +1,14 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and } from 'drizzle-orm'
-import { db } from '@/db'
-import {
-  organizations,
-  organizationMembers,
-  subscriptions,
-} from '@/db/schema'
-import { protectedProcedure, createTRPCRouter } from '../init'
+import { and, eq } from 'drizzle-orm'
+import { createTRPCRouter, protectedProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
+import { db } from '@/db'
+import { organizationMembers, organizations, subscriptions } from '@/db/schema'
 import {
+  cancelSubscription as cancelStripeSubscription,
   createCheckoutSession,
   getOrCreateCustomer,
-  cancelSubscription as cancelStripeSubscription,
   updateSubscriptionTier as updateStripeSubscriptionTier,
 } from '@/lib/stripe'
 import { canPerformAction } from '@/lib/rbac'
@@ -24,7 +20,7 @@ export const billingRouter = {
       z.object({
         orgId: z.number(),
         tier: z.enum(['pro_team', 'business']),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -36,8 +32,8 @@ export const billingRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -72,7 +68,7 @@ export const billingRouter = {
       // Get or create Stripe customer
       const customer = await getOrCreateCustomer(
         ctx.user.email || '',
-        ctx.user.name || undefined
+        ctx.user.name || undefined,
       )
 
       // Create checkout session
@@ -81,7 +77,7 @@ export const billingRouter = {
         input.tier,
         input.orgId,
         `${process.env.SERVER_URL || 'http://localhost:3000'}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-        `${process.env.SERVER_URL || 'http://localhost:3000'}/billing/cancel`
+        `${process.env.SERVER_URL || 'http://localhost:3000'}/billing/cancel`,
       )
 
       return {
@@ -103,8 +99,8 @@ export const billingRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -138,8 +134,8 @@ export const billingRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -185,4 +181,3 @@ export const billingRouter = {
       return { success: true }
     }),
 } satisfies TRPCRouterRecord
-

@@ -1,15 +1,21 @@
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { ExternalLink, Key, Plus } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Key, Plus, ExternalLink } from 'lucide-react'
 
 export function ApiTokensSettings() {
   const trpc = useTRPC()
 
   const { data: tokens, isLoading } = useQuery(
-    trpc.apiTokens.list.queryOptions()
+    trpc.apiTokens.list.queryOptions(),
   )
 
   return (
@@ -75,4 +81,3 @@ export function ApiTokensSettings() {
     </Card>
   )
 }
-

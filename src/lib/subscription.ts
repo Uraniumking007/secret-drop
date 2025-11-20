@@ -2,8 +2,8 @@
  * Subscription tier utilities and feature gating
  */
 
-import type { subscriptionTierEnum } from '@/db/schema'
 import { getTierLimits } from './secret-utils'
+import type { subscriptionTierEnum } from '@/db/schema'
 
 export type SubscriptionTier = 'free' | 'pro_team' | 'business'
 
@@ -12,7 +12,7 @@ export type SubscriptionTier = 'free' | 'pro_team' | 'business'
  */
 export function hasFeatureAccess(
   tier: SubscriptionTier,
-  feature: keyof ReturnType<typeof getTierLimits>
+  feature: keyof ReturnType<typeof getTierLimits>,
 ): boolean {
   const limits = getTierLimits(tier)
   const featureValue = limits[feature]
@@ -88,14 +88,15 @@ export function getAuditLogDays(tier: SubscriptionTier): number | null {
 export function validateFeatureUsage(
   tier: SubscriptionTier,
   feature: string,
-  value?: any
+  value?: any,
 ): { valid: boolean; message?: string } {
   switch (feature) {
     case 'burnOnRead':
       if (value && !canUseBurnOnRead(tier)) {
         return {
           valid: false,
-          message: 'Burn-on-read is only available for Pro Team and Business tiers',
+          message:
+            'Burn-on-read is only available for Pro Team and Business tiers',
         }
       }
       break
@@ -131,4 +132,3 @@ export function validateFeatureUsage(
 
   return { valid: true }
 }
-

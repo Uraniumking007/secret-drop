@@ -1,21 +1,27 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Globe, LogOut, Monitor, Smartphone } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { LogOut, Monitor, Smartphone, Globe } from 'lucide-react'
 
 export function SecuritySettings() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
 
   const { data: sessions, isLoading } = useQuery(
-    trpc.users.getActiveSessions.queryOptions()
+    trpc.users.getActiveSessions.queryOptions(),
   )
 
   const { mutate: revokeSession, isPending } = useMutation(
-    trpc.users.revokeSession.mutationOptions()
+    trpc.users.revokeSession.mutationOptions(),
   )
 
   const handleRevokeSession = (sessionId: string) => {
@@ -28,7 +34,7 @@ export function SecuritySettings() {
               queryKey: ['trpc', 'users', 'getActiveSessions'],
             })
           },
-        }
+        },
       )
     }
   }
@@ -36,7 +42,11 @@ export function SecuritySettings() {
   const getDeviceIcon = (userAgent: string | null) => {
     if (!userAgent) return Monitor
     const ua = userAgent.toLowerCase()
-    if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
+    if (
+      ua.includes('mobile') ||
+      ua.includes('android') ||
+      ua.includes('iphone')
+    ) {
       return Smartphone
     }
     return Monitor
@@ -65,7 +75,9 @@ export function SecuritySettings() {
         {isLoading ? (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <p className="mt-4 text-sm text-muted-foreground">Loading sessions...</p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Loading sessions...
+            </p>
           </div>
         ) : sessions && sessions.length > 0 ? (
           <div className="space-y-3">
@@ -134,4 +146,3 @@ export function SecuritySettings() {
     </Card>
   )
 }
-

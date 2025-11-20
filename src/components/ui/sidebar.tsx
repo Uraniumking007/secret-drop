@@ -1,32 +1,32 @@
-"use client";
-import { cn } from "@/lib/utils";
-import React, { useState, createContext, useContext } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { IconMenu2, IconX } from "@tabler/icons-react";
+'use client'
+import React, { createContext, useContext, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { IconMenu2, IconX } from '@tabler/icons-react'
+import { cn } from '@/lib/utils'
 
 interface Links {
-  label: string;
-  href: string;
-  icon: React.JSX.Element | React.ReactNode;
+  label: string
+  href: string
+  icon: React.JSX.Element | React.ReactNode
 }
 
 interface SidebarContextProps {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  animate: boolean;
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  animate: boolean
+  locked: boolean
+  setLocked: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const SidebarContext = createContext<SidebarContextProps | undefined>(
-  undefined
-);
+const SidebarContext = createContext<SidebarContextProps | undefined>(undefined)
 
 export const useSidebar = () => {
-  const context = useContext(SidebarContext);
+  const context = useContext(SidebarContext)
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
+    throw new Error('useSidebar must be used within a SidebarProvider')
   }
-  return context;
-};
+  return context
+}
 
 export const SidebarProvider = ({
   children,
@@ -34,22 +34,25 @@ export const SidebarProvider = ({
   setOpen: setOpenProp,
   animate = true,
 }: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
+  children: React.ReactNode
+  open?: boolean
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>
+  animate?: boolean
 }) => {
-  const [openState, setOpenState] = useState(false);
+  const [openState, setOpenState] = useState(false)
+  const [locked, setLocked] = useState(false)
 
-  const open = openProp !== undefined ? openProp : openState;
-  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
+  const open = openProp !== undefined ? openProp : openState
+  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState
 
   return (
-    <SidebarContext.Provider value={{ open, setOpen, animate: animate }}>
+    <SidebarContext.Provider
+      value={{ open, setOpen, animate: animate, locked, setLocked }}
+    >
       {children}
     </SidebarContext.Provider>
-  );
-};
+  )
+}
 
 export const Sidebar = ({
   children,
@@ -57,39 +60,44 @@ export const Sidebar = ({
   setOpen,
   animate,
 }: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
+  children: React.ReactNode
+  open?: boolean
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>
+  animate?: boolean
 }) => {
   return (
     <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
       {children}
     </SidebarProvider>
-  );
-};
+  )
+}
 
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
-  return (
-    <>
-      <DesktopSidebar {...props} />
-      <MobileSidebar {...(props as React.ComponentProps<"div">)} />
-    </>
-  );
-};
+  return <>{props.children}</>
+}
 
 export const DesktopSidebar = ({
   className,
   children,
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
+  const { open, setOpen, animate, locked } = useSidebar()
   return (
     <>
       <motion.div
         className={cn(
-          'hidden h-full w-[320px] shrink-0 flex-col px-4 py-4 md:flex',
+          'hidden h-full px-4 py-4 md:flex md:flex-col bg-sidebar w-[300px] shrink-0',
           className,
         )}
+        animate={{
+          width: animate ? (open ? '300px' : '60px') : '300px',
+        }}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => {
+          if (!locked) {
+            setOpen(false)
+          }
+        }}
         {...props}
       >
         {children}
@@ -108,7 +116,7 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          'h-10 px-4 py-4 flex flex-row md:hidden  items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full',
+          'h-10 px-4 py-4 flex flex-row md:hidden  items-center justify-between bg-sidebar w-full',
         )}
         {...props}
       >
@@ -116,7 +124,7 @@ export const MobileSidebar = ({
           <button
             type="button"
             aria-label={open ? 'Close sidebar menu' : 'Open sidebar menu'}
-            className="rounded-full p-2 text-neutral-800 transition hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700"
+            className="rounded-full p-2 text-sidebar-foreground transition hover:bg-sidebar-accent"
             onClick={() => setOpen(!open)}
           >
             <IconMenu2 />
@@ -133,14 +141,14 @@ export const MobileSidebar = ({
                 ease: 'easeInOut',
               }}
               className={cn(
-                'fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-100 flex flex-col justify-between',
+                'fixed h-full w-full inset-0 bg-sidebar p-10 z-100 flex flex-col justify-between',
                 className,
               )}
             >
               <button
                 type="button"
                 aria-label="Close sidebar"
-                className="absolute right-10 top-10 z-50 rounded-full p-2 text-neutral-800 transition hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700"
+                className="absolute right-10 top-10 z-50 rounded-full p-2 text-sidebar-foreground transition hover:bg-sidebar-accent"
                 onClick={() => setOpen(!open)}
               >
                 <IconX />
@@ -179,7 +187,7 @@ export const SidebarLink = ({
           display: animate ? (open ? 'inline-block' : 'none') : 'inline-block',
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block p-0! m-0!"
+        className="text-sidebar-foreground text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block p-0! m-0!"
       >
         {link.label}
       </motion.span>

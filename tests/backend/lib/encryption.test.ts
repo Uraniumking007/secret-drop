@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
-  encrypt,
   decrypt,
+  encrypt,
   generateEncryptionKey,
+  generateSalt,
   hashPassword,
   verifyPassword,
-  generateSalt,
 } from '@/lib/encryption'
 
 describe('encryption utilities', () => {
@@ -38,4 +38,3 @@ describe('encryption utilities', () => {
     expect(await verifyPassword('wrong', salt, hash)).toBe(false)
   })
 })
-

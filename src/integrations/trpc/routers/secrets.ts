@@ -1,32 +1,34 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { eq, and, isNull, desc, gte, inArray, or } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, isNull, or } from 'drizzle-orm'
+import { createTRPCRouter, protectedProcedure } from '../init'
+import type { TRPCRouterRecord } from '@trpc/server'
+import type {EncryptionLibrary} from '@/lib/encryption';
+import type {ExpirationOption} from '@/lib/secret-utils';
 import { db } from '@/db'
 import {
-  secrets,
-  organizations,
   organizationMembers,
+  organizations,
   secretAccessLogs,
-  teams,
+  secrets,
   teamMembers,
+  teams,
 } from '@/db/schema'
-import { protectedProcedure, createTRPCRouter } from '../init'
-import type { TRPCRouterRecord } from '@trpc/server'
 import {
-  encrypt,
+  
   decrypt,
+  encrypt,
   generateEncryptionKey,
-  hashEncryptionKey,
   generateSalt,
+  hashEncryptionKey,
   hashPassword,
-  verifyPassword,
-  type EncryptionLibrary,
+  verifyPassword
 } from '@/lib/encryption'
 import {
+  
   calculateExpiration,
   canViewSecret,
-  generateShareToken,
-  type ExpirationOption,
+  generateShareToken
 } from '@/lib/secret-utils'
 
 const createSecretSchema = z.object({
@@ -34,7 +36,9 @@ const createSecretSchema = z.object({
   teamId: z.number().nullable().optional(),
   name: z.string().min(1),
   data: z.string().min(1), // Plain text secret data
-  encryptionLibrary: z.enum(['webcrypto', 'crypto-js', 'noble']).default('webcrypto'),
+  encryptionLibrary: z
+    .enum(['webcrypto', 'crypto-js', 'noble'])
+    .default('webcrypto'),
   expiration: z.enum(['1h', '1d', '7d', '30d', 'never']).optional(),
   maxViews: z.number().positive().nullable().optional(),
   password: z.string().optional(),
@@ -66,8 +70,8 @@ export const secretsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -85,20 +89,20 @@ export const secretsRouter = {
 
       // Generate encryption key
       const encryptionKey = await generateEncryptionKey(
-        input.encryptionLibrary as EncryptionLibrary
+        input.encryptionLibrary as EncryptionLibrary,
       )
 
       // Encrypt the data
       const encrypted = await encrypt(
         input.data,
         encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary
+        input.encryptionLibrary as EncryptionLibrary,
       )
 
       // Hash the encryption key for verification
       const keyHash = await hashEncryptionKey(
         encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary
+        input.encryptionLibrary as EncryptionLibrary,
       )
 
       // Hash password if provided
@@ -108,7 +112,7 @@ export const secretsRouter = {
         passwordHash = await hashPassword(
           input.password,
           salt,
-          input.encryptionLibrary as EncryptionLibrary
+          input.encryptionLibrary as EncryptionLibrary,
         )
         // Store salt with password hash (format: salt:hash)
         passwordHash = `${salt}:${passwordHash}`
@@ -177,8 +181,10 @@ export const secretsRouter = {
         id: z.number(),
         encryptionKey: z.string(), // Hex encoded encryption key
         password: z.string().optional(),
-        encryptionLibrary: z.enum(['webcrypto', 'crypto-js', 'noble']).default('webcrypto'),
-      })
+        encryptionLibrary: z
+          .enum(['webcrypto', 'crypto-js', 'noble'])
+          .default('webcrypto'),
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -187,9 +193,7 @@ export const secretsRouter = {
       const [secret] = await db
         .select()
         .from(secrets)
-        .where(
-          and(eq(secrets.id, input.id), isNull(secrets.deletedAt))
-        )
+        .where(and(eq(secrets.id, input.id), isNull(secrets.deletedAt)))
         .limit(1)
 
       if (!secret) {
@@ -206,8 +210,8 @@ export const secretsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, secret.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -224,7 +228,7 @@ export const secretsRouter = {
         secret.maxViews,
         secret.expiresAt,
         secret.burnOnRead,
-        secret.viewCount > 0
+        secret.viewCount > 0,
       )
 
       if (!canView.canView) {
@@ -248,7 +252,7 @@ export const secretsRouter = {
           input.password,
           salt,
           hash,
-          input.encryptionLibrary as EncryptionLibrary
+          input.encryptionLibrary as EncryptionLibrary,
         )
 
         if (!isValid) {
@@ -261,13 +265,13 @@ export const secretsRouter = {
 
       // Convert hex key back to Uint8Array
       const encryptionKey = Uint8Array.from(
-        input.encryptionKey.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
+        input.encryptionKey.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
       )
 
       // Verify key hash
       const keyHash = await hashEncryptionKey(
         encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary
+        input.encryptionLibrary as EncryptionLibrary,
       )
 
       if (keyHash !== secret.encryptionKeyHash) {
@@ -283,7 +287,7 @@ export const secretsRouter = {
         encryptedData.data,
         encryptedData.iv,
         encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary
+        input.encryptionLibrary as EncryptionLibrary,
       )
 
       // Increment view count
@@ -325,7 +329,7 @@ export const secretsRouter = {
       z.object({
         orgId: z.number(),
         teamId: z.number().nullable().optional(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -337,8 +341,8 @@ export const secretsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, input.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -357,18 +361,15 @@ export const secretsRouter = {
         .from(teamMembers)
         .innerJoin(teams, eq(teamMembers.teamId, teams.id))
         .where(
-          and(
-            eq(teamMembers.userId, userId),
-            eq(teams.orgId, input.orgId)
-          )
+          and(eq(teamMembers.userId, userId), eq(teams.orgId, input.orgId)),
         )
 
-      const userTeamIds = userTeams.map(t => t.teamId)
+      const userTeamIds = userTeams.map((t) => t.teamId)
 
       // Build conditions
       const conditions = [
         eq(secrets.orgId, input.orgId),
-        isNull(secrets.deletedAt)
+        isNull(secrets.deletedAt),
       ]
 
       if (input.teamId) {
@@ -380,7 +381,9 @@ export const secretsRouter = {
         // Regular member: can see own secrets OR secrets shared with their teams
         const accessCondition = or(
           eq(secrets.createdBy, userId),
-          userTeamIds.length > 0 ? inArray(secrets.teamId, userTeamIds) : undefined
+          userTeamIds.length > 0
+            ? inArray(secrets.teamId, userTeamIds)
+            : undefined,
         )
         if (accessCondition) {
           conditions.push(accessCondition)
@@ -419,9 +422,7 @@ export const secretsRouter = {
       const [secret] = await db
         .select()
         .from(secrets)
-        .where(
-          and(eq(secrets.id, id), isNull(secrets.deletedAt))
-        )
+        .where(and(eq(secrets.id, id), isNull(secrets.deletedAt)))
         .limit(1)
 
       if (!secret) {
@@ -438,8 +439,8 @@ export const secretsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, secret.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -477,9 +478,12 @@ export const secretsRouter = {
         const encrypted = await encrypt(
           updates.data,
           encryptionKey,
-          encryptionLibrary
+          encryptionLibrary,
         )
-        const keyHash = await hashEncryptionKey(encryptionKey, encryptionLibrary)
+        const keyHash = await hashEncryptionKey(
+          encryptionKey,
+          encryptionLibrary,
+        )
 
         updateData.encryptedData = JSON.stringify({
           data: encrypted.encryptedData,
@@ -506,7 +510,7 @@ export const secretsRouter = {
           const passwordHash = await hashPassword(
             updates.password,
             salt,
-            (updates.encryptionLibrary || 'webcrypto') as EncryptionLibrary
+            (updates.encryptionLibrary || 'webcrypto') as EncryptionLibrary,
           )
           updateData.passwordHash = `${salt}:${passwordHash}`
         }
@@ -557,9 +561,7 @@ export const secretsRouter = {
       const [secret] = await db
         .select()
         .from(secrets)
-        .where(
-          and(eq(secrets.id, input.id), isNull(secrets.deletedAt))
-        )
+        .where(and(eq(secrets.id, input.id), isNull(secrets.deletedAt)))
         .limit(1)
 
       if (!secret) {
@@ -576,8 +578,8 @@ export const secretsRouter = {
         .where(
           and(
             eq(organizationMembers.orgId, secret.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -625,7 +627,7 @@ export const secretsRouter = {
       z.object({
         secretId: z.number(),
         limit: z.number().min(1).max(100).default(50),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
@@ -653,12 +655,15 @@ export const secretsRouter = {
           },
         })
         .from(organizationMembers)
-        .innerJoin(organizations, eq(organizationMembers.orgId, organizations.id))
+        .innerJoin(
+          organizations,
+          eq(organizationMembers.orgId, organizations.id),
+        )
         .where(
           and(
             eq(organizationMembers.orgId, secret.orgId),
-            eq(organizationMembers.userId, userId)
-          )
+            eq(organizationMembers.userId, userId),
+          ),
         )
         .limit(1)
 
@@ -682,12 +687,7 @@ export const secretsRouter = {
       const logs = await db
         .select()
         .from(secretAccessLogs)
-        .where(
-          and(
-            eq(secretAccessLogs.secretId, input.secretId),
-            timeFilter
-          )
-        )
+        .where(and(eq(secretAccessLogs.secretId, input.secretId), timeFilter))
         .orderBy(desc(secretAccessLogs.accessedAt))
         .limit(input.limit)
 
@@ -697,4 +697,3 @@ export const secretsRouter = {
       }
     }),
 } satisfies TRPCRouterRecord
-

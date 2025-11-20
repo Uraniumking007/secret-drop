@@ -1,36 +1,44 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { CheckCircle2, Copy, Download, Shield, XCircle } from 'lucide-react'
+import QRCode from 'qrcode'
 import { useTRPC } from '@/integrations/trpc/react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Shield, CheckCircle2, XCircle, Copy, Download } from 'lucide-react'
-import QRCode from 'qrcode'
 
 export function TwoFactorSettings() {
-  const [setupStep, setSetupStep] = useState<'idle' | 'setup' | 'verify'>('idle')
+  const [setupStep, setSetupStep] = useState<'idle' | 'setup' | 'verify'>(
+    'idle',
+  )
   const [verificationCode, setVerificationCode] = useState('')
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null)
-  const [backupCodes, setBackupCodes] = useState<string[]>([])
+  const [backupCodes, setBackupCodes] = useState<Array<string>>([])
   const [showBackupCodes, setShowBackupCodes] = useState(false)
   const trpc = useTRPC()
   const queryClient = useQueryClient()
 
   const { data: status, isLoading: statusLoading } = useQuery(
-    trpc.users.getTwoFactorStatus.queryOptions()
+    trpc.users.getTwoFactorStatus.queryOptions(),
   )
 
   const { mutate: generateSetup, isPending: isGenerating } = useMutation(
-    trpc.users.generateTwoFactorSetup.mutationOptions()
+    trpc.users.generateTwoFactorSetup.mutationOptions(),
   )
 
   const { mutate: enable2FA, isPending: isEnabling } = useMutation(
-    trpc.users.enableTwoFactor.mutationOptions()
+    trpc.users.enableTwoFactor.mutationOptions(),
   )
 
   const { mutate: disable2FA, isPending: isDisabling } = useMutation(
-    trpc.users.disableTwoFactor.mutationOptions()
+    trpc.users.disableTwoFactor.mutationOptions(),
   )
 
   const handleGenerateSetup = () => {
@@ -59,12 +67,14 @@ export function TwoFactorSettings() {
       { token: verificationCode },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['trpc', 'users', 'getTwoFactorStatus'] })
+          queryClient.invalidateQueries({
+            queryKey: ['trpc', 'users', 'getTwoFactorStatus'],
+          })
           setSetupStep('idle')
           setVerificationCode('')
           setQrCodeDataUrl(null)
         },
-      }
+      },
     )
   }
 
@@ -78,9 +88,11 @@ export function TwoFactorSettings() {
       { token: code },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['trpc', 'users', 'getTwoFactorStatus'] })
+          queryClient.invalidateQueries({
+            queryKey: ['trpc', 'users', 'getTwoFactorStatus'],
+          })
         },
-      }
+      },
     )
   }
 
@@ -103,7 +115,9 @@ export function TwoFactorSettings() {
       <Card>
         <CardContent className="py-8 text-center">
           <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-          <p className="mt-4 text-sm text-muted-foreground">Loading 2FA status...</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Loading 2FA status...
+          </p>
         </CardContent>
       </Card>
     )
@@ -129,7 +143,11 @@ export function TwoFactorSettings() {
                 </p>
               </div>
             </div>
-            <Button variant="destructive" onClick={handleDisable2FA} disabled={isDisabling}>
+            <Button
+              variant="destructive"
+              onClick={handleDisable2FA}
+              disabled={isDisabling}
+            >
               {isDisabling ? 'Disabling...' : 'Disable 2FA'}
             </Button>
           </div>
@@ -144,7 +162,8 @@ export function TwoFactorSettings() {
         <CardHeader>
           <CardTitle>Verify Two-Factor Authentication</CardTitle>
           <CardDescription>
-            Scan the QR code with your authenticator app and enter the code to enable 2FA.
+            Scan the QR code with your authenticator app and enter the code to
+            enable 2FA.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -154,7 +173,8 @@ export function TwoFactorSettings() {
                 <img src={qrCodeDataUrl} alt="QR Code" className="w-48 h-48" />
               </div>
               <p className="text-sm text-muted-foreground text-center">
-                Scan this QR code with an authenticator app like Google Authenticator or Authy
+                Scan this QR code with an authenticator app like Google
+                Authenticator or Authy
               </p>
             </div>
           )}
@@ -168,7 +188,11 @@ export function TwoFactorSettings() {
                     <Copy className="h-4 w-4 mr-2" />
                     Copy
                   </Button>
-                  <Button variant="outline" size="sm" onClick={downloadBackupCodes}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={downloadBackupCodes}
+                  >
                     <Download className="h-4 w-4 mr-2" />
                     Download
                   </Button>
@@ -176,8 +200,8 @@ export function TwoFactorSettings() {
               </div>
               <div className="p-4 bg-muted rounded-lg">
                 <p className="text-xs text-muted-foreground mb-2">
-                  Save these backup codes in a safe place. You can use them to access your account
-                  if you lose your authenticator device.
+                  Save these backup codes in a safe place. You can use them to
+                  access your account if you lose your authenticator device.
                 </p>
                 <div className="grid grid-cols-2 gap-2 font-mono text-sm">
                   {backupCodes.map((code, index) => (
@@ -199,7 +223,9 @@ export function TwoFactorSettings() {
               pattern="[0-9]*"
               maxLength={6}
               value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) =>
+                setVerificationCode(e.target.value.replace(/\D/g, ''))
+              }
               placeholder="000000"
               className="text-center text-2xl tracking-widest"
             />
@@ -239,7 +265,8 @@ export function TwoFactorSettings() {
       <CardHeader>
         <CardTitle>Two-Factor Authentication</CardTitle>
         <CardDescription>
-          Add an extra layer of security to your account with two-factor authentication.
+          Add an extra layer of security to your account with two-factor
+          authentication.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -262,4 +289,3 @@ export function TwoFactorSettings() {
     </Card>
   )
 }
-

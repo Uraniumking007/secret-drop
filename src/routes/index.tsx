@@ -1,11 +1,10 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate  } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Building2, Clock, Lock, Shield, Users, Zap } from 'lucide-react'
 import { useSession } from '@/lib/auth-client'
 import { useTRPC } from '@/integrations/trpc/react'
-import { Shield, Lock, Clock, Users, Zap, Building2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({ component: App })
 
