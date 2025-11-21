@@ -373,6 +373,8 @@ function computeChildLinks(
   ) {
     return [
       { label: 'Profile', to: '/dashboard/settings/profile' },
+      { label: 'Billing', to: '/dashboard/settings/billing' },
+      { label: 'Security', to: '/dashboard/settings/security' },
       { label: 'API Tokens', to: '/dashboard/settings/api-tokens' },
       { label: 'Organizations', to: '/dashboard/settings/organization' },
     ]
