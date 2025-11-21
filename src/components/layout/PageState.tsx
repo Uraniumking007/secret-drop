@@ -1,11 +1,8 @@
 import type { HTMLAttributes, ReactNode } from 'react'
-import type {
-  PageContainerProps} from '@/components/layout/PageContainer';
+import type { PageContainerProps } from '@/components/layout/PageContainer'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import {
-  PageContainer
-} from '@/components/layout/PageContainer'
+import { PageContainer } from '@/components/layout/PageContainer'
 
 interface PageStateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title: ReactNode

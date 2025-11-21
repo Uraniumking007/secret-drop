@@ -72,7 +72,10 @@ export function hashBackupCode(code: string): string {
 /**
  * Verify a backup code
  */
-export function verifyBackupCode(code: string, hashedCodes: Array<string>): boolean {
+export function verifyBackupCode(
+  code: string,
+  hashedCodes: Array<string>,
+): boolean {
   const hashed = hashBackupCode(code)
   return hashedCodes.includes(hashed)
 }

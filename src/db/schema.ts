@@ -10,7 +10,7 @@ import {
   unique,
   varchar,
 } from 'drizzle-orm/pg-core'
-import { relations, sql  } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 
 // Enums
 export const subscriptionTierEnum = pgEnum('subscription_tier', [

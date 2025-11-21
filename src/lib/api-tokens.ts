@@ -2,7 +2,7 @@
  * API token management for CLI and CI/CD
  */
 
-import { createHash, randomBytes  } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 
 /**
  * Generate a new API token

@@ -341,7 +341,9 @@ function SidebarUserCard({ name, email }: { name: string; email: string }) {
 
 function buildSectionsWithChildren(pathname: string): Array<
   SidebarSectionConfig & {
-    links: Array<SidebarLinkConfig & { childrenLinks?: Array<SidebarChildLink> }>
+    links: Array<
+      SidebarLinkConfig & { childrenLinks?: Array<SidebarChildLink> }
+    >
   }
 > {
   return navSections.map((section) => ({

@@ -2,11 +2,11 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Building2, Clock, Lock, Shield, Users, Zap } from 'lucide-react'
+import { toast } from 'sonner'
 import { useSession } from '@/lib/auth-client'
 import { useTRPC } from '@/integrations/trpc/react'
 import { Button } from '@/components/ui/button'
 import Header from '@/components/Header'
-import { toast } from 'sonner'
 
 export const Route = createFileRoute('/')({ component: App })
 

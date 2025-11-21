@@ -3,8 +3,8 @@ import { TRPCError } from '@trpc/server'
 import { and, desc, eq, gte, inArray, isNull, or } from 'drizzle-orm'
 import { createTRPCRouter, protectedProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
-import type {EncryptionLibrary} from '@/lib/encryption';
-import type {ExpirationOption} from '@/lib/secret-utils';
+import type { EncryptionLibrary } from '@/lib/encryption'
+import type { ExpirationOption } from '@/lib/secret-utils'
 import { db } from '@/db'
 import {
   organizationMembers,
@@ -15,20 +15,18 @@ import {
   teams,
 } from '@/db/schema'
 import {
-  
   decrypt,
   encrypt,
   generateEncryptionKey,
   generateSalt,
   hashEncryptionKey,
   hashPassword,
-  verifyPassword
+  verifyPassword,
 } from '@/lib/encryption'
 import {
-  
   calculateExpiration,
   canViewSecret,
-  generateShareToken
+  generateShareToken,
 } from '@/lib/secret-utils'
 
 const createSecretSchema = z.object({
