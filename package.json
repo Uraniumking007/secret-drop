@@ -21,6 +21,7 @@
     "@ai-sdk/anthropic": "^2.0.1",
     "@ai-sdk/mcp": "^0.0.5",
     "@ai-sdk/react": "^2.0.8",
+    "@better-auth/sso": "^1.3.34",
     "@faker-js/faker": "^10.0.0",
     "@modelcontextprotocol/sdk": "^1.8.0",
     "@netlify/vite-plugin-tanstack-start": "1.0.2",

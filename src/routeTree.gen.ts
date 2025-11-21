@@ -21,8 +21,10 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as DashboardTeamsIndexRouteImport } from './routes/dashboard/teams/index'
 import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as DashboardSecretsIndexRouteImport } from './routes/dashboard/secrets/index'
+import { Route as DashboardSettingsSecurityRouteImport } from './routes/dashboard/settings/security'
 import { Route as DashboardSettingsProfileRouteImport } from './routes/dashboard/settings/profile'
 import { Route as DashboardSettingsOrganizationRouteImport } from './routes/dashboard/settings/organization'
+import { Route as DashboardSettingsBillingRouteImport } from './routes/dashboard/settings/billing'
 import { Route as DashboardSettingsApiTokensRouteImport } from './routes/dashboard/settings/api-tokens'
 import { Route as DashboardSecretsCreateRouteImport } from './routes/dashboard/secrets/create'
 import { Route as DashboardSecretsSecretIdRouteImport } from './routes/dashboard/secrets/$secretId'
@@ -89,6 +91,12 @@ const DashboardSecretsIndexRoute = DashboardSecretsIndexRouteImport.update({
   path: '/secrets/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardSettingsSecurityRoute =
+  DashboardSettingsSecurityRouteImport.update({
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any)
 const DashboardSettingsProfileRoute =
   DashboardSettingsProfileRouteImport.update({
     id: '/profile',
@@ -99,6 +107,12 @@ const DashboardSettingsOrganizationRoute =
   DashboardSettingsOrganizationRouteImport.update({
     id: '/organization',
     path: '/organization',
+    getParentRoute: () => DashboardSettingsRoute,
+  } as any)
+const DashboardSettingsBillingRoute =
+  DashboardSettingsBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
     getParentRoute: () => DashboardSettingsRoute,
   } as any)
 const DashboardSettingsApiTokensRoute =
@@ -144,8 +158,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
+  '/dashboard/settings/billing': typeof DashboardSettingsBillingRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
+  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/dashboard/secrets': typeof DashboardSecretsIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/teams': typeof DashboardTeamsIndexRoute
@@ -163,8 +179,10 @@ export interface FileRoutesByTo {
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
+  '/dashboard/settings/billing': typeof DashboardSettingsBillingRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
+  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/dashboard/secrets': typeof DashboardSecretsIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/dashboard/teams': typeof DashboardTeamsIndexRoute
@@ -185,8 +203,10 @@ export interface FileRoutesById {
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
+  '/dashboard/settings/billing': typeof DashboardSettingsBillingRoute
   '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
+  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/dashboard/secrets/': typeof DashboardSecretsIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/teams/': typeof DashboardTeamsIndexRoute
@@ -208,8 +228,10 @@ export interface FileRouteTypes {
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
+    | '/dashboard/settings/billing'
     | '/dashboard/settings/organization'
     | '/dashboard/settings/profile'
+    | '/dashboard/settings/security'
     | '/dashboard/secrets'
     | '/dashboard/settings/'
     | '/dashboard/teams'
@@ -227,8 +249,10 @@ export interface FileRouteTypes {
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
+    | '/dashboard/settings/billing'
     | '/dashboard/settings/organization'
     | '/dashboard/settings/profile'
+    | '/dashboard/settings/security'
     | '/dashboard/secrets'
     | '/dashboard/settings'
     | '/dashboard/teams'
@@ -248,8 +272,10 @@ export interface FileRouteTypes {
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
+    | '/dashboard/settings/billing'
     | '/dashboard/settings/organization'
     | '/dashboard/settings/profile'
+    | '/dashboard/settings/security'
     | '/dashboard/secrets/'
     | '/dashboard/settings/'
     | '/dashboard/teams/'
@@ -352,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSecretsIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/settings/security': {
+      id: '/dashboard/settings/security'
+      path: '/security'
+      fullPath: '/dashboard/settings/security'
+      preLoaderRoute: typeof DashboardSettingsSecurityRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
     '/dashboard/settings/profile': {
       id: '/dashboard/settings/profile'
       path: '/profile'
@@ -364,6 +397,13 @@ declare module '@tanstack/react-router' {
       path: '/organization'
       fullPath: '/dashboard/settings/organization'
       preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport
+      parentRoute: typeof DashboardSettingsRoute
+    }
+    '/dashboard/settings/billing': {
+      id: '/dashboard/settings/billing'
+      path: '/billing'
+      fullPath: '/dashboard/settings/billing'
+      preLoaderRoute: typeof DashboardSettingsBillingRouteImport
       parentRoute: typeof DashboardSettingsRoute
     }
     '/dashboard/settings/api-tokens': {
@@ -406,15 +446,19 @@ declare module '@tanstack/react-router' {
 
 interface DashboardSettingsRouteChildren {
   DashboardSettingsApiTokensRoute: typeof DashboardSettingsApiTokensRoute
+  DashboardSettingsBillingRoute: typeof DashboardSettingsBillingRoute
   DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute
   DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute
+  DashboardSettingsSecurityRoute: typeof DashboardSettingsSecurityRoute
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
 }
 
 const DashboardSettingsRouteChildren: DashboardSettingsRouteChildren = {
   DashboardSettingsApiTokensRoute: DashboardSettingsApiTokensRoute,
+  DashboardSettingsBillingRoute: DashboardSettingsBillingRoute,
   DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
   DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
+  DashboardSettingsSecurityRoute: DashboardSettingsSecurityRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
 }
 
