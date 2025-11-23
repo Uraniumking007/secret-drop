@@ -274,7 +274,7 @@ function SidebarNavLink({
   )
 }
 
-function SidebarUserCard({ name, email }: { name: string; email: string }) {
+export function SidebarUserCard({ name, email }: { name: string; email: string }) {
   const { open, animate } = useSidebar()
   const initials =
     name

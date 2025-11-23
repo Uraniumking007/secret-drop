@@ -1,4 +1,8 @@
 import { webcrypto } from 'node:crypto'
+import * as matchers from '@testing-library/jest-dom/matchers'
+import { expect } from 'vitest'
+
+expect.extend(matchers)
 
 // Ensure global crypto + subtle are available for Node test envs
 if (!globalThis.crypto) {
@@ -26,10 +30,10 @@ if (typeof globalThis.matchMedia === 'undefined') {
     ({
       matches: false,
       media: '',
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      addListener: () => {},
-      removeListener: () => {},
+      addEventListener: () => { },
+      removeEventListener: () => { },
+      addListener: () => { },
+      removeListener: () => { },
       dispatchEvent: () => false,
     }) as MediaQueryList
 }

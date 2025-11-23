@@ -65,7 +65,7 @@ export const billingRouter = {
         })
       }
 
-      // Get or create Stripe customer
+      // Get or create Dodo Payments customer
       const customer = await getOrCreateCustomer(
         ctx.user.email || '',
         ctx.user.name || undefined,
@@ -160,8 +160,9 @@ export const billingRouter = {
         })
       }
 
-      // Cancel in Stripe
-      await cancelStripeSubscription(subscription.stripeSubscriptionId)
+      // Cancel in Dodo Payments
+      // Note: We are using the existing stripeSubscriptionId column to store Dodo subscription ID
+      await cancelDodoSubscription(subscription.stripeSubscriptionId)
 
       // Update in database
       await db

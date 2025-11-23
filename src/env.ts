@@ -30,6 +30,10 @@ export const env = createEnv({
     IMAGEKIT_PUBLIC_KEY: z.string().optional(),
     IMAGEKIT_PRIVATE_KEY: z.string().optional(),
     IMAGEKIT_URL_ENDPOINT: z.string().url().optional(),
+    // Dodo Payments Configuration
+    DODO_PAYMENTS_API_KEY: z.string().optional(),
+    DODO_PRO_TEAM_PRODUCT_ID: z.string().optional(),
+    DODO_BUSINESS_PRODUCT_ID: z.string().optional(),
   },
 
   /**

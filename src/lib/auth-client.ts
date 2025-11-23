@@ -1,6 +1,8 @@
 import { createAuthClient } from 'better-auth/react'
+import { ssoClient } from '@better-auth/sso/client'
 
 export const authClient = createAuthClient({
+  plugins: [ssoClient()],
   baseURL:
     typeof window !== 'undefined'
       ? window.location.origin
@@ -32,13 +34,13 @@ export const useSession = (): EnhancedUseSessionReturn => {
 
   const enhancedData = result.data
     ? {
-        ...result.data,
+      ...result.data,
+      activeOrgId,
+      session: {
+        ...(rawSession ?? result.data.session),
         activeOrgId,
-        session: {
-          ...(rawSession ?? result.data.session),
-          activeOrgId,
-        },
-      }
+      },
+    }
     : null
 
   return {

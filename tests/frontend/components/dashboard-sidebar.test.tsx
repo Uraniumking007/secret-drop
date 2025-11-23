@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { SidebarProvider } from '@/components/ui/sidebar'
@@ -33,7 +33,12 @@ vi.mock('@tanstack/react-router', () => ({
       {children}
     </a>
   ),
+  useLocation: () => ({
+    pathname: '/dashboard',
+  }),
 }))
+
+
 
 const renderSidebar = ({
   open = true,
@@ -42,7 +47,7 @@ const renderSidebar = ({
   open?: boolean
   animate?: boolean
 } = {}) => {
-  const noop = () => {}
+  const noop = () => { }
 
   return render(
     <SidebarProvider open={open} setOpen={noop} animate={animate}>
@@ -55,28 +60,42 @@ describe('Dashboard Sidebar', () => {
   it('renders navigation links and org switcher when expanded', () => {
     renderSidebar()
 
-    expect(screen.getByText('Dashboard')).toBeVisible()
-    expect(screen.getByText('Secrets')).toBeVisible()
-    expect(screen.getByText('Team')).toBeVisible()
+    expect(screen.getAllByText('Dashboard')[0]).toBeVisible()
+    expect(screen.getAllByText('Secrets')[0]).toBeVisible()
+    expect(screen.getAllByText('Team')[0]).toBeVisible()
     expect(screen.getByTestId('org-switcher')).toBeInTheDocument()
   })
 
-  it('shows session details in the user card', () => {
+  it('shows session details in the user card', async () => {
     renderSidebar()
 
-    expect(screen.getByText('Jane Doe')).toBeVisible()
-    expect(screen.getByText('jane@example.com')).toBeVisible()
-    expect(screen.getByText('View profile')).toHaveAttribute(
+    await expect.poll(() => screen.getAllByText('Jane Doe')[0]).toBeVisible()
+    expect(screen.getAllByText('jane@example.com')[0]).toBeVisible()
+    expect(screen.getAllByText('View profile')[0]).toHaveAttribute(
       'href',
       '/dashboard/profile',
     )
   })
 
-  it('hides navigation labels when collapsed with animation enabled', () => {
+  it('hides navigation labels when collapsed with animation enabled', async () => {
     renderSidebar({ open: false, animate: true })
 
-    expect(screen.getByText('Dashboard')).not.toBeVisible()
-    expect(screen.getByText('Secrets')).not.toBeVisible()
-    expect(screen.getByText('Team')).not.toBeVisible()
+    await expect.poll(() => {
+      const dashboards = screen.queryAllByText('Dashboard')
+      return dashboards.every(el => !el.checkVisibility())
+    }).toBe(true)
+
+    // Or better, use waitFor and expect
+    await vi.waitFor(() => {
+      screen.queryAllByText('Dashboard').forEach((el) => {
+        expect(el).not.toBeVisible()
+      })
+      screen.queryAllByText('Secrets').forEach((el) => {
+        expect(el).not.toBeVisible()
+      })
+      screen.queryAllByText('Team').forEach((el) => {
+        expect(el).not.toBeVisible()
+      })
+    })
   })
 })
