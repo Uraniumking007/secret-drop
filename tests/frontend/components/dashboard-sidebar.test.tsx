@@ -38,8 +38,6 @@ vi.mock('@tanstack/react-router', () => ({
   }),
 }))
 
-
-
 const renderSidebar = ({
   open = true,
   animate = false,
@@ -47,7 +45,7 @@ const renderSidebar = ({
   open?: boolean
   animate?: boolean
 } = {}) => {
-  const noop = () => { }
+  const noop = () => {}
 
   return render(
     <SidebarProvider open={open} setOpen={noop} animate={animate}>
@@ -80,10 +78,12 @@ describe('Dashboard Sidebar', () => {
   it('hides navigation labels when collapsed with animation enabled', async () => {
     renderSidebar({ open: false, animate: true })
 
-    await expect.poll(() => {
-      const dashboards = screen.queryAllByText('Dashboard')
-      return dashboards.every(el => !el.checkVisibility())
-    }).toBe(true)
+    await expect
+      .poll(() => {
+        const dashboards = screen.queryAllByText('Dashboard')
+        return dashboards.every((el) => !el.checkVisibility())
+      })
+      .toBe(true)
 
     // Or better, use waitFor and expect
     await vi.waitFor(() => {

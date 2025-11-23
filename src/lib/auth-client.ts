@@ -34,13 +34,13 @@ export const useSession = (): EnhancedUseSessionReturn => {
 
   const enhancedData = result.data
     ? {
-      ...result.data,
-      activeOrgId,
-      session: {
-        ...(rawSession ?? result.data.session),
+        ...result.data,
         activeOrgId,
-      },
-    }
+        session: {
+          ...(rawSession ?? result.data.session),
+          activeOrgId,
+        },
+      }
     : null
 
   return {

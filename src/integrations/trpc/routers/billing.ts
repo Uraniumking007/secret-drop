@@ -1,16 +1,15 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { and, eq } from 'drizzle-orm'
-import { createTRPCRouter, protectedProcedure } from '../init'
+import { protectedProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
 import { db } from '@/db'
 import { organizationMembers, organizations, subscriptions } from '@/db/schema'
 import {
-  cancelSubscription as cancelStripeSubscription,
+  cancelSubscription as cancelDodoSubscription,
   createCheckoutSession,
   getOrCreateCustomer,
-  updateSubscriptionTier as updateStripeSubscriptionTier,
-} from '@/lib/stripe'
+} from '@/lib/dodopayments'
 import { canPerformAction } from '@/lib/rbac'
 
 export const billingRouter = {

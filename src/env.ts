@@ -54,7 +54,12 @@ export const env = createEnv({
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
    */
-  runtimeEnv: import.meta.env,
+  runtimeEnv: {
+    ...import.meta.env,
+    DODO_PAYMENTS_API_KEY: process.env.DODO_PAYMENTS_API_KEY,
+    DODO_PRO_TEAM_PRODUCT_ID: process.env.DODO_PRO_TEAM_PRODUCT_ID,
+    DODO_BUSINESS_PRODUCT_ID: process.env.DODO_BUSINESS_PRODUCT_ID,
+  },
 
   /**
    * By default, this library will feed the environment variables directly to

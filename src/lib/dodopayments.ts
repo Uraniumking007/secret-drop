@@ -6,7 +6,9 @@ import DodoPayments from 'dodopayments'
 import { env } from '@/env'
 
 if (!env.DODO_PAYMENTS_API_KEY) {
-    console.warn('DODO_PAYMENTS_API_KEY not set - Dodo Payments features will be disabled')
+    console.warn(
+        'DODO_PAYMENTS_API_KEY not set - Dodo Payments features will be disabled',
+    )
 }
 
 export const dodo = env.DODO_PAYMENTS_API_KEY
@@ -35,9 +37,13 @@ export async function createCheckoutSession(
         business: process.env.DODO_BUSINESS_PRODUCT_ID || '',
     }
 
+    if (!customerId) {
+        throw new Error('Customer ID is required')
+    }
+
     const session = await dodo.payments.create({
         customer: {
-            customer_id: customerId || undefined,
+            customer_id: customerId,
         },
         billing: {
             city: 'New York',
@@ -132,6 +138,6 @@ export async function cancelSubscription(
 
     // Using update to cancel if cancel method doesn't exist
     await dodo.subscriptions.update(subscriptionId, {
-        status: 'cancelled'
+        status: 'cancelled',
     })
 }
