@@ -4,8 +4,30 @@ import type { ReactNode } from 'react'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { DashboardSidebarContent } from '@/components/dashboard/Sidebar'
 
-vi.mock('@/components/dashboard/OrgSwitcher', () => ({
-  OrgSwitcher: () => <div data-testid="org-switcher" />,
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+})
+
+vi.mock('@/integrations/trpc/react', () => ({
+  useTRPC: () => ({
+    organizations: {
+      list: {
+        queryOptions: () => ({
+          queryKey: ['organizations'],
+          queryFn: async () => [
+            { id: 'org_1', name: 'Acme Inc', tier: 'pro' },
+            { id: 'org_2', name: 'Personal', tier: 'free' },
+          ],
+        }),
+      },
+    },
+  }),
 }))
 
 vi.mock('@/lib/auth-client', () => ({
@@ -14,6 +36,9 @@ vi.mock('@/lib/auth-client', () => ({
       user: {
         name: 'Jane Doe',
         email: 'jane@example.com',
+      },
+      session: {
+        activeOrgId: 'org_1',
       },
     },
   }),
@@ -36,6 +61,7 @@ vi.mock('@tanstack/react-router', () => ({
   useLocation: () => ({
     pathname: '/dashboard',
   }),
+  useNavigate: () => vi.fn(),
 }))
 
 const renderSidebar = ({
@@ -45,23 +71,27 @@ const renderSidebar = ({
   open?: boolean
   animate?: boolean
 } = {}) => {
-  const noop = () => {}
+  const noop = () => { }
 
   return render(
-    <SidebarProvider open={open} setOpen={noop} animate={animate}>
-      <DashboardSidebarContent />
-    </SidebarProvider>,
+    <QueryClientProvider client={queryClient}>
+      <SidebarProvider open={open} setOpen={noop} animate={animate}>
+        <DashboardSidebarContent />
+      </SidebarProvider>
+    </QueryClientProvider>,
   )
 }
 
 describe('Dashboard Sidebar', () => {
-  it('renders navigation links and org switcher when expanded', () => {
+  it('renders navigation links and org switcher when expanded', async () => {
     renderSidebar()
 
     expect(screen.getAllByText('Dashboard')[0]).toBeVisible()
     expect(screen.getAllByText('Secrets')[0]).toBeVisible()
     expect(screen.getAllByText('Team')[0]).toBeVisible()
-    expect(screen.getByTestId('org-switcher')).toBeInTheDocument()
+
+    // Wait for orgs to load
+    await expect.poll(() => screen.queryByText('Acme Inc')).toBeInTheDocument()
   })
 
   it('shows session details in the user card', async () => {

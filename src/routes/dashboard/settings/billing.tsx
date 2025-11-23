@@ -1,15 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
 import {
   AlertCircle,
   Building2,
   Check,
   CreditCard,
+  Loader2,
   Package,
   Shield,
   Zap,
 } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,6 +25,8 @@ import {
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { useTRPC } from '@/integrations/trpc/react'
+import { useSession } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/dashboard/settings/billing')({
@@ -90,6 +95,47 @@ const PLANS = [
 
 function BillingPage() {
   const [isAnnual, setIsAnnual] = useState(false)
+  const { data: session } = useSession()
+  const trpc = useTRPC()
+  const activeOrgId = session?.activeOrgId
+
+  const checkoutMutation = useMutation(
+    trpc.billing.createCheckout.mutationOptions(),
+  )
+
+  const handleUpgrade = (planId: string) => {
+    if (!activeOrgId) {
+      toast.error('Please select an organization to upgrade.')
+      return
+    }
+
+    if (planId === 'business') {
+      // Handle contact sales or business tier if self-serve
+      // For now, let's assume business is also self-serve or just a contact link
+      // If it's contact sales, we might want to open a mailto or a form
+      window.location.href = 'mailto:sales@secretdrop.com'
+      return
+    }
+
+    const tier = planId === 'pro' ? 'pro_team' : null
+
+    if (tier) {
+      checkoutMutation.mutate(
+        {
+          orgId: activeOrgId,
+          tier,
+        },
+        {
+          onSuccess: (data) => {
+            window.location.href = data.url
+          },
+          onError: (error) => {
+            toast.error(error.message || 'Failed to start checkout')
+          },
+        },
+      )
+    }
+  }
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-10">
@@ -217,11 +263,24 @@ function BillingPage() {
                   className={cn(
                     'w-full',
                     plan.popular &&
-                      'bg-primary text-primary-foreground hover:bg-primary/90',
+                    'bg-primary text-primary-foreground hover:bg-primary/90',
                   )}
-                  disabled={plan.current}
+                  disabled={
+                    plan.current ||
+                    (plan.id === 'pro' && checkoutMutation.isPending)
+                  }
+                  onClick={() => handleUpgrade(plan.id)}
                 >
-                  {plan.current ? 'Current Plan' : plan.buttonText}
+                  {plan.id === 'pro' && checkoutMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : plan.current ? (
+                    'Current Plan'
+                  ) : (
+                    plan.buttonText
+                  )}
                 </Button>
               </CardFooter>
             </Card>
