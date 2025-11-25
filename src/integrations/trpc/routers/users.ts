@@ -63,14 +63,14 @@ export const usersRouter = {
     const activityList =
       secretIds.length > 0
         ? await db
-          .select()
-          .from(secretAccessLogs)
-          .where(
-            and(
-              inArray(secretAccessLogs.secretId, secretIds),
-              gte(secretAccessLogs.accessedAt, sevenDaysAgo),
-            ),
-          )
+            .select()
+            .from(secretAccessLogs)
+            .where(
+              and(
+                inArray(secretAccessLogs.secretId, secretIds),
+                gte(secretAccessLogs.accessedAt, sevenDaysAgo),
+              ),
+            )
         : []
     const activityCount = { count: activityList.length }
 
@@ -166,19 +166,19 @@ export const usersRouter = {
       const recentActivity =
         secretIds.length > 0
           ? await db
-            .select({
-              id: secretAccessLogs.id,
-              secretId: secretAccessLogs.secretId,
-              secretName: secrets.name,
-              action: secretAccessLogs.action,
-              ipAddress: secretAccessLogs.ipAddress,
-              accessedAt: secretAccessLogs.accessedAt,
-            })
-            .from(secretAccessLogs)
-            .innerJoin(secrets, eq(secretAccessLogs.secretId, secrets.id))
-            .where(inArray(secretAccessLogs.secretId, secretIds))
-            .orderBy(desc(secretAccessLogs.accessedAt))
-            .limit(input.limit)
+              .select({
+                id: secretAccessLogs.id,
+                secretId: secretAccessLogs.secretId,
+                secretName: secrets.name,
+                action: secretAccessLogs.action,
+                ipAddress: secretAccessLogs.ipAddress,
+                accessedAt: secretAccessLogs.accessedAt,
+              })
+              .from(secretAccessLogs)
+              .innerJoin(secrets, eq(secretAccessLogs.secretId, secrets.id))
+              .where(inArray(secretAccessLogs.secretId, secretIds))
+              .orderBy(desc(secretAccessLogs.accessedAt))
+              .limit(input.limit)
           : []
 
       return recentActivity

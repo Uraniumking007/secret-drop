@@ -6,8 +6,8 @@ expect.extend(matchers)
 
 // Ensure global crypto + subtle are available for Node test envs
 
-
-if (!globalThis.crypto.subtle) {
+// Ensure global crypto + subtle are available for Node test envs
+if (!globalThis.crypto?.subtle) {
   Object.assign(globalThis.crypto, webcrypto)
 }
 

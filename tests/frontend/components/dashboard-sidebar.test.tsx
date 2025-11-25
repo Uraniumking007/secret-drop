@@ -1,7 +1,4 @@
 import { describe, expect, it, vi } from 'vitest'
-/**
- * @vitest-environment jsdom
- */
 import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
@@ -22,7 +19,7 @@ vi.mock('@/integrations/trpc/react', () => ({
       list: {
         queryOptions: () => ({
           queryKey: ['organizations'],
-          queryFn: async () => [
+          queryFn: () => [
             { id: 'org_1', name: 'Acme Inc', tier: 'pro' },
             { id: 'org_2', name: 'Personal', tier: 'free' },
           ],
@@ -95,7 +92,9 @@ describe('Dashboard Sidebar', () => {
     })
 
     // Wait for orgs to load
-    await waitFor(() => expect(screen.queryByText('Acme Inc')).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.queryByText('Acme Inc')).toBeInTheDocument(),
+    )
   })
 
   it('shows session details in the user card', async () => {

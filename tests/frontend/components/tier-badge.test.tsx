@@ -1,7 +1,4 @@
 import { describe, expect, it } from 'vitest'
-/**
- * @vitest-environment jsdom
- */
 import { render, screen } from '@testing-library/react'
 import { TierBadge } from '@/components/TierBadge'
 
