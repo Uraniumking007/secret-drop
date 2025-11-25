@@ -3,10 +3,9 @@ import { ssoClient } from '@better-auth/sso/client'
 
 export const authClient = createAuthClient({
   plugins: [ssoClient()],
-  baseURL:
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : process.env.SERVER_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.SSR
+    ? process.env.SERVER_URL || 'http://localhost:3000'
+    : window.location.origin,
   basePath: '/api/auth',
 })
 
@@ -34,13 +33,13 @@ export const useSession = (): EnhancedUseSessionReturn => {
 
   const enhancedData = result.data
     ? {
-        ...result.data,
+      ...result.data,
+      activeOrgId,
+      session: {
+        ...(rawSession ?? result.data.session),
         activeOrgId,
-        session: {
-          ...(rawSession ?? result.data.session),
-          activeOrgId,
-        },
-      }
+      },
+    }
     : null
 
   return {
