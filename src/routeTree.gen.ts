@@ -15,6 +15,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as OrganizationsCreateRouteImport } from './routes/organizations/create'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
+import { Route as BillingSuccessRouteImport } from './routes/billing/success'
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
@@ -28,6 +29,7 @@ import { Route as DashboardSettingsBillingRouteImport } from './routes/dashboard
 import { Route as DashboardSettingsApiTokensRouteImport } from './routes/dashboard/settings/api-tokens'
 import { Route as DashboardSecretsCreateRouteImport } from './routes/dashboard/secrets/create'
 import { Route as DashboardSecretsSecretIdRouteImport } from './routes/dashboard/secrets/$secretId'
+import { Route as ApiWebhooksDodoRouteImport } from './routes/api.webhooks.dodo'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
@@ -60,6 +62,11 @@ const DashboardProfileRoute = DashboardProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => DashboardRoute,
+} as any)
+const BillingSuccessRoute = BillingSuccessRouteImport.update({
+  id: '/billing/success',
+  path: '/billing/success',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
   id: '/auth/verify-email',
@@ -132,6 +139,11 @@ const DashboardSecretsSecretIdRoute =
     path: '/secrets/$secretId',
     getParentRoute: () => DashboardRoute,
   } as any)
+const ApiWebhooksDodoRoute = ApiWebhooksDodoRouteImport.update({
+  id: '/api/webhooks/dodo',
+  path: '/api/webhooks/dodo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -149,12 +161,14 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/billing/success': typeof BillingSuccessRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
   '/organizations/create': typeof OrganizationsCreateRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/api/webhooks/dodo': typeof ApiWebhooksDodoRoute
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
@@ -171,11 +185,13 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/billing/success': typeof BillingSuccessRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/organizations/create': typeof OrganizationsCreateRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/api/webhooks/dodo': typeof ApiWebhooksDodoRoute
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
@@ -194,12 +210,14 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/billing/success': typeof BillingSuccessRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
   '/organizations/create': typeof OrganizationsCreateRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/api/webhooks/dodo': typeof ApiWebhooksDodoRoute
   '/dashboard/secrets/$secretId': typeof DashboardSecretsSecretIdRoute
   '/dashboard/secrets/create': typeof DashboardSecretsCreateRoute
   '/dashboard/settings/api-tokens': typeof DashboardSettingsApiTokensRoute
@@ -219,12 +237,14 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/billing/success'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/organizations/create'
     | '/dashboard/'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/api/webhooks/dodo'
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
@@ -241,11 +261,13 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/billing/success'
     | '/dashboard/profile'
     | '/organizations/create'
     | '/dashboard'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/api/webhooks/dodo'
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
@@ -263,12 +285,14 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/billing/success'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/organizations/create'
     | '/dashboard/'
     | '/api/auth/$'
     | '/api/trpc/$'
+    | '/api/webhooks/dodo'
     | '/dashboard/secrets/$secretId'
     | '/dashboard/secrets/create'
     | '/dashboard/settings/api-tokens'
@@ -287,9 +311,11 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
+  BillingSuccessRoute: typeof BillingSuccessRoute
   OrganizationsCreateRoute: typeof OrganizationsCreateRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
+  ApiWebhooksDodoRoute: typeof ApiWebhooksDodoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -335,6 +361,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/profile'
       preLoaderRoute: typeof DashboardProfileRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/billing/success': {
+      id: '/billing/success'
+      path: '/billing/success'
+      fullPath: '/billing/success'
+      preLoaderRoute: typeof BillingSuccessRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/verify-email': {
       id: '/auth/verify-email'
@@ -427,6 +460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSecretsSecretIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/webhooks/dodo': {
+      id: '/api/webhooks/dodo'
+      path: '/api/webhooks/dodo'
+      fullPath: '/api/webhooks/dodo'
+      preLoaderRoute: typeof ApiWebhooksDodoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -495,9 +535,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
+  BillingSuccessRoute: BillingSuccessRoute,
   OrganizationsCreateRoute: OrganizationsCreateRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
+  ApiWebhooksDodoRoute: ApiWebhooksDodoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

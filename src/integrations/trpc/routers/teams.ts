@@ -129,18 +129,20 @@ export const teamsRouter = {
       const userId = ctx.user.id
 
       // Get team
-      const [team] = await db
+      const teamsList = await db
         .select()
         .from(teams)
         .where(eq(teams.id, input.id))
         .limit(1)
 
-      if (!team) {
+      if (teamsList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Team not found',
         })
       }
+
+      const team = teamsList[0]
 
       // Verify user has access to organization
       const orgMember = await db
@@ -188,18 +190,20 @@ export const teamsRouter = {
       const currentUserId = ctx.user.id
 
       // Get team
-      const [team] = await db
+      const teamsList = await db
         .select()
         .from(teams)
         .where(eq(teams.id, input.teamId))
         .limit(1)
 
-      if (!team) {
+      if (teamsList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Team not found',
         })
       }
+
+      const team = teamsList[0]
 
       // Verify user has permission to manage teams
       const orgMember = await db
@@ -286,18 +290,20 @@ export const teamsRouter = {
       const currentUserId = ctx.user.id
 
       // Get team
-      const [team] = await db
+      const teamsList = await db
         .select()
         .from(teams)
         .where(eq(teams.id, input.teamId))
         .limit(1)
 
-      if (!team) {
+      if (teamsList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Team not found',
         })
       }
+
+      const team = teamsList[0]
 
       // Verify user has permission (or is removing themselves)
       if (input.userId !== currentUserId) {
@@ -347,18 +353,20 @@ export const teamsRouter = {
       const userId = ctx.user.id
 
       // Get team
-      const [team] = await db
+      const teamsList = await db
         .select()
         .from(teams)
         .where(eq(teams.id, input.id))
         .limit(1)
 
-      if (!team) {
+      if (teamsList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Team not found',
         })
       }
+
+      const team = teamsList[0]
 
       // Verify user has permission
       const orgMember = await db

@@ -188,18 +188,20 @@ export const secretsRouter = {
       const userId = ctx.user.id
 
       // Get secret
-      const [secret] = await db
+      const secretsList = await db
         .select()
         .from(secrets)
         .where(and(eq(secrets.id, input.id), isNull(secrets.deletedAt)))
         .limit(1)
 
-      if (!secret) {
+      if (secretsList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Secret not found',
         })
       }
+
+      const secret = secretsList[0]
 
       // Verify user has access to organization
       const orgMember = await db
@@ -417,18 +419,20 @@ export const secretsRouter = {
       const { id, ...updates } = input
 
       // Get existing secret
-      const [secret] = await db
+      const secretsList = await db
         .select()
         .from(secrets)
         .where(and(eq(secrets.id, id), isNull(secrets.deletedAt)))
         .limit(1)
 
-      if (!secret) {
+      if (secretsList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Secret not found',
         })
       }
+
+      const secret = secretsList[0]
 
       // Verify user has access (must be owner or admin)
       const orgMember = await db
@@ -491,9 +495,9 @@ export const secretsRouter = {
       }
 
       if (updates.expiration !== undefined) {
-        updateData.expiresAt = updates.expiration
-          ? calculateExpiration(updates.expiration as ExpirationOption)
-          : null
+        updateData.expiresAt = calculateExpiration(
+          updates.expiration as ExpirationOption,
+        )
       }
 
       if (updates.maxViews !== undefined) {
@@ -556,18 +560,20 @@ export const secretsRouter = {
       const userId = ctx.user.id
 
       // Get existing secret
-      const [secret] = await db
+      const secretsList = await db
         .select()
         .from(secrets)
         .where(and(eq(secrets.id, input.id), isNull(secrets.deletedAt)))
         .limit(1)
 
-      if (!secret) {
+      if (secretsList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Secret not found',
         })
       }
+
+      const secret = secretsList[0]
 
       // Verify user has access
       const orgMember = await db
@@ -631,18 +637,20 @@ export const secretsRouter = {
       const userId = ctx.user.id
 
       // Get secret to verify access
-      const [secret] = await db
+      const secretsList = await db
         .select()
         .from(secrets)
         .where(eq(secrets.id, input.secretId))
         .limit(1)
 
-      if (!secret) {
+      if (secretsList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Secret not found',
         })
       }
+
+      const secret = secretsList[0]
 
       // Verify user has access
       const orgMember = await db

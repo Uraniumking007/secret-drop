@@ -34,6 +34,7 @@ export const env = createEnv({
     DODO_PAYMENTS_API_KEY: z.string().optional(),
     DODO_PRO_TEAM_PRODUCT_ID: z.string().optional(),
     DODO_BUSINESS_PRODUCT_ID: z.string().optional(),
+    DODO_PAYMENTS_WEBHOOK_KEY: z.string().optional(),
   },
 
   /**
@@ -59,6 +60,7 @@ export const env = createEnv({
     DODO_PAYMENTS_API_KEY: process.env.DODO_PAYMENTS_API_KEY,
     DODO_PRO_TEAM_PRODUCT_ID: process.env.DODO_PRO_TEAM_PRODUCT_ID,
     DODO_BUSINESS_PRODUCT_ID: process.env.DODO_BUSINESS_PRODUCT_ID,
+    DODO_PAYMENTS_WEBHOOK_KEY: process.env.DODO_PAYMENTS_WEBHOOK_KEY,
   },
 
   /**

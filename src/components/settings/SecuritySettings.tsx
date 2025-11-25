@@ -112,12 +112,10 @@ export function SecuritySettings() {
                           Last active:{' '}
                           {new Date(session.createdAt).toLocaleString()}
                         </div>
-                        {session.expiresAt && (
-                          <div>
-                            Expires:{' '}
-                            {new Date(session.expiresAt).toLocaleString()}
-                          </div>
-                        )}
+                        <div>
+                          Expires:{' '}
+                          {new Date(session.expiresAt).toLocaleString()}
+                        </div>
                       </div>
                     </div>
                   </div>

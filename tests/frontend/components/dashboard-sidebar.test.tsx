@@ -1,10 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { DashboardSidebarContent } from '@/components/dashboard/Sidebar'
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,7 +70,7 @@ const renderSidebar = ({
   open?: boolean
   animate?: boolean
 } = {}) => {
-  const noop = () => { }
+  const noop = () => {}
 
   return render(
     <QueryClientProvider client={queryClient}>

@@ -104,7 +104,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {session?.user?.id && (
+          {session?.user.id && (
             <ImageUpload
               currentImageUrl={image || null}
               onImageUploaded={(url) => setImage(url)}

@@ -104,18 +104,20 @@ export const organizationsRouter = {
         })
       }
 
-      const [org] = await db
+      const orgs = await db
         .select()
         .from(organizations)
         .where(eq(organizations.id, input.id))
         .limit(1)
 
-      if (!org) {
+      if (orgs.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Organization not found',
         })
       }
+
+      const org = orgs[0]
 
       return {
         ...org,
@@ -296,18 +298,20 @@ export const organizationsRouter = {
       }
 
       // Find user by email
-      const [targetUser] = await db
+      const users = await db
         .select()
         .from(user)
         .where(eq(user.email, input.email))
         .limit(1)
 
-      if (!targetUser) {
+      if (users.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'User not found. They must sign up first.',
         })
       }
+
+      const targetUser = users[0]
 
       // Check if already a member
       const existingMember = await db

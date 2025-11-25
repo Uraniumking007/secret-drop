@@ -132,7 +132,7 @@ export function OrganizationSettings() {
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={member.image || undefined} />
                       <AvatarFallback>
-                        {member.name?.charAt(0).toUpperCase() || 'U'}
+                        {member.name.charAt(0).toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div>

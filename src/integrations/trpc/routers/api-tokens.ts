@@ -101,13 +101,13 @@ export const apiTokensRouter = {
       const userId = ctx.user.id
 
       // Verify ownership
-      const [token] = await db
+      const tokens = await db
         .select()
         .from(apiTokens)
         .where(and(eq(apiTokens.id, input.id), eq(apiTokens.userId, userId)))
         .limit(1)
 
-      if (!token) {
+      if (tokens.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'API token not found',
@@ -126,18 +126,20 @@ export const apiTokensRouter = {
     .query(async ({ input }) => {
       const tokenHash = hashApiToken(input.token)
 
-      const [token] = await db
+      const tokens = await db
         .select()
         .from(apiTokens)
         .where(eq(apiTokens.tokenHash, tokenHash))
         .limit(1)
 
-      if (!token) {
+      if (tokens.length === 0) {
         throw new TRPCError({
           code: 'UNAUTHORIZED',
           message: 'Invalid API token',
         })
       }
+
+      const token = tokens[0]
 
       // Check expiration
       if (token.expiresAt && new Date() > token.expiresAt) {

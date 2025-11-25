@@ -104,11 +104,6 @@ function BillingPage() {
   )
 
   const handleUpgrade = (planId: string) => {
-    if (!activeOrgId) {
-      toast.error('Please select an organization to upgrade.')
-      return
-    }
-
     if (planId === 'business') {
       // Handle contact sales or business tier if self-serve
       // For now, let's assume business is also self-serve or just a contact link
@@ -122,7 +117,7 @@ function BillingPage() {
     if (tier) {
       checkoutMutation.mutate(
         {
-          orgId: activeOrgId,
+          orgId: activeOrgId ?? undefined,
           tier,
         },
         {
@@ -263,7 +258,7 @@ function BillingPage() {
                   className={cn(
                     'w-full',
                     plan.popular &&
-                    'bg-primary text-primary-foreground hover:bg-primary/90',
+                      'bg-primary text-primary-foreground hover:bg-primary/90',
                   )}
                   disabled={
                     plan.current ||
