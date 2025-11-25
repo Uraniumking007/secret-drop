@@ -26,19 +26,17 @@ export const auth = betterAuth({
             .insert(organizations)
             .values({
               name: `${user.name}'s Organization`,
-              slug: `${user.name?.toLowerCase().replace(/\s/g, '-')}-org`,
+              slug: `${user.name.toLowerCase().replace(/\s/g, '-')}-org`,
               tier: 'free',
               ownerId: user.id,
             })
             .returning()
 
-          if (newOrg) {
-            await db.insert(organizationMembers).values({
-              orgId: newOrg.id,
-              userId: user.id,
-              role: 'owner',
-            })
-          }
+          await db.insert(organizationMembers).values({
+            orgId: newOrg.id,
+            userId: user.id,
+            role: 'owner',
+          })
         },
       },
     },
@@ -64,7 +62,7 @@ export const auth = betterAuth({
             .orderBy(asc(organizationMembers.joinedAt))
             .limit(1)
 
-          if (membership?.orgId) {
+          if (membership && membership.orgId) {
             return {
               data: {
                 activeOrgId: membership.orgId,
@@ -79,7 +77,7 @@ export const auth = betterAuth({
   basePath: '/api/auth',
   emailVerification: {
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url, token }) => {
+    sendVerificationEmail: async ({ user, token }) => {
       // Use our custom email service
       const { sendVerificationEmail } = await import('./email')
       await sendVerificationEmail(user.email, token)

@@ -102,8 +102,8 @@ export default function Header() {
                       >
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
-                            {session.user.name?.charAt(0).toUpperCase() ||
-                              session.user.email?.charAt(0).toUpperCase() ||
+                            {session.user.name.charAt(0).toUpperCase() ||
+                              session.user.email.charAt(0).toUpperCase() ||
                               'U'}
                           </AvatarFallback>
                         </Avatar>

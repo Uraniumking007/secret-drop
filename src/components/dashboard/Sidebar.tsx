@@ -71,7 +71,7 @@ export function Sidebar() {
 function SidebarContent({ isMobile = false }: { isMobile?: boolean } = {}) {
   const { data: session } = useSession()
   const location = useLocation()
-  const pathname = location.pathname ?? '/dashboard'
+  const pathname = location.pathname
   const computedSections = buildSectionsWithChildren(pathname)
 
   return (
@@ -97,8 +97,8 @@ function SidebarContent({ isMobile = false }: { isMobile?: boolean } = {}) {
 
       {session && (
         <SidebarUserCard
-          name={session.user.name ?? session.user.email ?? 'User'}
-          email={session.user.email ?? ''}
+          name={session.user.name || session.user.email || 'User'}
+          email={session.user.email || ''}
         />
       )}
     </div>

@@ -100,8 +100,8 @@ export async function generateShareToken(): Promise<string> {
     array.set(randomBytes)
   }
 
-  for (let i = 0; i < array.length; i++) {
-    token += chars[array[i] % chars.length]
+  for (const byte of array) {
+    token += chars[byte % chars.length]
   }
 
   return token

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { and, desc, eq, gte, inArray, isNull, or } from 'drizzle-orm'
-import { createTRPCRouter, protectedProcedure } from '../init'
+import { protectedProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
 import type { EncryptionLibrary } from '@/lib/encryption'
 import type { ExpirationOption } from '@/lib/secret-utils'
@@ -23,11 +23,7 @@ import {
   hashPassword,
   verifyPassword,
 } from '@/lib/encryption'
-import {
-  calculateExpiration,
-  canViewSecret,
-  generateShareToken,
-} from '@/lib/secret-utils'
+import { calculateExpiration, canViewSecret } from '@/lib/secret-utils'
 
 const createSecretSchema = z.object({
   orgId: z.number(),

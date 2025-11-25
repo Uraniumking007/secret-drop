@@ -5,9 +5,7 @@ import { expect } from 'vitest'
 expect.extend(matchers)
 
 // Ensure global crypto + subtle are available for Node test envs
-if (!globalThis.crypto) {
-  globalThis.crypto = webcrypto as Crypto
-}
+
 
 if (!globalThis.crypto.subtle) {
   Object.assign(globalThis.crypto, webcrypto)
@@ -31,10 +29,10 @@ if (typeof globalThis.matchMedia === 'undefined') {
       matches: false,
       media: '',
       onchange: null,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      addListener: () => {},
-      removeListener: () => {},
+      addEventListener: () => { },
+      removeEventListener: () => { },
+      addListener: () => { },
+      removeListener: () => { },
       dispatchEvent: () => false,
     }) as unknown as MediaQueryList
 }

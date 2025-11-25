@@ -85,7 +85,8 @@ export async function deriveKeyFromPassword(
   }
 
   if (library === 'crypto-js') {
-    const CryptoJS = await import('crypto-js')
+    const CryptoJSModule = await import('crypto-js')
+    const CryptoJS = CryptoJSModule.default || CryptoJSModule
     const key = CryptoJS.PBKDF2(password, salt, {
       keySize: 256 / 32,
       iterations: 100000,
@@ -121,7 +122,8 @@ export async function hashEncryptionKey(
   }
 
   if (library === 'crypto-js') {
-    const CryptoJS = await import('crypto-js')
+    const CryptoJSModule = await import('crypto-js')
+    const CryptoJS = CryptoJSModule.default || CryptoJSModule
     const keyWordArray = CryptoJS.lib.WordArray.create(key)
     const hash = CryptoJS.SHA256(keyWordArray)
     return hash.toString(CryptoJS.enc.Base64)
@@ -177,7 +179,8 @@ export async function encrypt(
   }
 
   if (library === 'crypto-js') {
-    const CryptoJS = await import('crypto-js')
+    const CryptoJSModule = await import('crypto-js')
+    const CryptoJS = CryptoJSModule.default || CryptoJSModule
     const iv = CryptoJS.lib.WordArray.random(12)
     const keyWordArray = CryptoJS.lib.WordArray.create(key)
     const dataWordArray = CryptoJS.lib.WordArray.create(dataBytes)
@@ -252,7 +255,8 @@ export async function decrypt(
   }
 
   if (library === 'crypto-js') {
-    const CryptoJS = await import('crypto-js')
+    const CryptoJSModule = await import('crypto-js')
+    const CryptoJS = CryptoJSModule.default || CryptoJSModule
     const keyWordArray = CryptoJS.lib.WordArray.create(key)
     const ivWordArray = CryptoJS.lib.WordArray.create(ivBytes)
     const encryptedWordArray = CryptoJS.lib.WordArray.create(encryptedBytes)

@@ -20,8 +20,9 @@ interface OrgSwitcherProps {
 
 export function OrgSwitcher({ className, onOpenChange }: OrgSwitcherProps) {
   const { data: session } = useSession()
-  const currentOrgId =
-    session?.activeOrgId ?? session?.session?.activeOrgId ?? null
+  const currentOrgId = session
+    ? session.activeOrgId || session.session?.activeOrgId
+    : null
   const trpc = useTRPC()
   const navigate = useNavigate()
 

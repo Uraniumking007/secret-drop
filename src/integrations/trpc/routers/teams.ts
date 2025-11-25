@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { and, eq } from 'drizzle-orm'
-import { createTRPCRouter, protectedProcedure } from '../init'
+import { protectedProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
 import { db } from '@/db'
 import { organizationMembers, teamMembers, teams } from '@/db/schema'

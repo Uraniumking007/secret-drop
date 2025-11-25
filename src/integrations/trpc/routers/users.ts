@@ -63,14 +63,14 @@ export const usersRouter = {
     const activityList =
       secretIds.length > 0
         ? await db
-            .select()
-            .from(secretAccessLogs)
-            .where(
-              and(
-                inArray(secretAccessLogs.secretId, secretIds),
-                gte(secretAccessLogs.accessedAt, sevenDaysAgo),
-              ),
-            )
+          .select()
+          .from(secretAccessLogs)
+          .where(
+            and(
+              inArray(secretAccessLogs.secretId, secretIds),
+              gte(secretAccessLogs.accessedAt, sevenDaysAgo),
+            ),
+          )
         : []
     const activityCount = { count: activityList.length }
 
@@ -82,10 +82,10 @@ export const usersRouter = {
     const tokensCount = { count: tokensList.length }
 
     return {
-      totalSecrets: Number(secretsCount?.count || 0),
+      totalSecrets: Number(secretsCount.count || 0),
       totalOrganizations: totalOrgs,
-      recentActivityCount: Number(activityCount?.count || 0),
-      apiTokensCount: Number(tokensCount?.count || 0),
+      recentActivityCount: Number(activityCount.count || 0),
+      apiTokensCount: Number(tokensCount.count || 0),
     }
   }),
 
@@ -166,19 +166,19 @@ export const usersRouter = {
       const recentActivity =
         secretIds.length > 0
           ? await db
-              .select({
-                id: secretAccessLogs.id,
-                secretId: secretAccessLogs.secretId,
-                secretName: secrets.name,
-                action: secretAccessLogs.action,
-                ipAddress: secretAccessLogs.ipAddress,
-                accessedAt: secretAccessLogs.accessedAt,
-              })
-              .from(secretAccessLogs)
-              .innerJoin(secrets, eq(secretAccessLogs.secretId, secrets.id))
-              .where(inArray(secretAccessLogs.secretId, secretIds))
-              .orderBy(desc(secretAccessLogs.accessedAt))
-              .limit(input.limit)
+            .select({
+              id: secretAccessLogs.id,
+              secretId: secretAccessLogs.secretId,
+              secretName: secrets.name,
+              action: secretAccessLogs.action,
+              ipAddress: secretAccessLogs.ipAddress,
+              accessedAt: secretAccessLogs.accessedAt,
+            })
+            .from(secretAccessLogs)
+            .innerJoin(secrets, eq(secretAccessLogs.secretId, secrets.id))
+            .where(inArray(secretAccessLogs.secretId, secretIds))
+            .orderBy(desc(secretAccessLogs.accessedAt))
+            .limit(input.limit)
           : []
 
       return recentActivity
@@ -188,18 +188,20 @@ export const usersRouter = {
   getProfile: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id
 
-    const [userData] = await db
+    const userList = await db
       .select()
       .from(user)
       .where(eq(user.id, userId))
       .limit(1)
 
-    if (!userData) {
+    if (userList.length === 0) {
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: 'User not found',
       })
     }
+
+    const userData = userList[0]
 
     return {
       id: userData.id,
@@ -243,18 +245,20 @@ export const usersRouter = {
         updateData.image = input.image
       }
 
-      const [updated] = await db
+      const updatedList = await db
         .update(user)
         .set(updateData)
         .where(eq(user.id, userId))
         .returning()
 
-      if (!updated) {
+      if (updatedList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'User not found',
         })
       }
+
+      const updated = updatedList[0]
 
       return {
         id: updated.id,
@@ -269,14 +273,16 @@ export const usersRouter = {
   getPreferences: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id
 
-    const [prefs] = await db
+    const prefsList = await db
       .select()
       .from(userPreferences)
       .where(eq(userPreferences.userId, userId))
       .limit(1)
 
+    const prefs = prefsList[0]
+
     // Return defaults if no preferences exist
-    if (!prefs) {
+    if (prefsList.length === 0) {
       return {
         timezone: 'UTC',
         language: 'en',
@@ -307,13 +313,13 @@ export const usersRouter = {
       const userId = ctx.user.id
 
       // Check if preferences exist
-      const [existing] = await db
+      const existingList = await db
         .select()
         .from(userPreferences)
         .where(eq(userPreferences.userId, userId))
         .limit(1)
 
-      if (existing) {
+      if (existingList.length > 0) {
         // Update existing
         const updateData: {
           timezone?: string
@@ -400,13 +406,13 @@ export const usersRouter = {
       const userId = ctx.user.id
 
       // Verify ownership
-      const [sessionData] = await db
+      const sessionDataList = await db
         .select()
         .from(session)
         .where(and(eq(session.id, input.sessionId), eq(session.userId, userId)))
         .limit(1)
 
-      if (!sessionData) {
+      if (sessionDataList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Session not found',
@@ -424,18 +430,20 @@ export const usersRouter = {
     .input(z.object({ token: z.string() }))
     .mutation(async ({ input }) => {
       // Find verification token
-      const [verificationData] = await db
+      const verificationDataList = await db
         .select()
         .from(verification)
         .where(eq(verification.value, input.token))
         .limit(1)
 
-      if (!verificationData) {
+      if (verificationDataList.length === 0) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: 'Invalid verification token',
         })
       }
+
+      const verificationData = verificationDataList[0]
 
       // Check if token is expired
       if (new Date() > verificationData.expiresAt) {
@@ -451,18 +459,20 @@ export const usersRouter = {
       }
 
       // Find user by email (from verification identifier)
-      const [userData] = await db
+      const userDataList = await db
         .select()
         .from(user)
         .where(eq(user.email, verificationData.identifier))
         .limit(1)
 
-      if (!userData) {
+      if (userDataList.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'User not found',
         })
       }
+
+      const userData = userDataList[0]
 
       if (userData.emailVerified) {
         // Delete token even if already verified
@@ -495,18 +505,20 @@ export const usersRouter = {
     const userId = ctx.user.id
 
     // Get user email
-    const [userData] = await db
+    const userDataList = await db
       .select()
       .from(user)
       .where(eq(user.id, userId))
       .limit(1)
 
-    if (!userData) {
+    if (userDataList.length === 0) {
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: 'User not found',
       })
     }
+
+    const userData = userDataList[0]
 
     if (userData.emailVerified) {
       throw new TRPCError({
@@ -552,15 +564,17 @@ export const usersRouter = {
   getTwoFactorStatus: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id
 
-    const [twoFactorData] = await db
+    const twoFactorDataList = await db
       .select()
       .from(twoFactor)
       .where(eq(twoFactor.userId, userId))
       .limit(1)
 
+    const twoFactorData = twoFactorDataList[0]
+
     return {
-      enabled: twoFactorData?.enabled || false,
-      hasSecret: !!twoFactorData?.secret,
+      enabled: twoFactorData.enabled || false,
+      hasSecret: !!twoFactorData.secret,
     }
   }),
 
@@ -569,27 +583,29 @@ export const usersRouter = {
     const userId = ctx.user.id
 
     // Get user email for QR code
-    const [userData] = await db
+    const userDataList = await db
       .select()
       .from(user)
       .where(eq(user.id, userId))
       .limit(1)
 
-    if (!userData) {
+    if (userDataList.length === 0) {
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: 'User not found',
       })
     }
 
+    const userData = userDataList[0]
+
     // Check if 2FA is already enabled
-    const [existing] = await db
+    const existingList = await db
       .select()
       .from(twoFactor)
       .where(eq(twoFactor.userId, userId))
       .limit(1)
 
-    if (existing?.enabled) {
+    if (existingList.length > 0 && existingList[0].enabled) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
         message: '2FA is already enabled',
@@ -604,7 +620,7 @@ export const usersRouter = {
     const qrCodeURL = getQRCodeURL(secret, userData.email)
 
     // Store temporarily (not enabled yet - user needs to verify first)
-    if (existing) {
+    if (existingList.length > 0) {
       await db
         .update(twoFactor)
         .set({
@@ -650,19 +666,29 @@ export const usersRouter = {
       const userId = ctx.user.id
 
       // Get user and 2FA data
-      const [userData] = await db
+      const userDataList = await db
         .select()
         .from(user)
         .where(eq(user.id, userId))
         .limit(1)
 
-      const [twoFactorData] = await db
+      const twoFactorDataList = await db
         .select()
         .from(twoFactor)
         .where(eq(twoFactor.userId, userId))
         .limit(1)
 
-      if (!userData || !twoFactorData || !twoFactorData.secret) {
+      if (userDataList.length === 0 || twoFactorDataList.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: '2FA setup not found. Please generate a new setup first.',
+        })
+      }
+
+      const userData = userDataList[0]
+      const twoFactorData = twoFactorDataList[0]
+
+      if (!twoFactorData.secret) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: '2FA setup not found. Please generate a new setup first.',
@@ -703,19 +729,29 @@ export const usersRouter = {
       const userId = ctx.user.id
 
       // Get user and 2FA data
-      const [userData] = await db
+      const userDataList = await db
         .select()
         .from(user)
         .where(eq(user.id, userId))
         .limit(1)
 
-      const [twoFactorData] = await db
+      const twoFactorDataList = await db
         .select()
         .from(twoFactor)
         .where(eq(twoFactor.userId, userId))
         .limit(1)
 
-      if (!userData || !twoFactorData || !twoFactorData.enabled) {
+      if (userDataList.length === 0 || twoFactorDataList.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: '2FA is not enabled',
+        })
+      }
+
+      const userData = userDataList[0]
+      const twoFactorData = twoFactorDataList[0]
+
+      if (!twoFactorData.enabled) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: '2FA is not enabled',

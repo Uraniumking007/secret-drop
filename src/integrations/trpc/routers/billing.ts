@@ -167,6 +167,13 @@ export const billingRouter = {
           .from(subscriptions)
           .where(eq(subscriptions.orgId, input.orgId))
           .limit(1)
+
+        if (subs.length === 0) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'No active subscription found',
+          })
+        }
         subscription = subs[0]
       } else {
         // Get personal subscription
@@ -175,10 +182,17 @@ export const billingRouter = {
           .from(subscriptions)
           .where(eq(subscriptions.userId, userId))
           .limit(1)
+
+        if (subs.length === 0) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'No active subscription found',
+          })
+        }
         subscription = subs[0]
       }
 
-      if (!subscription || !subscription.stripeSubscriptionId) {
+      if (!subscription.stripeSubscriptionId) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'No active subscription found',
@@ -250,7 +264,7 @@ export const billingRouter = {
 
         const existingSub = existingSubs[0]
 
-        if (existingSub) {
+        if (existingSubs.length > 0) {
           await db
             .update(subscriptions)
             .set({
@@ -284,7 +298,7 @@ export const billingRouter = {
 
         const existingSub = existingSubs[0]
 
-        if (existingSub) {
+        if (existingSubs.length > 0) {
           await db
             .update(subscriptions)
             .set({

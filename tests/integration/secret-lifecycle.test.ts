@@ -17,8 +17,7 @@ describe('secret lifecycle integration', () => {
     expect(proValidation.valid).toBe(true)
 
     // After creation, enforce expiration/view rules
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2024-05-01T00:00:00Z'))
+    vi.useFakeTimers({ now: new Date('2024-05-01T00:00:00Z') })
     const expiration = calculateExpiration('1h')
     expect(expiration).not.toBeNull()
 

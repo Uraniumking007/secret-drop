@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto'
-import { TOTP } from 'otpauth'
+import { Secret, TOTP } from 'otpauth'
 import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { twoFactor } from '@/db/schema'
@@ -8,7 +8,7 @@ import { twoFactor } from '@/db/schema'
  * Generate a TOTP secret for a user
  */
 export function generateTOTPSecret(): string {
-  return randomBytes(20).toString('base32')
+  return new Secret({ buffer: randomBytes(20).buffer }).base32
 }
 
 /**
@@ -84,13 +84,13 @@ export function verifyBackupCode(
  * Get user's 2FA status
  */
 export async function getTwoFactorStatus(userId: string) {
-  const [result] = await db
+  const results = await db
     .select()
     .from(twoFactor)
     .where(eq(twoFactor.userId, userId))
     .limit(1)
 
-  return result || null
+  return results[0] || null
 }
 
 /**
@@ -103,13 +103,13 @@ export async function enableTwoFactor(
 ) {
   const hashedBackupCodes = backupCodes.map(hashBackupCode)
 
-  const [existing] = await db
+  const existingList = await db
     .select()
     .from(twoFactor)
     .where(eq(twoFactor.userId, userId))
     .limit(1)
 
-  if (existing) {
+  if (existingList.length > 0) {
     // Update existing
     const [updated] = await db
       .update(twoFactor)

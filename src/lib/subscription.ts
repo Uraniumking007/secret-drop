@@ -3,7 +3,6 @@
  */
 
 import { getTierLimits } from './secret-utils'
-import type { subscriptionTierEnum } from '@/db/schema'
 
 export type SubscriptionTier = 'free' | 'pro_team' | 'business'
 
@@ -101,7 +100,7 @@ export function validateFeatureUsage(
       }
       break
 
-    case 'maxViews':
+    case 'maxViews': {
       const maxViews = getMaxViews(tier)
       if (maxViews !== null && value && value > maxViews) {
         return {
@@ -110,6 +109,7 @@ export function validateFeatureUsage(
         }
       }
       break
+    }
 
     case 'organizations':
       if (tier === 'free' && value && value > 1) {

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Globe, LogOut, Monitor, Smartphone } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
