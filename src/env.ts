@@ -57,10 +57,22 @@ export const env = createEnv({
    */
   runtimeEnv: {
     ...import.meta.env,
-    DODO_PAYMENTS_API_KEY: process.env.DODO_PAYMENTS_API_KEY,
-    DODO_PRO_TEAM_PRODUCT_ID: process.env.DODO_PRO_TEAM_PRODUCT_ID,
-    DODO_BUSINESS_PRODUCT_ID: process.env.DODO_BUSINESS_PRODUCT_ID,
-    DODO_PAYMENTS_WEBHOOK_KEY: process.env.DODO_PAYMENTS_WEBHOOK_KEY,
+    DODO_PAYMENTS_API_KEY:
+      typeof process !== 'undefined'
+        ? process.env.DODO_PAYMENTS_API_KEY
+        : undefined,
+    DODO_PRO_TEAM_PRODUCT_ID:
+      typeof process !== 'undefined'
+        ? process.env.DODO_PRO_TEAM_PRODUCT_ID
+        : undefined,
+    DODO_BUSINESS_PRODUCT_ID:
+      typeof process !== 'undefined'
+        ? process.env.DODO_BUSINESS_PRODUCT_ID
+        : undefined,
+    DODO_PAYMENTS_WEBHOOK_KEY:
+      typeof process !== 'undefined'
+        ? process.env.DODO_PAYMENTS_WEBHOOK_KEY
+        : undefined,
   },
 
   /**
