@@ -14,6 +14,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { LEGAL_CONTENT } from '@/data/legal-content'
+import { LegalDocumentRenderer } from '@/components/legal/LegalDocumentRenderer'
 
 export const Route = createFileRoute('/auth/signup')({
   component: SignupPage,
@@ -26,6 +36,7 @@ function SignupPage() {
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [showLegalModal, setShowLegalModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -63,6 +74,19 @@ function SignupPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setShowLegalModal(true)
+    } else {
+      setTermsAccepted(false)
+    }
+  }
+
+  const handleAcceptTerms = () => {
+    setTermsAccepted(true)
+    setShowLegalModal(false)
   }
 
   return (
@@ -139,7 +163,7 @@ function SignupPage() {
                 <Checkbox
                   id="terms"
                   checked={termsAccepted}
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  onChange={handleCheckboxChange}
                   disabled={isLoading}
                 />
                 <label
@@ -147,21 +171,21 @@ function SignupPage() {
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   I agree to the{' '}
-                  <Link
-                    to="/terms"
-                    className="text-primary hover:underline"
-                    target="_blank"
+                  <button
+                    type="button"
+                    onClick={() => setShowLegalModal(true)}
+                    className="text-primary hover:underline cursor-pointer"
                   >
                     terms
-                  </Link>{' '}
+                  </button>{' '}
                   and{' '}
-                  <Link
-                    to="/privacy"
-                    className="text-primary hover:underline"
-                    target="_blank"
+                  <button
+                    type="button"
+                    onClick={() => setShowLegalModal(true)}
+                    className="text-primary hover:underline cursor-pointer"
                   >
                     privacy policy
-                  </Link>
+                  </button>
                 </label>
               </div>
 
@@ -189,6 +213,47 @@ function SignupPage() {
           </CardFooter>
         </Card>
       </div>
+
+      <Dialog open={showLegalModal} onOpenChange={setShowLegalModal}>
+        <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col p-0 gap-0">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle>Terms of Service & Privacy Policy</DialogTitle>
+            <DialogDescription>
+              Please read our Terms of Service and Privacy Policy carefully before
+              creating an account.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto p-6 pt-2">
+            <div className="space-y-8">
+              <section>
+                <h3 className="text-lg font-semibold mb-4 text-foreground">
+                  Terms of Service
+                </h3>
+                <LegalDocumentRenderer content={LEGAL_CONTENT.terms} />
+              </section>
+              <div className="h-px bg-border my-8" />
+              <section>
+                <h3 className="text-lg font-semibold mb-4 text-foreground">
+                  Privacy Policy
+                </h3>
+                <LegalDocumentRenderer content={LEGAL_CONTENT.privacy} />
+              </section>
+            </div>
+          </div>
+          <DialogFooter className="p-6 pt-2 border-t mt-auto">
+            <Button
+              variant="outline"
+              onClick={() => setShowLegalModal(false)}
+              type="button"
+            >
+              Decline
+            </Button>
+            <Button onClick={handleAcceptTerms} type="button">
+              I have read and agree
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

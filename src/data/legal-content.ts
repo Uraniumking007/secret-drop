@@ -28,7 +28,7 @@ We use trusted third-party providers for specific infrastructure needs:
 - **Payments:** Dodo Payments
 
 ## 6. Contact Us
-If you have questions about this policy, please contact us at [privacy@secretdrop.io](mailto:privacy@secretdrop.io).
+If you have questions about this policy, please contact us at [contact@bhaveshp.dev](mailto:contact@bhaveshp.dev).
 `,
     terms: `
 # Terms of Service
