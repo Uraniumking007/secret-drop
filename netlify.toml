@@ -1,8 +1,12 @@
 [build]
   command = "vite build"
-  dir = "dist/client"
+  publish = "dist/client"
 [build.environment]
   SECRETS_SCAN_OMIT_KEYS = "IMAGEKIT_URL_ENDPOINT"
+
+[functions]
+  directory = "dist/server"
+  included_files = ["dist/server/assets/**"]
 
 [dev]
   command = "vite dev"
