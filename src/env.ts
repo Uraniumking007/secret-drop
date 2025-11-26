@@ -11,6 +11,7 @@ export const env = createEnv({
     STRIPE_SECRET_KEY: z.string().optional(),
     STRIPE_WEBHOOK_SECRET: z.string().optional(),
     ENCRYPTION_SALT: z.string().min(16).optional(),
+    MASTER_KEY: z.string().min(32).optional(), // New master key for encrypting secret keys
     SSO_GOOGLE_CLIENT_ID: z.string().optional(),
     SSO_GOOGLE_CLIENT_SECRET: z.string().optional(),
     SSO_OKTA_CLIENT_ID: z.string().optional(),
@@ -51,42 +52,6 @@ export const env = createEnv({
     VITE_IMAGEKIT_URL_ENDPOINT: z.string().url().optional(),
   },
 
-  /**
-   * What object holds the environment variables at runtime. This is usually
-   * `process.env` or `import.meta.env`.
-   */
-  runtimeEnv: {
-    ...import.meta.env,
-    DODO_PAYMENTS_API_KEY:
-      typeof process !== 'undefined'
-        ? process.env.DODO_PAYMENTS_API_KEY
-        : undefined,
-    DODO_PRO_TEAM_PRODUCT_ID:
-      typeof process !== 'undefined'
-        ? process.env.DODO_PRO_TEAM_PRODUCT_ID
-        : undefined,
-    DODO_BUSINESS_PRODUCT_ID:
-      typeof process !== 'undefined'
-        ? process.env.DODO_BUSINESS_PRODUCT_ID
-        : undefined,
-    DODO_PAYMENTS_WEBHOOK_KEY:
-      typeof process !== 'undefined'
-        ? process.env.DODO_PAYMENTS_WEBHOOK_KEY
-        : undefined,
-  },
-
-  /**
-   * By default, this library will feed the environment variables directly to
-   * the Zod validator.
-   *
-   * This means that if you have an empty string for a value that is supposed
-   * to be a number (e.g. `PORT=` in a ".env" file), Zod will incorrectly flag
-   * it as a type mismatch violation. Additionally, if you have an empty string
-   * for a value that is supposed to be a string with a default value (e.g.
-   * `DOMAIN=` in an ".env" file), the default value will never be applied.
-   *
-   * In order to solve these issues, we recommend that all new projects
-   * explicitly specify this option as true.
-   */
+  runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 })

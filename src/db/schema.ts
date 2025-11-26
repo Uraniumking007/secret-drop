@@ -113,58 +113,28 @@ export const verification = pgTable('verification', {
   createdAt: timestamp('createdAt', { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
-  updatedAt: timestamp('updatedAt', { withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
+  updatedAt: timestamp('updatedAt', { withTimezone: true }).notNull(),
 })
 
-// Two-factor authentication (TOTP)
-export const twoFactor = pgTable(
-  'two_factor',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: text('user_id')
-      .notNull()
-      .unique()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    secret: text('secret').notNull(), // Encrypted TOTP secret
-    enabled: boolean('enabled').default(false).notNull(),
-    backupCodes: text('backup_codes'), // JSON array of hashed backup codes
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => ({
-    userIdIdx: index('two_factor_user_id_idx').on(table.userId),
-  }),
-)
+// Domain tables
+export const organizations = pgTable('organizations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  tier: subscriptionTierEnum('tier').default('free').notNull(),
+  logoUrl: text('logo_url'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
 
-// Organizations table
-export const organizations = pgTable(
-  'organizations',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name').notNull(),
-    slug: varchar('slug', { length: 255 }).notNull().unique(),
-    tier: subscriptionTierEnum('tier').default('free').notNull(),
-    ownerId: text('owner_id').notNull(), // References better-auth user.id
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => ({
-    slugIdx: index('organizations_slug_idx').on(table.slug),
-    ownerIdx: index('organizations_owner_id_idx').on(table.ownerId),
-  }),
-)
-
-// Organization members (RBAC)
 export const organizationMembers = pgTable(
   'organization_members',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    userId: text('user_id').notNull(), // References better-auth user.id
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(), // References better-auth user.id
     role: memberRoleEnum('role').default('member').notNull(),
     joinedAt: timestamp('joined_at').defaultNow().notNull(),
   },
@@ -178,7 +148,6 @@ export const organizationMembers = pgTable(
   }),
 )
 
-// Teams (sub-groups within organizations)
 export const teams = pgTable(
   'teams',
   {
@@ -187,16 +156,15 @@ export const teams = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
-    slug: varchar('slug', { length: 255 }).notNull(),
+    description: text('description'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
-    orgSlugIdx: unique('teams_org_slug_unique').on(table.orgId, table.slug),
     orgIdx: index('teams_org_id_idx').on(table.orgId),
   }),
 )
 
-// Team members
 export const teamMembers = pgTable(
   'team_members',
   {
@@ -230,7 +198,12 @@ export const secrets = pgTable(
     }),
     name: text('name').notNull(),
     encryptedData: text('encrypted_data').notNull(), // Base64 encoded encrypted blob
+    encryptedEncryptionKey: text('encrypted_encryption_key'), // Encrypted encryption key (using master key or client password)
     encryptionKeyHash: text('encryption_key_hash').notNull(), // Hash of encryption key for verification
+    encryptionSalt: text('encryption_salt'), // PBKDF2 salt for password-derived encryption keys
+    encryptionVersion: text('encryption_version')
+      .default('server_managed')
+      .notNull(), // server_managed | password_derived
     passwordHash: text('password_hash'), // Optional password protection (PBKDF2 hash)
     maxViews: integer('max_views'), // Null = unlimited
     viewCount: integer('view_count').default(0).notNull(),
@@ -317,32 +290,60 @@ export const subscriptions = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
-    userIdIdx: index('subscriptions_user_id_idx').on(table.userId),
-    orgIdIdx: index('subscriptions_org_id_idx').on(table.orgId),
+    userOrgIdx: index('subscriptions_user_id_org_id_idx').on(
+      table.userId,
+      table.orgId,
+    ),
     stripeSubIdx: index('subscriptions_stripe_subscription_id_idx').on(
       table.stripeSubscriptionId,
     ),
   }),
 )
 
-// IP allowlist (Business tier)
-export const ipAllowlist = pgTable(
-  'ip_allowlist',
+// User preferences
+export const userPreferences = pgTable(
+  'user_preferences',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    orgId: uuid('org_id')
+    userId: text('user_id')
       .notNull()
-      .references(() => organizations.id, { onDelete: 'cascade' }),
-    ipAddress: text('ip_address').notNull(), // Can be CIDR notation
-    cidr: integer('cidr'), // CIDR prefix length if applicable
+      .references(() => user.id, { onDelete: 'cascade' }),
+    theme: varchar('theme', { length: 20 }).default('system'),
+    defaultOrgId: uuid('default_org_id').references(() => organizations.id, {
+      onDelete: 'set null',
+    }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
-    orgIdx: index('ip_allowlist_org_id_idx').on(table.orgId),
+    userIdx: unique('user_preferences_user_id_idx').on(table.userId),
   }),
 )
 
-// SSO providers
+// API Tokens
+export const apiTokens = pgTable(
+  'api_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name').notNull(),
+    tokenHash: text('token_hash').notNull(), // SHA-256 hash of the token
+    prefix: varchar('prefix', { length: 8 }).notNull(), // First 8 chars for display
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    lastUsedAt: timestamp('last_used_at'),
+    expiresAt: timestamp('expires_at'), // Optional expiration
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    revokedAt: timestamp('revoked_at'),
+  },
+  (table) => ({
+    userIdx: index('api_tokens_user_id_idx').on(table.userId),
+    tokenHashIdx: index('api_tokens_token_hash_idx').on(table.tokenHash),
+    prefixIdx: index('api_tokens_prefix_idx').on(table.prefix),
+  }),
+)
+
+// SSO Providers (for organization-level SSO)
 export const ssoProviders = pgTable(
   'sso_providers',
   {
@@ -350,14 +351,15 @@ export const ssoProviders = pgTable(
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    providerType: ssoProviderTypeEnum('provider_type').notNull(),
+    type: ssoProviderTypeEnum('type').notNull(),
+    name: text('name').notNull(), // e.g. "Corporate Okta"
     clientId: text('client_id').notNull(),
-    clientSecretEncrypted: text('client_secret_encrypted').notNull(), // Encrypted client secret
-    authorizationUrl: text('authorization_url'), // OAuth 2.0 authorization endpoint
-    tokenUrl: text('token_url'), // OAuth 2.0 token endpoint
-    userInfoUrl: text('user_info_url'), // OAuth 2.0 user info endpoint
-    scopes: text('scopes'), // Comma-separated scopes
-    enabled: boolean('enabled').default(true).notNull(),
+    clientSecret: text('client_secret').notNull(), // Encrypted at rest
+    issuerUrl: text('issuer_url'), // For OIDC
+    authorizationUrl: text('authorization_url'), // For OAuth2
+    tokenUrl: text('token_url'), // For OAuth2
+    userInfoUrl: text('user_info_url'), // For OAuth2
+    isEnabled: boolean('is_enabled').default(true).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -366,61 +368,96 @@ export const ssoProviders = pgTable(
   }),
 )
 
-// Trash bin (soft-deleted secrets for recovery)
+// Two Factor Authentication
+export const twoFactor = pgTable(
+  'two_factor',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    secret: text('secret').notNull(), // TOTP secret (encrypted)
+    backupCodes: text('backup_codes').notNull(), // JSON array of hashed backup codes
+    isEnabled: boolean('is_enabled').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdx: unique('two_factor_user_id_idx').on(table.userId),
+  }),
+)
+
+// IP Allowlist
+export const ipAllowlist = pgTable(
+  'ip_allowlist',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    cidr: varchar('cidr', { length: 45 }).notNull(), // IPv4 or IPv6 CIDR
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    orgIdx: index('ip_allowlist_org_id_idx').on(table.orgId),
+  }),
+)
+
+// Trash Bin (Soft deleted items)
 export const trashBin = pgTable(
   'trash_bin',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    secretId: integer('secret_id')
-      .notNull()
-      .references(() => secrets.id, { onDelete: 'cascade' }),
     orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    deletedBy: text('deleted_by').notNull(), // References better-auth user.id
+    itemType: varchar('item_type', { length: 50 }).notNull(), // 'secret', 'team', etc.
+    itemId: uuid('item_id').notNull(),
+    originalData: text('original_data').notNull(), // JSON string of deleted data
+    deletedBy: text('deleted_by').notNull(), // User ID
     deletedAt: timestamp('deleted_at').defaultNow().notNull(),
-    expiresAt: timestamp('expires_at').notNull(), // 30 days from deletion
   },
   (table) => ({
     orgIdx: index('trash_bin_org_id_idx').on(table.orgId),
-    secretIdx: index('trash_bin_secret_id_idx').on(table.secretId),
-    expiresAtIdx: index('trash_bin_expires_at_idx').on(table.expiresAt),
+    deletedAtIdx: index('trash_bin_deleted_at_idx').on(table.deletedAt),
+    itemIdx: index('trash_bin_item_idx').on(table.itemType, table.itemId),
   }),
 )
 
-// API tokens for CLI/CI-CD
-export const apiTokens = pgTable(
-  'api_tokens',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: text('user_id').notNull(), // References better-auth user.id
-    orgId: uuid('org_id').references(() => organizations.id, {
-      onDelete: 'cascade',
-    }),
-    teamId: uuid('team_id').references(() => teams.id, {
-      onDelete: 'cascade',
-    }),
-    tokenHash: text('token_hash').notNull().unique(), // Hashed API token
-    name: text('name').notNull(), // User-friendly name for the token
-    lastUsedAt: timestamp('last_used_at'),
-    expiresAt: timestamp('expires_at'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-  },
-  (table) => ({
-    tokenHashIdx: index('api_tokens_token_hash_idx').on(table.tokenHash),
-    userIdIdx: index('api_tokens_user_id_idx').on(table.userId),
-    orgIdx: index('api_tokens_org_id_idx').on(table.orgId),
-  }),
-)
+// Relations
+export const userRelations = relations(user, ({ many, one }) => ({
+  sessions: many(session),
+  accounts: many(account),
+  organizationMemberships: many(organizationMembers),
+  teamMemberships: many(teamMembers),
+  createdSecrets: many(secrets),
+  preferences: one(userPreferences),
+  apiTokens: many(apiTokens),
+  twoFactor: one(twoFactor),
+}))
 
-// Relations (for Drizzle queries)
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}))
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
+}))
+
 export const organizationsRelations = relations(organizations, ({ many }) => ({
   members: many(organizationMembers),
   teams: many(teams),
   secrets: many(secrets),
   subscriptions: many(subscriptions),
-  ipAllowlist: many(ipAllowlist),
   ssoProviders: many(ssoProviders),
+  ipAllowlist: many(ipAllowlist),
   trashBin: many(trashBin),
 }))
 
@@ -430,6 +467,10 @@ export const organizationMembersRelations = relations(
     organization: one(organizations, {
       fields: [organizationMembers.orgId],
       references: [organizations.id],
+    }),
+    user: one(user, {
+      fields: [organizationMembers.userId],
+      references: [user.id],
     }),
   }),
 )
@@ -448,6 +489,10 @@ export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
     fields: [teamMembers.teamId],
     references: [teams.id],
   }),
+  user: one(user, {
+    fields: [teamMembers.userId],
+    references: [user.id],
+  }),
 }))
 
 export const secretsRelations = relations(secrets, ({ one, many }) => ({
@@ -458,6 +503,10 @@ export const secretsRelations = relations(secrets, ({ one, many }) => ({
   team: one(teams, {
     fields: [secrets.teamId],
     references: [teams.id],
+  }),
+  author: one(user, {
+    fields: [secrets.createdBy],
+    references: [user.id],
   }),
   accessLogs: many(secretAccessLogs),
   shares: many(secretShares),
@@ -480,30 +529,61 @@ export const secretSharesRelations = relations(secretShares, ({ one }) => ({
   }),
 }))
 
-// User preferences
-export const userPreferences = pgTable(
-  'user_preferences',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: text('user_id')
-      .notNull()
-      .unique()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    timezone: text('timezone').default('UTC'),
-    language: text('language').default('en'),
-    emailNotifications: boolean('email_notifications').default(true).notNull(),
-    theme: text('theme'), // 'light', 'dark', 'system' - may be redundant with existing theme system
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => ({
-    userIdIdx: index('user_preferences_user_id_idx').on(table.userId),
+export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [subscriptions.orgId],
+    references: [organizations.id],
+  }),
+}))
+
+export const userPreferencesRelations = relations(
+  userPreferences,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [userPreferences.userId],
+      references: [user.id],
+    }),
   }),
 )
 
-// Keep todos table for backward compatibility (can be removed later)
+export const apiTokensRelations = relations(apiTokens, ({ one }) => ({
+  user: one(user, {
+    fields: [apiTokens.userId],
+    references: [user.id],
+  }),
+}))
+
+export const ssoProvidersRelations = relations(ssoProviders, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [ssoProviders.orgId],
+    references: [organizations.id],
+  }),
+}))
+
+export const twoFactorRelations = relations(twoFactor, ({ one }) => ({
+  user: one(user, {
+    fields: [twoFactor.userId],
+    references: [user.id],
+  }),
+}))
+
+export const ipAllowlistRelations = relations(ipAllowlist, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [ipAllowlist.orgId],
+    references: [organizations.id],
+  }),
+}))
+
+export const trashBinRelations = relations(trashBin, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [trashBin.orgId],
+    references: [organizations.id],
+  }),
+}))
+
+// Sample TODOS schema (to be removed/replaced)
 export const todos = pgTable('todos', {
   id: serial('id').primaryKey(),
-  title: text('title').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
+  content: text('content'),
+  completed: boolean('completed'),
 })

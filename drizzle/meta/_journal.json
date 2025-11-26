@@ -29,6 +29,13 @@
       "when": 1764141358521,
       "tag": "0003_stormy_logan",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764143945278,
+      "tag": "0004_lucky_tattoo",
+      "breakpoints": true
     }
   ]
 }

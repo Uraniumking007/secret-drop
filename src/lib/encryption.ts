@@ -3,6 +3,8 @@
  * Supports multiple encryption libraries: Web Crypto API, crypto-js, @noble/ciphers
  */
 
+import { env } from '@/env'
+
 export type EncryptionLibrary = 'webcrypto' | 'crypto-js' | 'noble'
 
 export interface EncryptionResult {
@@ -326,4 +328,56 @@ export async function generateSalt(): Promise<string> {
     salt.set(randomBytes)
   }
   return btoa(String.fromCharCode(...salt))
+}
+
+/**
+ * Encrypt encryption key with master key (server-side only)
+ */
+export async function encryptWithMasterKey(
+  keyToEncrypt: Uint8Array,
+  library: EncryptionLibrary = 'webcrypto',
+): Promise<{ encryptedKey: string; iv: string }> {
+  if (!env.MASTER_KEY) {
+    throw new Error('MASTER_KEY not configured')
+  }
+
+  const masterKey = Uint8Array.from(
+    env.MASTER_KEY.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || [],
+  )
+
+  // Convert keyToEncrypt (Uint8Array) to hex string for encryption
+  const data = Array.from(keyToEncrypt)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+
+  const result = await encrypt(data, masterKey, library)
+
+  return {
+    encryptedKey: result.encryptedData,
+    iv: result.iv,
+  }
+}
+
+/**
+ * Decrypt encryption key with master key (server-side only)
+ */
+export async function decryptWithMasterKey(
+  encryptedKey: string,
+  iv: string,
+  library: EncryptionLibrary = 'webcrypto',
+): Promise<Uint8Array> {
+  if (!env.MASTER_KEY) {
+    throw new Error('MASTER_KEY not configured')
+  }
+
+  const masterKey = Uint8Array.from(
+    env.MASTER_KEY.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || [],
+  )
+
+  const result = await decrypt(encryptedKey, iv, masterKey, library)
+  const hexString = result.decryptedData
+
+  return new Uint8Array(
+    hexString.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || [],
+  )
 }

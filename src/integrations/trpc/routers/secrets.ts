@@ -16,7 +16,9 @@ import {
 } from '@/db/schema'
 import {
   decrypt,
+  decryptWithMasterKey,
   encrypt,
+  encryptWithMasterKey,
   generateEncryptionKey,
   generateSalt,
   hashEncryptionKey,
@@ -97,6 +99,12 @@ export const secretsRouter = {
         input.encryptionLibrary as EncryptionLibrary,
       )
 
+      // Encrypt the encryption key with the master key
+      const encryptedKey = await encryptWithMasterKey(
+        encryptionKey,
+        input.encryptionLibrary as EncryptionLibrary,
+      )
+
       // Hash the encryption key for verification
       const keyHash = await hashEncryptionKey(
         encryptionKey,
@@ -132,6 +140,10 @@ export const secretsRouter = {
             data: encrypted.encryptedData,
             iv: encrypted.iv,
           }),
+          encryptedEncryptionKey: JSON.stringify({
+            data: encryptedKey.encryptedKey,
+            iv: encryptedKey.iv,
+          }),
           encryptionKeyHash: keyHash,
           passwordHash,
           maxViews: input.maxViews || null,
@@ -151,9 +163,7 @@ export const secretsRouter = {
         userAgent: null, // TODO: Extract from request
       })
 
-      // Return secret metadata (NOT the encryption key or decrypted data)
-      // Note: Encryption key should be stored client-side only
-      // For now, we return it hex-encoded, but in production this should be handled differently
+      // Return secret metadata
       return {
         id: newSecret.id,
         name: newSecret.name,
@@ -177,7 +187,7 @@ export const secretsRouter = {
     .input(
       z.object({
         id: z.string(),
-        encryptionKey: z.string(), // Hex encoded encryption key
+        encryptionKey: z.string().optional(), // Optional: if not provided, try to decrypt from stored key
         password: z.string().optional(),
         encryptionLibrary: z
           .enum(['webcrypto', 'crypto-js', 'noble'])
@@ -264,10 +274,29 @@ export const secretsRouter = {
         }
       }
 
-      // Convert hex key back to Uint8Array
-      const encryptionKey = Uint8Array.from(
-        input.encryptionKey.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
-      )
+      let encryptionKey: Uint8Array
+
+      if (input.encryptionKey) {
+        // Use provided key
+        encryptionKey = Uint8Array.from(
+          input.encryptionKey
+            .match(/.{1,2}/g)!
+            .map((byte) => parseInt(byte, 16)),
+        )
+      } else if (secret.encryptedEncryptionKey) {
+        // Decrypt stored key using master key
+        const encryptedKeyData = JSON.parse(secret.encryptedEncryptionKey)
+        encryptionKey = await decryptWithMasterKey(
+          encryptedKeyData.data,
+          encryptedKeyData.iv,
+          input.encryptionLibrary as EncryptionLibrary,
+        )
+      } else {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Encryption key required',
+        })
+      }
 
       // Verify key hash
       const keyHash = await hashEncryptionKey(
@@ -325,12 +354,13 @@ export const secretsRouter = {
         burnOnRead: secret.burnOnRead,
       }
     }),
+
   // Public secret view (no auth)
   publicView: publicProcedure
     .input(
       z.object({
         id: z.string(),
-        encryptionKey: z.string(),
+        encryptionKey: z.string().optional(),
         password: z.string().optional(),
         encryptionLibrary: z
           .enum(['webcrypto', 'crypto-js', 'noble'])
@@ -394,9 +424,28 @@ export const secretsRouter = {
         }
       }
 
-      const encryptionKey = Uint8Array.from(
-        input.encryptionKey.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
-      )
+      let encryptionKey: Uint8Array
+
+      if (input.encryptionKey) {
+        encryptionKey = Uint8Array.from(
+          input.encryptionKey
+            .match(/.{1,2}/g)!
+            .map((byte) => parseInt(byte, 16)),
+        )
+      } else if (secret.encryptedEncryptionKey) {
+        // Decrypt stored key using master key
+        const encryptedKeyData = JSON.parse(secret.encryptedEncryptionKey)
+        encryptionKey = await decryptWithMasterKey(
+          encryptedKeyData.data,
+          encryptedKeyData.iv,
+          input.encryptionLibrary as EncryptionLibrary,
+        )
+      } else {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Encryption key required',
+        })
+      }
 
       const keyHash = await hashEncryptionKey(
         encryptionKey,
@@ -607,6 +656,13 @@ export const secretsRouter = {
           encryptionKey,
           encryptionLibrary,
         )
+
+        // Encrypt the encryption key with the master key
+        const encryptedKey = await encryptWithMasterKey(
+          encryptionKey,
+          encryptionLibrary,
+        )
+
         const keyHash = await hashEncryptionKey(
           encryptionKey,
           encryptionLibrary,
@@ -615,6 +671,10 @@ export const secretsRouter = {
         updateData.encryptedData = JSON.stringify({
           data: encrypted.encryptedData,
           iv: encrypted.iv,
+        })
+        updateData.encryptedEncryptionKey = JSON.stringify({
+          data: encryptedKey.encryptedKey,
+          iv: encryptedKey.iv,
         })
         updateData.encryptionKeyHash = keyHash
       }
