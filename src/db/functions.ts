@@ -22,9 +22,14 @@ BEGIN
   -- because we want to keep the audit trail of shares even if they expired.
   -- The application must check expires_at/max_views for validity.
   
-  -- Permanently delete secrets that are in the trash bin and expired
-  DELETE FROM secrets 
-  WHERE id IN (SELECT secret_id FROM trash_bin WHERE expires_at < NOW());
+  -- Permanently delete secrets that were trashed more than 30 days ago
+  DELETE FROM secrets
+  WHERE id IN (
+    SELECT item_id
+    FROM trash_bin
+    WHERE item_type = 'secret'
+      AND deleted_at < NOW() - INTERVAL '30 days'
+  );
 
   RETURN NULL;
 END;

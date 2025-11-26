@@ -52,10 +52,15 @@ function CreateSecretPage() {
     maxViews?: number | null
     password?: string
     burnOnRead: boolean
-    teamId?: string
+    teamId?: string | null
   }) => {
     setError(null)
     try {
+      console.debug('[SecretCreate] payload', {
+        orgId,
+        name: data.name,
+        teamId: data.teamId ?? null,
+      })
       const result = await createSecret({
         orgId,
         name: data.name,
@@ -65,7 +70,7 @@ function CreateSecretPage() {
         maxViews: data.maxViews,
         password: data.password,
         burnOnRead: data.burnOnRead,
-        teamId: data.teamId,
+        teamId: data.teamId ?? null,
       })
 
       // Store encryption key in sessionStorage (client-side only)

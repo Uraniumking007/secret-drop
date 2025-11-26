@@ -33,7 +33,7 @@ const getRequestMetadata = (request?: Request | null) =>
 
 const createSecretSchema = z.object({
   orgId: z.string(),
-  teamId: z.string().nullable().optional(),
+  teamId: z.string().uuid().nullable().optional(),
   name: z.string().min(1),
   data: z.string().min(1), // Plain text secret data
   encryptionLibrary: z
@@ -61,6 +61,7 @@ export const secretsRouter = {
   create: protectedProcedure
     .input(createSecretSchema)
     .mutation(async ({ input, ctx }) => {
+      console.debug('[SecretsRouter] create input', input)
       const userId = ctx.user.id
 
       // Verify user has access to organization

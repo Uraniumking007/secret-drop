@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { SecretActivityLog } from '@/components/secrets/SecretActivityLog'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/dashboard/secrets/$secretId')({
   component: SecretViewPage,
@@ -37,7 +38,18 @@ function SecretViewPage() {
     trpc.secrets.get.mutationOptions(),
   )
   const { mutateAsync: deleteSecret } = useMutation(
-    trpc.secrets.delete.mutationOptions(),
+    trpc.secrets.delete.mutationOptions({
+      onSuccess(data, variables, onMutateResult, context) {
+        context?.client?.invalidateQueries({
+          queryKey: trpc.secrets.list.queryOptions({ orgId }).queryKey,
+        })
+        navigate({ to: '/dashboard/secrets', search: { orgId } })
+        toast.success('Secret deleted successfully')
+      },
+      onError(error, variables, onMutateResult, context) {
+        setError(error.message || 'Failed to delete secret')
+      },
+    }),
   )
 
   // Get encryption key from sessionStorage
