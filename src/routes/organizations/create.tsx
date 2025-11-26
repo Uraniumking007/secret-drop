@@ -1,7 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { useForm } from '@tanstack/react-form'
-import { zodValidator } from '@tanstack/zod-form-adapter'
-import { z } from 'zod'
+import { useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,26 +13,40 @@ export const Route = createFileRoute('/organizations/create')({
 
 function CreateOrganization() {
   const trpc = useTRPC()
-  const createOrganization = trpc.organizations.createOrganization.useMutation({
+  const queryClient = useQueryClient()
+  const [name, setName] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const createOrganization = useMutation({
+    ...trpc.organizations.create.mutationOptions(),
     onSuccess: () => {
-      // Invalidate and refetch data after successful creation
-      trpc.organizations.getUserOrganizations.invalidate()
+      queryClient.invalidateQueries({
+        queryKey: trpc.organizations.list.queryKey(),
+      })
     },
   })
 
-  const form = useForm({
-    defaultValues: {
-      name: '',
-    },
-    onSubmit: async ({ value }) => {
-      await createOrganization.mutateAsync(value)
-      // Redirect to the dashboard or the new organization's page
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!name || name.length < 3) return
+
+    setIsSubmitting(true)
+    try {
+      await createOrganization.mutateAsync({
+        name,
+        slug: name.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+      })
       throw redirect({
         to: '/dashboard',
       })
-    },
-    validatorAdapter: zodValidator,
-  })
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('redirect')) {
+        throw error
+      }
+      console.error('Failed to create organization:', error)
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="flex justify-center items-center h-full">
@@ -42,38 +55,21 @@ function CreateOrganization() {
           <CardTitle>Create New Organization</CardTitle>
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              form.handleSubmit()
-            }}
-            className="space-y-4"
-          >
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="name">Organization Name</Label>
-              <form.Field
+              <Input
+                id="name"
                 name="name"
-                validators={{
-                  onChange: z
-                    .string()
-                    .min(3, 'Organization name must be at least 3 characters'),
-                }}
-                children={(field) => (
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                )}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="My Organization"
+                minLength={3}
+                required
               />
             </div>
-            <Button type="submit" disabled={createOrganization.isPending}>
-              {createOrganization.isPending
-                ? 'Creating...'
-                : 'Create Organization'}
+            <Button type="submit" disabled={isSubmitting || !name}>
+              {isSubmitting ? 'Creating...' : 'Create Organization'}
             </Button>
           </form>
         </CardContent>

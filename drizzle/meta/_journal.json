@@ -8,6 +8,13 @@
       "when": 1763559897560,
       "tag": "0000_pretty_iceman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1764135228534,
+      "tag": "0001_cold_wraith",
+      "breakpoints": true
     }
   ]
 }
