@@ -22,6 +22,13 @@
       "when": 1764139556684,
       "tag": "0002_tan_emma_frost",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764141358521,
+      "tag": "0003_stormy_logan",
+      "breakpoints": true
     }
   ]
 }

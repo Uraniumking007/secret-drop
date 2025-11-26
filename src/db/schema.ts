@@ -394,10 +394,10 @@ export const apiTokens = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     userId: text('user_id').notNull(), // References better-auth user.id
-    orgId: integer('org_id').references(() => organizations.id, {
+    orgId: uuid('org_id').references(() => organizations.id, {
       onDelete: 'cascade',
     }),
-    teamId: integer('team_id').references(() => teams.id, {
+    teamId: uuid('team_id').references(() => teams.id, {
       onDelete: 'cascade',
     }),
     tokenHash: text('token_hash').notNull().unique(), // Hashed API token
