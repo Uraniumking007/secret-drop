@@ -26,11 +26,11 @@ interface SecretFormProps {
     maxViews?: number | null
     password?: string
     burnOnRead: boolean
-    teamId?: number
+    teamId?: string
   }) => Promise<void>
   isLoading?: boolean
   userTier?: 'free' | 'pro_team' | 'business'
-  orgId?: number
+  orgId?: string
   initialData?: {
     name?: string
     data?: string
@@ -61,7 +61,7 @@ export function SecretForm({
   const [password, setPassword] = useState(initialData?.password || '')
   const [burnOnRead, setBurnOnRead] = useState(initialData?.burnOnRead || false)
   const [showPassword, setShowPassword] = useState(false)
-  const [teamId, setTeamId] = useState<number | undefined>(undefined)
+  const [teamId, setTeamId] = useState<string | undefined>(undefined)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -268,9 +268,9 @@ function TeamSelect({
   onChange,
   disabled,
 }: {
-  orgId: number
-  value?: number
-  onChange: (val?: number) => void
+  orgId: string
+  value?: string
+  onChange: (val?: string) => void
   disabled?: boolean
 }) {
   const trpc = useTRPC()
@@ -280,10 +280,8 @@ function TeamSelect({
 
   return (
     <Select
-      value={value?.toString() || 'none'}
-      onValueChange={(val) =>
-        onChange(val === 'none' ? undefined : Number(val))
-      }
+      value={value || 'none'}
+      onValueChange={(val) => onChange(val === 'none' ? undefined : val)}
       disabled={disabled}
     >
       <SelectTrigger id="team">
@@ -292,7 +290,7 @@ function TeamSelect({
       <SelectContent>
         <SelectItem value="none">None (Private / Link only)</SelectItem>
         {teams?.map((team) => (
-          <SelectItem key={team.id} value={team.id.toString()}>
+          <SelectItem key={team.id} value={team.id}>
             {team.name}
           </SelectItem>
         ))}

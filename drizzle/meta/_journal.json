@@ -15,6 +15,13 @@
       "when": 1764135228534,
       "tag": "0001_cold_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764139556684,
+      "tag": "0002_tan_emma_frost",
+      "breakpoints": true
     }
   ]
 }

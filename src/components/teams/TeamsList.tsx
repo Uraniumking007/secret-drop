@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface TeamsListProps {
-  orgId?: number
+  orgId?: string
 }
 
 export function TeamsList({ orgId }: TeamsListProps) {

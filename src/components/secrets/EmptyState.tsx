@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card'
 
 interface EmptyStateProps {
-  orgId: number
+  orgId: string
   searchQuery: string
 }
 

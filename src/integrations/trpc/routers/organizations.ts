@@ -81,7 +81,7 @@ export const organizationsRouter = {
 
   // Get organization by ID
   get: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
 
@@ -187,7 +187,7 @@ export const organizationsRouter = {
 
   // Get organization members
   getMembers: protectedProcedure
-    .input(z.object({ orgId: z.number() }))
+    .input(z.object({ orgId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
 
@@ -233,7 +233,7 @@ export const organizationsRouter = {
   addMember: protectedProcedure
     .input(
       z.object({
-        orgId: z.number(),
+        orgId: z.string().uuid(),
         email: z.string().email(),
         role: z.enum(['admin', 'member']),
       }),
@@ -344,7 +344,7 @@ export const organizationsRouter = {
 
   // Delete organization
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
 

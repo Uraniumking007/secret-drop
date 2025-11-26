@@ -50,7 +50,7 @@ export function OrgSwitcher({ className, onOpenChange }: OrgSwitcherProps) {
 
   const activeOrg = orgs?.find((o) => o.id === currentOrgId) || orgs?.[0]
 
-  const selectValue = activeOrg ? activeOrg.id.toString() : undefined
+  const selectValue = activeOrg ? activeOrg.id : undefined
 
   return (
     <div className={cn('w-full', className)}>
@@ -66,7 +66,7 @@ export function OrgSwitcher({ className, onOpenChange }: OrgSwitcherProps) {
         </SelectTrigger>
         <SelectContent>
           {orgs?.map((org) => (
-            <SelectItem key={org.id} value={org.id.toString()}>
+            <SelectItem key={org.id} value={org.id}>
               <div className="flex items-center justify-between w-full gap-2">
                 <span className="truncate font-medium">{org.name}</span>
                 {org.tier === 'free' && (

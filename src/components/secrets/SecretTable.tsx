@@ -22,13 +22,13 @@ import {
 import { useTRPC } from '@/integrations/trpc/react'
 
 type Secret = {
-  id: number
+  id: string
   name: string
   viewCount: number
   maxViews: number | null
   expiresAt: Date | null
   burnOnRead: boolean
-  orgId: number
+  orgId: string
 }
 
 interface SecretTableProps {

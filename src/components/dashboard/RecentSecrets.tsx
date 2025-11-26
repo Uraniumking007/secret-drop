@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface RecentSecret {
-  id: number
+  id: string
   name: string
-  orgId: number
+  orgId: string
   orgName: string
   viewCount: number
   maxViews: number | null
@@ -17,7 +17,7 @@ interface RecentSecret {
 
 interface RecentSecretsProps {
   secrets: Array<RecentSecret>
-  defaultOrgId?: number
+  defaultOrgId?: string
 }
 
 export function RecentSecrets({ secrets, defaultOrgId }: RecentSecretsProps) {
@@ -62,7 +62,7 @@ export function RecentSecrets({ secrets, defaultOrgId }: RecentSecretsProps) {
             <Link
               key={secret.id}
               to="/secrets/$secretId"
-              params={{ secretId: secret.id.toString() }}
+              params={{ secretId: secret.id }}
               search={{ orgId: secret.orgId }}
               className="block"
             >

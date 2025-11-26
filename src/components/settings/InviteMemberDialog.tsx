@@ -23,7 +23,7 @@ import {
 interface InviteMemberDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  orgId: number
+  orgId: string
 }
 
 export function InviteMemberDialog({

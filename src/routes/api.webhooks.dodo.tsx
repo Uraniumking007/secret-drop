@@ -96,7 +96,7 @@ async function handleSubscriptionActive(data: any) {
     return
   }
 
-  const orgId = metadata.orgId ? parseInt(metadata.orgId) : undefined
+  const orgId = metadata.orgId ? String(metadata.orgId) : undefined
 
   // Update subscription in DB
   // We search by stripeSubscriptionId (which we use for Dodo ID)

@@ -13,12 +13,12 @@ const baseUseSession = authClient.useSession
 type BaseUseSessionReturn = ReturnType<typeof baseUseSession>
 type BaseSessionData = NonNullable<BaseUseSessionReturn['data']>
 type SessionWithOrg = BaseSessionData['session'] & {
-  activeOrgId?: number | null
+  activeOrgId?: string | null
 }
 type EnhancedSessionData = Omit<BaseSessionData, 'session'> & {
-  activeOrgId: number | null
+  activeOrgId: string | null
   session: BaseSessionData['session'] & {
-    activeOrgId: number | null
+    activeOrgId: string | null
   }
 }
 type EnhancedUseSessionReturn = Omit<BaseUseSessionReturn, 'data'> & {
@@ -29,7 +29,7 @@ export const useSession = (): EnhancedUseSessionReturn => {
   const result = baseUseSession()
   const rawSession = result.data?.session as SessionWithOrg | undefined
   const activeOrgId =
-    typeof rawSession?.activeOrgId === 'number' ? rawSession.activeOrgId : null
+    typeof rawSession?.activeOrgId === 'string' ? rawSession.activeOrgId : null
 
   const enhancedData = result.data
     ? {

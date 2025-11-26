@@ -43,7 +43,7 @@ export function OrganizationSettings() {
     trpc.organizations.list.queryOptions(),
   )
 
-  const orgId = orgIdParam ? Number(orgIdParam) : orgs?.[0]?.id
+  const orgId = orgIdParam ?? orgs?.[0]?.id
 
   const { data: org, isLoading: orgLoading } = useQuery(
     trpc.organizations.get.queryOptions({ id: orgId! }, { enabled: !!orgId }),

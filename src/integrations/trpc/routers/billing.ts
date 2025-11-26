@@ -17,7 +17,7 @@ export const billingRouter = {
   createCheckout: protectedProcedure
     .input(
       z.object({
-        orgId: z.number().optional(),
+        orgId: z.string().uuid().optional(),
         tier: z.enum(['pro_team', 'business']),
       }),
     )
@@ -89,7 +89,7 @@ export const billingRouter = {
 
   // Get subscription status
   getSubscription: protectedProcedure
-    .input(z.object({ orgId: z.number().optional() }))
+    .input(z.object({ orgId: z.string().uuid().optional() }))
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
 
@@ -136,7 +136,7 @@ export const billingRouter = {
   // Cancel subscription
   // Cancel subscription
   cancelSubscription: protectedProcedure
-    .input(z.object({ orgId: z.number().optional() }))
+    .input(z.object({ orgId: z.string().uuid().optional() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
       let subscription
@@ -241,7 +241,7 @@ export const billingRouter = {
       }
 
       const orgId = session.metadata?.orgId
-        ? parseInt(session.metadata.orgId)
+        ? String(session.metadata.orgId)
         : undefined
       const tier = session.metadata?.tier as 'pro_team' | 'business'
       const subscriptionId = session.subscription_id

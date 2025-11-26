@@ -11,7 +11,7 @@ if (!env.STRIPE_SECRET_KEY) {
 
 export const stripe = env.STRIPE_SECRET_KEY
   ? new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2025-10-29.clover',
     })
   : null
 
@@ -21,7 +21,7 @@ export const stripe = env.STRIPE_SECRET_KEY
 export async function createCheckoutSession(
   customerId: string | null,
   tier: 'pro_team' | 'business',
-  orgId: number,
+  orgId: string,
   successUrl: string,
   cancelUrl: string,
 ): Promise<Stripe.Checkout.Session> {
@@ -47,12 +47,12 @@ export async function createCheckoutSession(
     success_url: successUrl,
     cancel_url: cancelUrl,
     metadata: {
-      orgId: orgId.toString(),
+      orgId,
       tier,
     },
     subscription_data: {
       metadata: {
-        orgId: orgId.toString(),
+        orgId,
         tier,
       },
     },

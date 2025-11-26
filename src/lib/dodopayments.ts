@@ -32,7 +32,7 @@ if (dodo) {
 export async function createCheckoutSession(
   customerId: string | null,
   tier: 'pro_team' | 'business',
-  orgId: number | undefined,
+  orgId: string | undefined,
   successUrl: string,
   cancelUrl: string,
 ): Promise<{ url: string; id: string }> {
@@ -55,7 +55,7 @@ export async function createCheckoutSession(
   }
 
   if (orgId) {
-    metadata.orgId = orgId.toString()
+    metadata.orgId = orgId
   }
 
   try {

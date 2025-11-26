@@ -17,8 +17,8 @@ export const apiTokensRouter = {
     .input(
       z.object({
         name: z.string().min(1),
-        orgId: z.number().optional(),
-        teamId: z.number().optional(),
+        orgId: z.string().uuid().optional(),
+        teamId: z.string().uuid().optional(),
         expiresAt: z.date().optional(),
       }),
     )
@@ -96,7 +96,7 @@ export const apiTokensRouter = {
 
   // Delete API token
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
 

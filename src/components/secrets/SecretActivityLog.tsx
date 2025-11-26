@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table'
 
 interface SecretActivityLogProps {
-  secretId: number
+  secretId: string
 }
 
 export function SecretActivityLog({ secretId }: SecretActivityLogProps) {

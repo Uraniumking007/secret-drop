@@ -12,7 +12,7 @@ export const teamsRouter = {
   create: protectedProcedure
     .input(
       z.object({
-        orgId: z.number(),
+        orgId: z.string().uuid(),
         name: z.string().min(1),
         slug: z
           .string()
@@ -84,7 +84,7 @@ export const teamsRouter = {
 
   // List teams in an organization
   list: protectedProcedure
-    .input(z.object({ orgId: z.number() }))
+    .input(z.object({ orgId: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
 
@@ -124,7 +124,7 @@ export const teamsRouter = {
 
   // Get team by ID
   get: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
       const userId = ctx.user.id
 
@@ -182,7 +182,7 @@ export const teamsRouter = {
   addMember: protectedProcedure
     .input(
       z.object({
-        teamId: z.number(),
+        teamId: z.string().uuid(),
         userId: z.string(),
       }),
     )
@@ -282,7 +282,7 @@ export const teamsRouter = {
   removeMember: protectedProcedure
     .input(
       z.object({
-        teamId: z.number(),
+        teamId: z.string().uuid(),
         userId: z.string(),
       }),
     )
@@ -348,7 +348,7 @@ export const teamsRouter = {
 
   // Delete team
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
 

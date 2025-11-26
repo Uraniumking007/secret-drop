@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label'
 interface CreateTeamDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  orgId: number
+  orgId: string
 }
 
 export function CreateTeamDialog({
