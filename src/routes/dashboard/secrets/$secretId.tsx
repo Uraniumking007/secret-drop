@@ -1,20 +1,19 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Copy, Edit, Eye, Trash2 } from 'lucide-react'
+import { Copy, Eye, Trash2 } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { formatExpiration } from '@/lib/secret-utils'
 import { SecretActivityLog } from '@/components/secrets/SecretActivityLog'
 
 export const Route = createFileRoute('/dashboard/secrets/$secretId')({
   component: SecretViewPage,
   validateSearch: (search: Record<string, unknown>) => {
     return {
-      orgId: Number(search.orgId) || undefined,
+      orgId: typeof search.orgId === 'string' ? search.orgId : undefined,
     }
   },
 })
@@ -42,7 +41,10 @@ function SecretViewPage() {
   )
 
   // Get encryption key from sessionStorage
-  const encryptionKey = sessionStorage.getItem(`secret_key_${secretId}`)
+  const encryptionKey =
+    typeof window !== 'undefined'
+      ? sessionStorage.getItem(`secret_key_${secretId}`)
+      : null
 
   const handleViewSecret = async () => {
     if (!encryptionKey) {
@@ -55,7 +57,7 @@ function SecretViewPage() {
 
     try {
       const result = await getSecret({
-        id: Number(secretId),
+        id: secretId,
         encryptionKey,
         password: password || undefined,
         encryptionLibrary,
@@ -85,7 +87,7 @@ function SecretViewPage() {
     }
 
     try {
-      await deleteSecret({ id: Number(secretId) })
+      await deleteSecret({ id: secretId })
       navigate({ to: '/dashboard/secrets', search: { orgId } })
     } catch (err: any) {
       setError(err.message || 'Failed to delete secret')
@@ -189,7 +191,7 @@ function SecretViewPage() {
           )}
 
           <div className="pt-6 border-t">
-            <SecretActivityLog secretId={Number(secretId)} />
+            <SecretActivityLog secretId={secretId} />
           </div>
         </CardContent>
       </Card>

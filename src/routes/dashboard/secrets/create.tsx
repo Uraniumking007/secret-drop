@@ -11,7 +11,7 @@ export const Route = createFileRoute('/dashboard/secrets/create')({
   component: CreateSecretPage,
   validateSearch: (search: Record<string, unknown>) => {
     return {
-      orgId: Number(search.orgId) || undefined,
+      orgId: typeof search.orgId === 'string' ? search.orgId : undefined,
     }
   },
 })
@@ -52,7 +52,7 @@ function CreateSecretPage() {
     maxViews?: number | null
     password?: string
     burnOnRead: boolean
-    teamId?: number
+    teamId?: string
   }) => {
     setError(null)
     try {
@@ -75,7 +75,7 @@ function CreateSecretPage() {
 
       navigate({
         to: '/dashboard/secrets/$secretId',
-        params: { secretId: result.id.toString() },
+        params: { secretId: result.id },
         search: { orgId },
       })
     } catch (err: any) {

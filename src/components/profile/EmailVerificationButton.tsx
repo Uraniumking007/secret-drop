@@ -50,6 +50,7 @@ export function EmailVerificationButton({
       onClick={handleClick}
       disabled={isPending}
       className="h-7 text-xs"
+      aria-label={`Resend verification email to ${email}`}
     >
       <Mail className="h-3 w-3 mr-1" />
       {isPending ? 'Sending...' : 'Resend'}

@@ -40,7 +40,7 @@ function saveConfig(config: Config) {
   writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2))
 }
 
-async function apiRequest(
+export async function apiRequest(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<any> {
@@ -97,8 +97,9 @@ program
   .option('-o, --org <orgId>', 'Organization ID')
   .action(async (name, options) => {
     try {
+      const { org } = options as { org?: string }
       // TODO: Implement get secret by name
-      console.log(`Getting secret: ${name}`)
+      console.log(`Getting secret: ${name}`, org ? `for org ${org}` : '')
     } catch (error: any) {
       console.error('Error:', error.message)
       process.exit(1)
@@ -112,8 +113,13 @@ program
   .option('-e, --expires <duration>', 'Expiration (1h, 1d, 7d, 30d)')
   .action(async (name, value, options) => {
     try {
+      const { org } = options as { org?: string }
       // TODO: Implement set secret
-      console.log(`Setting secret: ${name}`)
+      console.log(
+        `Setting secret: ${name}`,
+        org ? `for org ${org}` : '',
+        `with value length ${value.length}`,
+      )
     } catch (error: any) {
       console.error('Error:', error.message)
       process.exit(1)
@@ -126,8 +132,9 @@ program
   .option('-o, --org <orgId>', 'Organization ID')
   .action(async (options) => {
     try {
+      const { org } = options as { org?: string }
       // TODO: Implement list secrets
-      console.log('Listing secrets...')
+      console.log('Listing secrets', org ? `for org ${org}` : '')
     } catch (error: any) {
       console.error('Error:', error.message)
       process.exit(1)
@@ -140,8 +147,9 @@ program
   .option('-o, --org <orgId>', 'Organization ID')
   .action(async (name, options) => {
     try {
+      const { org } = options as { org?: string }
       // TODO: Implement delete secret
-      console.log(`Deleting secret: ${name}`)
+      console.log(`Deleting secret: ${name}`, org ? `for org ${org}` : '')
     } catch (error: any) {
       console.error('Error:', error.message)
       process.exit(1)

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link, Outlet } from '@tanstack/react-router'
 import { Key, Shield, User, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -27,9 +28,13 @@ const sidebarNavItems = [
   },
 ]
 
-export function SettingsLayout() {
+interface SettingsLayoutProps {
+  children?: ReactNode
+}
+
+export function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
-    <PageContainer maxWidth="md">
+    <PageContainer maxWidth="lg">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground mt-2">
@@ -37,7 +42,36 @@ export function SettingsLayout() {
         </p>
       </div>
 
-      <Outlet />
+      <div className="grid gap-6 md:grid-cols-[220px_1fr]">
+        <aside className="space-y-4">
+          <nav className="flex flex-col gap-2">
+            {sidebarNavItems.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                preload="intent"
+                className={cn(
+                  buttonVariants({ variant: 'ghost', size: 'sm' }),
+                  'justify-start font-medium',
+                )}
+                activeProps={{
+                  className: cn(
+                    buttonVariants({ variant: 'default', size: 'sm' }),
+                    'justify-start shadow-sm',
+                  ),
+                }}
+                inactiveProps={{
+                  className: 'text-muted-foreground',
+                }}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                {item.title}
+              </Link>
+            ))}
+          </nav>
+        </aside>
+        <div className="min-w-0">{children ?? <Outlet />}</div>
+      </div>
     </PageContainer>
   )
 }

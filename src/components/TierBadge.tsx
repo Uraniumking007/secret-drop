@@ -11,7 +11,7 @@ export function TierBadge({ tier, className }: TierBadgeProps) {
   const config = {
     free: {
       label: 'Free',
-      icon: null,
+      icon: <Building2 className="h-3 w-3 mr-1" />,
       variant: 'secondary' as const,
       className:
         'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',

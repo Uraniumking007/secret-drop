@@ -51,16 +51,18 @@ export const apiTokensRouter = {
       const tokenHash = hashApiToken(token)
 
       // Store in database
+      const insertValue: typeof apiTokens.$inferInsert = {
+        userId,
+        orgId: input.orgId || null,
+        teamId: input.teamId || null,
+        tokenHash,
+        name: input.name,
+        expiresAt: input.expiresAt || null,
+      }
+
       const [newToken] = await db
         .insert(apiTokens)
-        .values({
-          userId,
-          orgId: input.orgId || null,
-          teamId: input.teamId || null,
-          tokenHash,
-          name: input.name,
-          expiresAt: input.expiresAt || null,
-        })
+        .values(insertValue)
         .returning()
 
       // Return token (only shown once)

@@ -16,27 +16,29 @@ function formatTimeAgo(date: Date): string {
   return `${months} month${months > 1 ? 's' : ''} ago`
 }
 
+type ActivityAction = 'view' | 'edit' | 'delete' | 'share'
+
 interface ActivityItem {
-  id: number
-  secretId: number
+  id: string
+  secretId: string | null
   secretName: string
-  action: 'view' | 'edit' | 'delete' | 'share'
+  action: ActivityAction
   ipAddress: string | null
-  accessedAt: Date
+  accessedAt: Date | string
 }
 
 interface ActivityFeedProps {
   activities: Array<ActivityItem>
 }
 
-const actionIcons = {
+const actionIcons: Record<ActivityAction, typeof Eye> = {
   view: Eye,
   edit: Edit,
   delete: Trash2,
   share: Share2,
 }
 
-const actionLabels = {
+const actionLabels: Record<ActivityAction, string> = {
   view: 'Viewed',
   edit: 'Edited',
   delete: 'Deleted',
@@ -82,7 +84,13 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                     <span className="font-medium">{activity.secretName}</span>
                   </p>
                   <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                    <span>{formatTimeAgo(new Date(activity.accessedAt))}</span>
+                    <span>
+                      {formatTimeAgo(
+                        activity.accessedAt instanceof Date
+                          ? activity.accessedAt
+                          : new Date(activity.accessedAt),
+                      )}
+                    </span>
                     {activity.ipAddress && (
                       <>
                         <span>•</span>
