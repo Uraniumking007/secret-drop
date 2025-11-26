@@ -1,9 +1,19 @@
-import { useQuery } from '@tanstack/react-query'
-import { Loader2, UserPlus } from 'lucide-react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Loader2, Trash2, UserPlus } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { InviteMemberDialog } from './InviteMemberDialog'
 import { useTRPC } from '@/integrations/trpc/react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -19,7 +29,11 @@ import { Badge } from '@/components/ui/badge'
 
 export function OrganizationSettings() {
   const trpc = useTRPC()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
 
   // Get orgId from URL
   const searchParams = new URLSearchParams(window.location.search)
@@ -41,6 +55,26 @@ export function OrganizationSettings() {
       { enabled: !!orgId },
     ),
   )
+
+  const deleteOrganization = useMutation({
+    ...trpc.organizations.delete.mutationOptions(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: trpc.organizations.list.queryKey(),
+      })
+      navigate({ to: '/dashboard' })
+    },
+  })
+
+  const handleDelete = async () => {
+    if (org?.name !== deleteConfirmation) return
+
+    try {
+      await deleteOrganization.mutateAsync({ id: orgId! })
+    } catch (error) {
+      console.error('Failed to delete organization:', error)
+    }
+  }
 
   if (orgsLoading || orgLoading || membersLoading) {
     return (
@@ -158,11 +192,85 @@ export function OrganizationSettings() {
           </Table>
         </CardContent>
       </Card>
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="font-medium">Delete Organization</div>
+              <div className="text-sm text-muted-foreground">
+                Permanently delete this organization and all of its data. This
+                action cannot be undone.
+              </div>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Organization
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       <InviteMemberDialog
         open={isInviteDialogOpen}
         onOpenChange={setIsInviteDialogOpen}
         orgId={orgId!}
       />
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Organization</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the
+              organization{' '}
+              <span className="font-semibold text-foreground">{org.name}</span>{' '}
+              and remove all associated data.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <div className="text-sm font-medium">
+                Type the organization name to confirm
+              </div>
+              <Input
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                placeholder={org.name}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={
+                deleteConfirmation !== org.name || deleteOrganization.isPending
+              }
+            >
+              {deleteOrganization.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Organization'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

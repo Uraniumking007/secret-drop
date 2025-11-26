@@ -341,4 +341,50 @@ export const organizationsRouter = {
 
       return { success: true }
     }),
+
+  // Delete organization
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id
+
+      // Verify user has access and is owner
+      const orgMember = await db
+        .select()
+        .from(organizationMembers)
+        .where(
+          and(
+            eq(organizationMembers.orgId, input.id),
+            eq(organizationMembers.userId, userId),
+          ),
+        )
+        .limit(1)
+
+      if (orgMember.length === 0) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not have access to this organization',
+        })
+      }
+
+      if (orgMember[0].role !== 'owner') {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Only the owner can delete the organization',
+        })
+      }
+
+      // Delete organization (cascade will handle members if configured, but let's be safe)
+      // Assuming cascade delete is set up in DB schema for members.
+      // If not, we should delete members first.
+      // Based on typical drizzle schema, we might need to delete members manually if no cascade.
+      // Let's assume we need to delete members first to be safe.
+      await db
+        .delete(organizationMembers)
+        .where(eq(organizationMembers.orgId, input.id))
+
+      await db.delete(organizations).where(eq(organizations.id, input.id))
+
+      return { success: true }
+    }),
 } satisfies TRPCRouterRecord

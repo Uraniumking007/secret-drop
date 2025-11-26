@@ -132,7 +132,7 @@ function SidebarBrand() {
           <span className="text-xs uppercase tracking-widest text-muted-foreground">
             SecretDrop
           </span>
-          <span className="text-lg font-bold">Acet Labs</span>
+          <span className="text-lg font-bold">bhaveshp.dev</span>
         </motion.div>
       )}
     </div>
