@@ -26,8 +26,8 @@ import {
 import { calculateExpiration, canViewSecret } from '@/lib/secret-utils'
 
 const createSecretSchema = z.object({
-  orgId: z.number(),
-  teamId: z.number().nullable().optional(),
+  orgId: z.string(),
+  teamId: z.string().nullable().optional(),
   name: z.string().min(1),
   data: z.string().min(1), // Plain text secret data
   encryptionLibrary: z
@@ -40,7 +40,7 @@ const createSecretSchema = z.object({
 })
 
 const updateSecretSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z.string().min(1).optional(),
   data: z.string().min(1).optional(),
   encryptionLibrary: z.enum(['webcrypto', 'crypto-js', 'noble']).optional(),
@@ -172,7 +172,7 @@ export const secretsRouter = {
   get: protectedProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string(),
         encryptionKey: z.string(), // Hex encoded encryption key
         password: z.string().optional(),
         encryptionLibrary: z
@@ -323,8 +323,8 @@ export const secretsRouter = {
   list: protectedProcedure
     .input(
       z.object({
-        orgId: z.number(),
-        teamId: z.number().nullable().optional(),
+        orgId: z.string(),
+        teamId: z.string().nullable().optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -551,7 +551,7 @@ export const secretsRouter = {
 
   // Delete a secret
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
 
@@ -625,7 +625,7 @@ export const secretsRouter = {
   getActivityLogs: protectedProcedure
     .input(
       z.object({
-        secretId: z.number(),
+        secretId: z.string(),
         limit: z.number().min(1).max(100).default(50),
       }),
     )

@@ -8,6 +8,7 @@ import {
   text,
   timestamp,
   unique,
+  uuid,
   varchar,
 } from 'drizzle-orm/pg-core'
 import { relations, sql } from 'drizzle-orm'
@@ -75,7 +76,7 @@ export const session = pgTable('session', {
   userId: text('userId')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
-  activeOrgId: integer('activeOrgId').references(() => organizations.id, {
+  activeOrgId: uuid('activeOrgId').references(() => organizations.id, {
     onDelete: 'set null',
   }),
 })
@@ -121,7 +122,7 @@ export const verification = pgTable('verification', {
 export const twoFactor = pgTable(
   'two_factor',
   {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     userId: text('user_id')
       .notNull()
       .unique()
@@ -141,7 +142,7 @@ export const twoFactor = pgTable(
 export const organizations = pgTable(
   'organizations',
   {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     name: text('name').notNull(),
     slug: varchar('slug', { length: 255 }).notNull().unique(),
     tier: subscriptionTierEnum('tier').default('free').notNull(),
@@ -159,9 +160,9 @@ export const organizations = pgTable(
 export const organizationMembers = pgTable(
   'organization_members',
   {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     userId: text('user_id').notNull(), // References better-auth user.id
-    orgId: integer('org_id')
+    orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     role: memberRoleEnum('role').default('member').notNull(),
@@ -181,8 +182,8 @@ export const organizationMembers = pgTable(
 export const teams = pgTable(
   'teams',
   {
-    id: serial('id').primaryKey(),
-    orgId: integer('org_id')
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
@@ -199,9 +200,9 @@ export const teams = pgTable(
 export const teamMembers = pgTable(
   'team_members',
   {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     userId: text('user_id').notNull(), // References better-auth user.id
-    teamId: integer('team_id')
+    teamId: uuid('team_id')
       .notNull()
       .references(() => teams.id, { onDelete: 'cascade' }),
     joinedAt: timestamp('joined_at').defaultNow().notNull(),
@@ -220,11 +221,11 @@ export const teamMembers = pgTable(
 export const secrets = pgTable(
   'secrets',
   {
-    id: serial('id').primaryKey(),
-    orgId: integer('org_id')
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
-    teamId: integer('team_id').references(() => teams.id, {
+    teamId: uuid('team_id').references(() => teams.id, {
       onDelete: 'set null',
     }),
     name: text('name').notNull(),
@@ -252,8 +253,8 @@ export const secrets = pgTable(
 export const secretAccessLogs = pgTable(
   'secret_access_logs',
   {
-    id: serial('id').primaryKey(),
-    secretId: integer('secret_id').references(() => secrets.id, {
+    id: uuid('id').primaryKey().defaultRandom(),
+    secretId: uuid('secret_id').references(() => secrets.id, {
       onDelete: 'set null',
     }),
     secretName: text('secret_name'), // Snapshot of secret name for audit
@@ -277,8 +278,8 @@ export const secretAccessLogs = pgTable(
 export const secretShares = pgTable(
   'secret_shares',
   {
-    id: serial('id').primaryKey(),
-    secretId: integer('secret_id').references(() => secrets.id, {
+    id: uuid('id').primaryKey().defaultRandom(),
+    secretId: uuid('secret_id').references(() => secrets.id, {
       onDelete: 'set null',
     }),
     secretName: text('secret_name'), // Snapshot of secret name for audit
@@ -300,9 +301,9 @@ export const secretShares = pgTable(
 export const subscriptions = pgTable(
   'subscriptions',
   {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     userId: text('user_id'), // For personal subscriptions
-    orgId: integer('org_id').references(() => organizations.id, {
+    orgId: uuid('org_id').references(() => organizations.id, {
       onDelete: 'cascade',
     }), // For org subscriptions
     tier: subscriptionTierEnum('tier').notNull(),
@@ -328,8 +329,8 @@ export const subscriptions = pgTable(
 export const ipAllowlist = pgTable(
   'ip_allowlist',
   {
-    id: serial('id').primaryKey(),
-    orgId: integer('org_id')
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     ipAddress: text('ip_address').notNull(), // Can be CIDR notation
@@ -345,8 +346,8 @@ export const ipAllowlist = pgTable(
 export const ssoProviders = pgTable(
   'sso_providers',
   {
-    id: serial('id').primaryKey(),
-    orgId: integer('org_id')
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     providerType: ssoProviderTypeEnum('provider_type').notNull(),
@@ -369,11 +370,11 @@ export const ssoProviders = pgTable(
 export const trashBin = pgTable(
   'trash_bin',
   {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     secretId: integer('secret_id')
       .notNull()
       .references(() => secrets.id, { onDelete: 'cascade' }),
-    orgId: integer('org_id')
+    orgId: uuid('org_id')
       .notNull()
       .references(() => organizations.id, { onDelete: 'cascade' }),
     deletedBy: text('deleted_by').notNull(), // References better-auth user.id
@@ -391,7 +392,7 @@ export const trashBin = pgTable(
 export const apiTokens = pgTable(
   'api_tokens',
   {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     userId: text('user_id').notNull(), // References better-auth user.id
     orgId: integer('org_id').references(() => organizations.id, {
       onDelete: 'cascade',
@@ -483,7 +484,7 @@ export const secretSharesRelations = relations(secretShares, ({ one }) => ({
 export const userPreferences = pgTable(
   'user_preferences',
   {
-    id: serial('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     userId: text('user_id')
       .notNull()
       .unique()
