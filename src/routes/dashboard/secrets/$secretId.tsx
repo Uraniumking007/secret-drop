@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Copy, Eye, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTRPC } from '@/integrations/trpc/react'
@@ -32,8 +32,24 @@ function SecretViewPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const trpc = useTRPC()
+  const queryClient = useQueryClient()
   const { mutateAsync: getSecret } = useMutation(
-    trpc.secrets.get.mutationOptions(),
+    trpc.secrets.get.mutationOptions({
+      onSuccess(data, variables, context) {
+        queryClient.invalidateQueries({
+          queryKey: trpc.secrets.getActivityLogs.queryOptions({
+            secretId: variables.id,
+          }).queryKey,
+        })
+        queryClient.invalidateQueries({
+          queryKey: trpc.users.getRecentActivity.queryOptions({ limit: 20 })
+            .queryKey,
+        })
+        queryClient.invalidateQueries({
+          queryKey: trpc.secrets.list.queryOptions({ orgId }).queryKey,
+        })
+      },
+    }),
   )
   const { mutateAsync: deleteSecret } = useMutation(
     trpc.secrets.delete.mutationOptions({

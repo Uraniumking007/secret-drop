@@ -32,6 +32,32 @@ describe('extractRequestMetadata', () => {
     expect(metadata.userAgent).toBe('curl/8.0')
   })
 
+  it('detects Vercel style forwarding headers', () => {
+    const request = new Request('https://example.com', {
+      headers: {
+        'x-vercel-forwarded-for': '10.20.30.40',
+        'user-agent': 'vercel-test',
+      },
+    })
+
+    const metadata = extractRequestMetadata(request)
+
+    expect(metadata.ipAddress).toBe('10.20.30.40')
+    expect(metadata.userAgent).toBe('vercel-test')
+  })
+
+  it('handles Netlify connection IP header', () => {
+    const request = new Request('https://example.com', {
+      headers: {
+        'x-nf-client-connection-ip': '172.16.0.5',
+      },
+    })
+
+    const metadata = extractRequestMetadata(request)
+
+    expect(metadata.ipAddress).toBe('172.16.0.5')
+  })
+
   it('handles forwarded header syntax', () => {
     const request = new Request('https://example.com', {
       headers: {

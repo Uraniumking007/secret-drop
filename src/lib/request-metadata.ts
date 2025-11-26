@@ -9,6 +9,12 @@ const IP_HEADER_CANDIDATES = [
   'x-real-ip',
   'x-forwarded-for',
   'forwarded',
+  // Hosting-specific fallbacks
+  'x-vercel-forwarded-for',
+  'x-nf-client-connection-ip',
+  'fly-client-ip',
+  'fastly-client-ip',
+  'x-client-ip',
 ] as const
 
 function normalizeForwarded(value: string | null): string | null {
