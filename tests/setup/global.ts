@@ -29,10 +29,10 @@ if (typeof globalThis.matchMedia === 'undefined') {
       matches: false,
       media: '',
       onchange: null,
-      addEventListener: () => { },
-      removeEventListener: () => { },
-      addListener: () => { },
-      removeListener: () => { },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
       dispatchEvent: () => false,
     }) as unknown as MediaQueryList
 }

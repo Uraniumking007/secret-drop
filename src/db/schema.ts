@@ -253,9 +253,11 @@ export const secretAccessLogs = pgTable(
   'secret_access_logs',
   {
     id: serial('id').primaryKey(),
-    secretId: integer('secret_id')
-      .notNull()
-      .references(() => secrets.id, { onDelete: 'cascade' }),
+    secretId: integer('secret_id').references(() => secrets.id, {
+      onDelete: 'set null',
+    }),
+    secretName: text('secret_name'), // Snapshot of secret name for audit
+    secretOwnerId: text('secret_owner_id'), // Snapshot of secret owner for audit
     userId: text('user_id'), // Null for anonymous access via share link
     action: accessActionEnum('action').notNull(),
     ipAddress: text('ip_address'),
@@ -276,9 +278,10 @@ export const secretShares = pgTable(
   'secret_shares',
   {
     id: serial('id').primaryKey(),
-    secretId: integer('secret_id')
-      .notNull()
-      .references(() => secrets.id, { onDelete: 'cascade' }),
+    secretId: integer('secret_id').references(() => secrets.id, {
+      onDelete: 'set null',
+    }),
+    secretName: text('secret_name'), // Snapshot of secret name for audit
     shareToken: varchar('share_token', { length: 64 }).notNull().unique(),
     passwordHash: text('password_hash'), // Optional password protection
     expiresAt: timestamp('expires_at'),

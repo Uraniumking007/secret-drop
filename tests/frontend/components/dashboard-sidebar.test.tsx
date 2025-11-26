@@ -70,7 +70,7 @@ const renderSidebar = ({
   open?: boolean
   animate?: boolean
 } = {}) => {
-  const noop = () => { }
+  const noop = () => {}
 
   return render(
     <QueryClientProvider client={queryClient}>
