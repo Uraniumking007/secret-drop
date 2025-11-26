@@ -1,6 +1,8 @@
-import { Eye, MoreHorizontal, Trash2 } from 'lucide-react'
+import { Eye, LinkIcon, MoreHorizontal, Trash2 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
+import { toast } from 'sonner'
 import {
   Table,
   TableBody,
@@ -17,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useTRPC } from '@/integrations/trpc/react'
 
 type Secret = {
   id: number
@@ -33,6 +36,19 @@ interface SecretTableProps {
 }
 
 export function SecretTable({ secrets }: SecretTableProps) {
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
+
+  const deleteSecret = useMutation({
+    ...trpc.secrets.delete.mutationOptions(),
+    onSuccess: () => {
+      toast('Secret deleted successfully')
+      queryClient.invalidateQueries({
+        queryKey: trpc.secrets.list.queryKey(),
+      })
+    },
+  })
+
   return (
     <Table>
       <TableHeader>
@@ -54,8 +70,8 @@ export function SecretTable({ secrets }: SecretTableProps) {
             <TableCell>
               {secret.expiresAt
                 ? formatDistanceToNow(new Date(secret.expiresAt), {
-                    addSuffix: true,
-                  })
+                  addSuffix: true,
+                })
                 : 'Never'}
             </TableCell>
             <TableCell>
@@ -73,14 +89,31 @@ export function SecretTable({ secrets }: SecretTableProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
                     <Link
-                      to={`/secrets/${secret.id}`}
+                      to={`/dashboard/secrets/${secret.id}`}
                       search={{ orgId: secret.orgId }}
                     >
                       <Eye className="mr-2 h-4 w-4" />
                       View
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const origin = window.location.origin
+                      navigator.clipboard.writeText(`${origin}/s/${secret.id}`)
+                      toast('Link copied to clipboard', {
+                        duration: 2000,
+                        description: `copied: ${origin}/s/${secret.id}`,
+                      })
+                    }}
+                  >
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    Copy Link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      deleteSecret.mutate({ id: secret.id })
+                    }}
+                  >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
