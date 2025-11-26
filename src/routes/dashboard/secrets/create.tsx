@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { EncryptionLibrary } from '@/lib/encryption'
 import type { ExpirationOption } from '@/lib/secret-utils'
+import { encryptSecretWithPassword } from '@/lib/client-secret-crypto'
 import { useTRPC } from '@/integrations/trpc/react'
 import { SecretForm } from '@/components/secrets/SecretForm'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -47,36 +47,39 @@ function CreateSecretPage() {
   const handleSubmit = async (data: {
     name: string
     data: string
-    encryptionLibrary: EncryptionLibrary
     expiration?: ExpirationOption
     maxViews?: number | null
-    password?: string
+    password: string
     burnOnRead: boolean
     teamId?: string | null
   }) => {
     setError(null)
     try {
-      console.debug('[SecretCreate] payload', {
-        orgId,
-        name: data.name,
-        teamId: data.teamId ?? null,
-      })
+      if (!data.password.trim()) {
+        setError('Password is required to encrypt this secret.')
+        return
+      }
+
+      const encrypted = await encryptSecretWithPassword(
+        data.data,
+        data.password.trim(),
+      )
+
       const result = await createSecret({
         orgId,
         name: data.name,
-        data: data.data,
-        encryptionLibrary: data.encryptionLibrary,
+        encryptedPayload: {
+          data: encrypted.ciphertext,
+          iv: encrypted.iv,
+        },
+        encryptionKeyHash: encrypted.keyHash,
+        encryptionSalt: encrypted.salt,
+        encryptionVersion: 'password_derived',
         expiration: data.expiration,
         maxViews: data.maxViews,
-        password: data.password,
         burnOnRead: data.burnOnRead,
         teamId: data.teamId ?? null,
       })
-
-      // Store encryption key in sessionStorage (client-side only)
-      if (result.encryptionKey) {
-        sessionStorage.setItem(`secret_key_${result.id}`, result.encryptionKey)
-      }
 
       navigate({
         to: '/dashboard/secrets/$secretId',

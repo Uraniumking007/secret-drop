@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { decryptSecretWithPassword } from '@/lib/client-secret-crypto'
 
 export const Route = createFileRoute('/s/$id')({
   component: PublicSecretPage,
@@ -23,10 +24,6 @@ function PublicSecretPage() {
   const { id } = Route.useParams()
   const trpc = useTRPC()
 
-  const [encryptionKey, setEncryptionKey] = useState('')
-  const [encryptionLibrary, setEncryptionLibrary] = useState<
-    'webcrypto' | 'crypto-js' | 'noble'
-  >('webcrypto')
   const [password, setPassword] = useState('')
   const [decryptedData, setDecryptedData] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -36,22 +33,27 @@ function PublicSecretPage() {
   )
 
   const handleViewSecret = async () => {
-    if (!encryptionKey.trim()) {
-      setError('Encryption key is required to decrypt this secret.')
-      return
-    }
+    // if (!password.trim()) {
+    //   // setError('Password is required to decrypt this secret.')
+    //   return
+    // }
 
     setError(null)
     setDecryptedData(null)
 
     try {
-      const result = await viewSecret({
-        id,
-        encryptionKey: encryptionKey.trim(),
-        password: password || undefined,
-        encryptionLibrary,
+      const result = await viewSecret({ id })
+      if (!result.encryptionSalt) {
+        throw new Error('Missing encryption metadata for this secret.')
+      }
+
+      const plaintext = await decryptSecretWithPassword({
+        ciphertext: result.encryptedPayload.data,
+        iv: result.encryptedPayload.iv,
+        salt: result.encryptionSalt,
+        password: password.trim(),
       })
-      setDecryptedData(result.data)
+      setDecryptedData(plaintext)
     } catch (err: any) {
       setError(err.message || 'Failed to decrypt secret')
     }
@@ -70,9 +72,9 @@ function PublicSecretPage() {
           <CardHeader>
             <CardTitle>Secure Secret Viewer</CardTitle>
             <CardDescription>
-              Enter the encryption key that was shared with you to decrypt this
-              secret. This action is fully audited and may permanently delete
-              the secret if burn-on-read was enabled.
+              Enter the password that was shared with you to decrypt this
+              secret. Viewing is fully audited and may permanently delete the
+              secret if burn-on-read was enabled.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -80,8 +82,8 @@ function PublicSecretPage() {
               <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
               <p>
                 Never paste secrets into untrusted devices. Only continue if you
-                trust this browser and network. The encryption key never leaves
-                your device until you click &quot;Decrypt&quot;.
+                trust this browser and network. The password never leaves your
+                device until you click &quot;Decrypt&quot;.
               </p>
             </div>
 
@@ -94,57 +96,20 @@ function PublicSecretPage() {
             {!decryptedData ? (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="encryption-library">Encryption library</Label>
-                  <select
-                    id="encryption-library"
-                    value={encryptionLibrary}
-                    onChange={(event) =>
-                      setEncryptionLibrary(
-                        event.target.value as
-                          | 'webcrypto'
-                          | 'crypto-js'
-                          | 'noble',
-                      )
-                    }
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  >
-                    <option value="webcrypto">Web Crypto API</option>
-                    <option value="crypto-js">Crypto-JS</option>
-                    <option value="noble">@noble/ciphers</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="encryption-key">Encryption key</Label>
-                  <Input
-                    id="encryption-key"
-                    value={encryptionKey}
-                    onChange={(event) => setEncryptionKey(event.target.value)}
-                    placeholder="Paste the hex-encoded encryption key"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    The key should match the one provided by the sender. We do
-                    not store or recover lost keys.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password">
-                    Password (only if the sender required one)
-                  </Label>
+                  <Label htmlFor="password">Secret Password</Label>
                   <Input
                     id="password"
                     type="password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Optional password"
+                    placeholder="Enter the password shared with the secret"
                   />
                 </div>
 
                 <Button
                   className="w-full"
                   onClick={handleViewSecret}
-                  disabled={isPending || !encryptionKey.trim()}
+                  disabled={isPending}
                 >
                   <Eye className="mr-2 h-4 w-4" />
                   {isPending ? 'Decrypting...' : 'Decrypt secret'}

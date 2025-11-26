@@ -2,18 +2,10 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import type { ExpirationOption } from '@/lib/secret-utils'
-import type { EncryptionLibrary } from '@/lib/encryption'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { useTRPC } from '@/integrations/trpc/react'
 
@@ -21,10 +13,9 @@ interface SecretFormProps {
   onSubmit: (data: {
     name: string
     data: string
-    encryptionLibrary: EncryptionLibrary
     expiration?: ExpirationOption
     maxViews?: number | null
-    password?: string
+    password: string
     burnOnRead: boolean
     teamId?: string | null
   }) => Promise<void>
@@ -50,8 +41,6 @@ export function SecretForm({
 }: SecretFormProps) {
   const [name, setName] = useState(initialData?.name || '')
   const [data, setData] = useState(initialData?.data || '')
-  const [encryptionLibrary, setEncryptionLibrary] =
-    useState<EncryptionLibrary>('webcrypto')
   const [expiration, setExpiration] = useState<ExpirationOption | undefined>(
     initialData?.expiration,
   )
@@ -68,10 +57,9 @@ export function SecretForm({
     await onSubmit({
       name,
       data,
-      encryptionLibrary,
       expiration,
       maxViews: maxViews ? parseInt(maxViews, 10) : null,
-      password: password || undefined,
+      password,
       burnOnRead: userTier === 'free' ? false : burnOnRead,
       teamId,
     })
@@ -103,28 +91,6 @@ export function SecretForm({
           disabled={isLoading}
           className="font-mono"
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="encryption-library">Encryption Library</Label>
-        <Select
-          value={encryptionLibrary}
-          onValueChange={(value) =>
-            setEncryptionLibrary(value as EncryptionLibrary)
-          }
-          disabled={isLoading}
-        >
-          <SelectTrigger id="encryption-library">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="webcrypto">
-              Web Crypto API (Recommended)
-            </SelectItem>
-            <SelectItem value="crypto-js">Crypto-JS</SelectItem>
-            <SelectItem value="noble">@noble/ciphers</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="space-y-2">
@@ -191,14 +157,15 @@ export function SecretForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password Protection (optional)</Label>
+        <Label htmlFor="password">Secret Password (required)</Label>
         <Input
           id="password"
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Optional password to protect this secret"
+          placeholder="Enter a password to encrypt this secret"
           disabled={isLoading}
+          required
         />
         <div className="flex items-center gap-2">
           <input
@@ -212,6 +179,10 @@ export function SecretForm({
             Show password
           </Label>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Share this password with anyone who needs to decrypt the secret. We
+          cannot recover lost passwords.
+        </p>
       </div>
 
       <div className="flex items-center gap-2">

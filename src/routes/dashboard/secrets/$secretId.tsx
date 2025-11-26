@@ -2,13 +2,14 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Copy, Eye, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { useTRPC } from '@/integrations/trpc/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { SecretActivityLog } from '@/components/secrets/SecretActivityLog'
-import { toast } from 'sonner'
+import { decryptSecretWithPassword } from '@/lib/client-secret-crypto'
 
 export const Route = createFileRoute('/dashboard/secrets/$secretId')({
   component: SecretViewPage,
@@ -26,9 +27,6 @@ function SecretViewPage() {
   const orgId = search.orgId
 
   const [password, setPassword] = useState('')
-  const [encryptionLibrary, setEncryptionLibrary] = useState<
-    'webcrypto' | 'crypto-js' | 'noble'
-  >('webcrypto')
   const [decryptedData, setDecryptedData] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -39,28 +37,22 @@ function SecretViewPage() {
   )
   const { mutateAsync: deleteSecret } = useMutation(
     trpc.secrets.delete.mutationOptions({
-      onSuccess(data, variables, onMutateResult, context) {
+      onSuccess(_data, _variables, _onMutateResult, context) {
         context?.client?.invalidateQueries({
           queryKey: trpc.secrets.list.queryOptions({ orgId }).queryKey,
         })
         navigate({ to: '/dashboard/secrets', search: { orgId } })
         toast.success('Secret deleted successfully')
       },
-      onError(error, variables, onMutateResult, context) {
+      onError(error, _variables, _onMutateResult, _context) {
         setError(error.message || 'Failed to delete secret')
       },
     }),
   )
 
-  // Get encryption key from sessionStorage
-  const encryptionKey =
-    typeof window !== 'undefined'
-      ? sessionStorage.getItem(`secret_key_${secretId}`)
-      : null
-
   const handleViewSecret = async () => {
-    if (!encryptionKey) {
-      setError('Encryption key not found. Please recreate the secret.')
+    if (!password.trim()) {
+      setError('Password is required to decrypt this secret.')
       return
     }
 
@@ -68,14 +60,19 @@ function SecretViewPage() {
     setIsLoading(true)
 
     try {
-      const result = await getSecret({
-        id: secretId,
-        encryptionKey,
-        password: password || undefined,
-        encryptionLibrary,
+      const result = await getSecret({ id: secretId })
+      if (!result.encryptionSalt) {
+        throw new Error('Missing encryption metadata for this secret.')
+      }
+
+      const plaintext = await decryptSecretWithPassword({
+        ciphertext: result.encryptedPayload.data,
+        iv: result.encryptedPayload.iv,
+        salt: result.encryptionSalt,
+        password: password.trim(),
       })
 
-      setDecryptedData(result.data)
+      setDecryptedData(plaintext)
     } catch (err: any) {
       setError(err.message || 'Failed to decrypt secret')
     } finally {
@@ -129,49 +126,24 @@ function SecretViewPage() {
           {!decryptedData ? (
             <>
               <div className="space-y-2">
-                <Label htmlFor="encryption-library">Encryption Library</Label>
-                <select
-                  id="encryption-library"
-                  value={encryptionLibrary}
-                  onChange={(e) =>
-                    setEncryptionLibrary(
-                      e.target.value as 'webcrypto' | 'crypto-js' | 'noble',
-                    )
-                  }
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="webcrypto">Web Crypto API</option>
-                  <option value="crypto-js">Crypto-JS</option>
-                  <option value="noble">@noble/ciphers</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password (if required)</Label>
+                <Label htmlFor="password">Secret Password</Label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password if this secret is password-protected"
+                  placeholder="Enter the password shared with you"
                 />
               </div>
 
               <Button
                 onClick={handleViewSecret}
-                disabled={isLoading || !encryptionKey}
+                disabled={isLoading}
                 className="w-full"
               >
                 <Eye className="mr-2 h-4 w-4" />
                 {isLoading ? 'Decrypting...' : 'View Secret'}
               </Button>
-
-              {!encryptionKey && (
-                <p className="text-sm text-muted-foreground">
-                  Encryption key not found. You can only view secrets you
-                  created in this session.
-                </p>
-              )}
             </>
           ) : (
             <>

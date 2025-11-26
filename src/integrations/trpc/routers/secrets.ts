@@ -14,34 +14,28 @@ import {
   teamMembers,
   teams,
 } from '@/db/schema'
-import {
-  decrypt,
-  decryptWithMasterKey,
-  encrypt,
-  encryptWithMasterKey,
-  generateEncryptionKey,
-  generateSalt,
-  hashEncryptionKey,
-  hashPassword,
-  verifyPassword,
-} from '@/lib/encryption'
+import { generateSalt, hashPassword } from '@/lib/encryption'
 import { calculateExpiration, canViewSecret } from '@/lib/secret-utils'
 import { extractRequestMetadata } from '@/lib/request-metadata'
 
 const getRequestMetadata = (request?: Request | null) =>
   extractRequestMetadata(request)
 
+const encryptedPayloadSchema = z.object({
+  data: z.string(), // Base64 encoded ciphertext
+  iv: z.string(), // Base64 encoded IV
+})
+
 const createSecretSchema = z.object({
   orgId: z.string(),
   teamId: z.string().uuid().nullable().optional(),
   name: z.string().min(1),
-  data: z.string().min(1), // Plain text secret data
-  encryptionLibrary: z
-    .enum(['webcrypto', 'crypto-js', 'noble'])
-    .default('webcrypto'),
+  encryptedPayload: encryptedPayloadSchema,
+  encryptionKeyHash: z.string(),
+  encryptionSalt: z.string(),
+  encryptionVersion: z.literal('password_derived').default('password_derived'),
   expiration: z.enum(['1h', '1d', '7d', '30d', 'never']).optional(),
   maxViews: z.number().positive().nullable().optional(),
-  password: z.string().optional(),
   burnOnRead: z.boolean().default(false),
 })
 
@@ -89,42 +83,6 @@ export const secretsRouter = {
       }
 
       // Generate encryption key
-      const encryptionKey = await generateEncryptionKey(
-        input.encryptionLibrary as EncryptionLibrary,
-      )
-
-      // Encrypt the data
-      const encrypted = await encrypt(
-        input.data,
-        encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary,
-      )
-
-      // Encrypt the encryption key with the master key
-      const encryptedKey = await encryptWithMasterKey(
-        encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary,
-      )
-
-      // Hash the encryption key for verification
-      const keyHash = await hashEncryptionKey(
-        encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary,
-      )
-
-      // Hash password if provided
-      let passwordHash: string | null = null
-      if (input.password) {
-        const salt = await generateSalt()
-        passwordHash = await hashPassword(
-          input.password,
-          salt,
-          input.encryptionLibrary as EncryptionLibrary,
-        )
-        // Store salt with password hash (format: salt:hash)
-        passwordHash = `${salt}:${passwordHash}`
-      }
-
       // Calculate expiration
       const expiresAt = input.expiration
         ? calculateExpiration(input.expiration as ExpirationOption)
@@ -138,15 +96,14 @@ export const secretsRouter = {
           teamId: input.teamId || null,
           name: input.name,
           encryptedData: JSON.stringify({
-            data: encrypted.encryptedData,
-            iv: encrypted.iv,
+            data: input.encryptedPayload.data,
+            iv: input.encryptedPayload.iv,
           }),
-          encryptedEncryptionKey: JSON.stringify({
-            data: encryptedKey.encryptedKey,
-            iv: encryptedKey.iv,
-          }),
-          encryptionKeyHash: keyHash,
-          passwordHash,
+          encryptedEncryptionKey: null,
+          encryptionKeyHash: input.encryptionKeyHash,
+          encryptionSalt: input.encryptionSalt,
+          encryptionVersion: input.encryptionVersion,
+          passwordHash: null,
           maxViews: input.maxViews || null,
           viewCount: 0,
           expiresAt,
@@ -160,11 +117,10 @@ export const secretsRouter = {
         secretId: newSecret.id,
         userId,
         action: 'view',
-        ipAddress: null, // TODO: Extract from request
-        userAgent: null, // TODO: Extract from request
+        ipAddress: null,
+        userAgent: null,
       })
 
-      // Return secret metadata
       return {
         id: newSecret.id,
         name: newSecret.name,
@@ -175,26 +131,13 @@ export const secretsRouter = {
         maxViews: newSecret.maxViews,
         viewCount: newSecret.viewCount,
         burnOnRead: newSecret.burnOnRead,
-        // Return encryption key ONLY on creation (client must store it securely)
-        // Hex encoded for transport - client should store this in memory/sessionStorage
-        encryptionKey: Array.from(encryptionKey)
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join(''),
+        encryptionVersion: newSecret.encryptionVersion,
       }
     }),
 
-  // Get a secret (requires encryption key from client)
+  // Get a secret (returns encrypted payload)
   get: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        encryptionKey: z.string().optional(), // Optional: if not provided, try to decrypt from stored key
-        password: z.string().optional(),
-        encryptionLibrary: z
-          .enum(['webcrypto', 'crypto-js', 'noble'])
-          .default('webcrypto'),
-      }),
-    )
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
       const metadata = getRequestMetadata(ctx.request)
@@ -250,77 +193,7 @@ export const secretsRouter = {
         })
       }
 
-      // Verify password if required
-      if (secret.passwordHash) {
-        if (!input.password) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'Password required to access this secret',
-          })
-        }
-
-        const [salt, hash] = secret.passwordHash.split(':')
-        const isValid = await verifyPassword(
-          input.password,
-          salt,
-          hash,
-          input.encryptionLibrary as EncryptionLibrary,
-        )
-
-        if (!isValid) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'Invalid password',
-          })
-        }
-      }
-
-      let encryptionKey: Uint8Array
-
-      if (input.encryptionKey) {
-        // Use provided key
-        encryptionKey = Uint8Array.from(
-          input.encryptionKey
-            .match(/.{1,2}/g)!
-            .map((byte) => parseInt(byte, 16)),
-        )
-      } else if (secret.encryptedEncryptionKey) {
-        // Decrypt stored key using master key
-        const encryptedKeyData = JSON.parse(secret.encryptedEncryptionKey)
-        encryptionKey = await decryptWithMasterKey(
-          encryptedKeyData.data,
-          encryptedKeyData.iv,
-          input.encryptionLibrary as EncryptionLibrary,
-        )
-      } else {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Encryption key required',
-        })
-      }
-
-      // Verify key hash
-      const keyHash = await hashEncryptionKey(
-        encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary,
-      )
-
-      if (keyHash !== secret.encryptionKeyHash) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Invalid encryption key',
-        })
-      }
-
-      // Decrypt the data
       const encryptedData = JSON.parse(secret.encryptedData)
-      const decrypted = await decrypt(
-        encryptedData.data,
-        encryptedData.iv,
-        encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary,
-      )
-
       // Increment view count
       await db
         .update(secrets)
@@ -345,7 +218,9 @@ export const secretsRouter = {
       return {
         id: secret.id,
         name: secret.name,
-        data: decrypted.decryptedData,
+        encryptedPayload: encryptedData,
+        encryptionSalt: secret.encryptionSalt,
+        encryptionVersion: secret.encryptionVersion,
         orgId: secret.orgId,
         teamId: secret.teamId,
         createdAt: secret.createdAt,
@@ -358,16 +233,7 @@ export const secretsRouter = {
 
   // Public secret view (no auth)
   publicView: publicProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        encryptionKey: z.string().optional(),
-        password: z.string().optional(),
-        encryptionLibrary: z
-          .enum(['webcrypto', 'crypto-js', 'noble'])
-          .default('webcrypto'),
-      }),
-    )
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const metadata = getRequestMetadata(ctx.request)
 
@@ -401,72 +267,7 @@ export const secretsRouter = {
         })
       }
 
-      if (secret.passwordHash) {
-        if (!input.password) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'Password required to access this secret',
-          })
-        }
-
-        const [salt, hash] = secret.passwordHash.split(':')
-        const isValid = await verifyPassword(
-          input.password,
-          salt,
-          hash,
-          input.encryptionLibrary as EncryptionLibrary,
-        )
-
-        if (!isValid) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'Invalid password',
-          })
-        }
-      }
-
-      let encryptionKey: Uint8Array
-
-      if (input.encryptionKey) {
-        encryptionKey = Uint8Array.from(
-          input.encryptionKey
-            .match(/.{1,2}/g)!
-            .map((byte) => parseInt(byte, 16)),
-        )
-      } else if (secret.encryptedEncryptionKey) {
-        // Decrypt stored key using master key
-        const encryptedKeyData = JSON.parse(secret.encryptedEncryptionKey)
-        encryptionKey = await decryptWithMasterKey(
-          encryptedKeyData.data,
-          encryptedKeyData.iv,
-          input.encryptionLibrary as EncryptionLibrary,
-        )
-      } else {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Encryption key required',
-        })
-      }
-
-      const keyHash = await hashEncryptionKey(
-        encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary,
-      )
-
-      if (keyHash !== secret.encryptionKeyHash) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Invalid encryption key',
-        })
-      }
-
       const encryptedData = JSON.parse(secret.encryptedData)
-      const decrypted = await decrypt(
-        encryptedData.data,
-        encryptedData.iv,
-        encryptionKey,
-        input.encryptionLibrary as EncryptionLibrary,
-      )
 
       await db
         .update(secrets)
@@ -489,7 +290,9 @@ export const secretsRouter = {
       return {
         id: secret.id,
         name: secret.name,
-        data: decrypted.decryptedData,
+        encryptedPayload: encryptedData,
+        encryptionSalt: secret.encryptionSalt,
+        encryptionVersion: secret.encryptionVersion,
         createdAt: secret.createdAt,
         expiresAt: secret.expiresAt,
         maxViews: secret.maxViews,
@@ -643,41 +446,16 @@ export const secretsRouter = {
 
       const updateData: Partial<typeof secrets.$inferInsert> = {}
 
-      if (updates.name) {
-        updateData.name = updates.name
+      if (updates.data) {
+        throw new TRPCError({
+          code: 'NOT_IMPLEMENTED',
+          message:
+            'Updating encrypted secret data is not supported. Create a new secret instead.',
+        })
       }
 
-      if (updates.data) {
-        // Re-encrypt with new data
-        const encryptionLibrary = (updates.encryptionLibrary ||
-          'webcrypto') as EncryptionLibrary
-        const encryptionKey = await generateEncryptionKey(encryptionLibrary)
-        const encrypted = await encrypt(
-          updates.data,
-          encryptionKey,
-          encryptionLibrary,
-        )
-
-        // Encrypt the encryption key with the master key
-        const encryptedKey = await encryptWithMasterKey(
-          encryptionKey,
-          encryptionLibrary,
-        )
-
-        const keyHash = await hashEncryptionKey(
-          encryptionKey,
-          encryptionLibrary,
-        )
-
-        updateData.encryptedData = JSON.stringify({
-          data: encrypted.encryptedData,
-          iv: encrypted.iv,
-        })
-        updateData.encryptedEncryptionKey = JSON.stringify({
-          data: encryptedKey.encryptedKey,
-          iv: encryptedKey.iv,
-        })
-        updateData.encryptionKeyHash = keyHash
+      if (updates.name) {
+        updateData.name = updates.name
       }
 
       if (updates.expiration !== undefined) {
