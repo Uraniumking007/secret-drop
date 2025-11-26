@@ -219,8 +219,8 @@ function SignupPage() {
           <DialogHeader className="p-6 pb-2">
             <DialogTitle>Terms of Service & Privacy Policy</DialogTitle>
             <DialogDescription>
-              Please read our Terms of Service and Privacy Policy carefully before
-              creating an account.
+              Please read our Terms of Service and Privacy Policy carefully
+              before creating an account.
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto p-6 pt-2">

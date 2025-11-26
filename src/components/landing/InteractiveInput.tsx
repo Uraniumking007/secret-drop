@@ -98,10 +98,11 @@ export function InteractiveInput() {
                 whileTap={{ scale: 0.95 }}
                 onClick={generateLink}
                 disabled={!text}
-                className={`ml-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${text
+                className={`ml-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                  text
                     ? 'bg-primary text-primary-foreground shadow-[0_0_20px_var(--color-primary)] hover:shadow-[0_0_30px_var(--color-primary)]'
                     : 'bg-secondary text-muted-foreground cursor-not-allowed'
-                  }`}
+                }`}
               >
                 {inputState === 'typing' ? 'Encrypt' : 'Generate'}
               </motion.button>

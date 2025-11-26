@@ -14,6 +14,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as SIdRouteImport } from './routes/s/$id'
 import { Route as OrganizationsCreateRouteImport } from './routes/organizations/create'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
@@ -59,6 +60,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRoute,
+} as any)
+const SIdRoute = SIdRouteImport.update({
+  id: '/s/$id',
+  path: '/s/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizationsCreateRoute = OrganizationsCreateRouteImport.update({
   id: '/organizations/create',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
   '/organizations/create': typeof OrganizationsCreateRoute
+  '/s/$id': typeof SIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/billing/success': typeof BillingSuccessRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/organizations/create': typeof OrganizationsCreateRoute
+  '/s/$id': typeof SIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRouteWithChildren
   '/organizations/create': typeof OrganizationsCreateRoute
+  '/s/$id': typeof SIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
@@ -261,6 +270,7 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/organizations/create'
+    | '/s/$id'
     | '/dashboard/'
     | '/api/auth/$'
     | '/api/trpc/$'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/billing/success'
     | '/dashboard/profile'
     | '/organizations/create'
+    | '/s/$id'
     | '/dashboard'
     | '/api/auth/$'
     | '/api/trpc/$'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/organizations/create'
+    | '/s/$id'
     | '/dashboard/'
     | '/api/auth/$'
     | '/api/trpc/$'
@@ -339,6 +351,7 @@ export interface RootRouteChildren {
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   BillingSuccessRoute: typeof BillingSuccessRoute
   OrganizationsCreateRoute: typeof OrganizationsCreateRoute
+  SIdRoute: typeof SIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
   ApiWebhooksDodoRoute: typeof ApiWebhooksDodoRoute
@@ -380,6 +393,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/s/$id': {
+      id: '/s/$id'
+      path: '/s/$id'
+      fullPath: '/s/$id'
+      preLoaderRoute: typeof SIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/organizations/create': {
       id: '/organizations/create'
@@ -579,6 +599,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   BillingSuccessRoute: BillingSuccessRoute,
   OrganizationsCreateRoute: OrganizationsCreateRoute,
+  SIdRoute: SIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
   ApiWebhooksDodoRoute: ApiWebhooksDodoRoute,

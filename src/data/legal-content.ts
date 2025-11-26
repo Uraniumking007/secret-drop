@@ -1,5 +1,5 @@
 export const LEGAL_CONTENT = {
-    privacy: `
+  privacy: `
 # Privacy Policy
 
 **Effective Date:** November 26, 2025
@@ -30,7 +30,7 @@ We use trusted third-party providers for specific infrastructure needs:
 ## 6. Contact Us
 If you have questions about this policy, please contact us at [contact@bhaveshp.dev](mailto:contact@bhaveshp.dev).
 `,
-    terms: `
+  terms: `
 # Terms of Service
 
 **Effective Date:** November 26, 2025
@@ -54,5 +54,5 @@ To the fullest extent permitted by law, Secretdrop shall not be liable for any i
 
 ## 5. Changes to Terms
 We may update these terms from time to time. Continued use of the service constitutes acceptance of the new terms.
-`
-};
+`,
+}
