@@ -1,8 +1,9 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import {
   Building2,
   LayoutDashboard,
   Lock,
+  LogOut,
   Settings,
   Shield,
   User,
@@ -20,7 +21,7 @@ import {
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { useSession } from '@/lib/auth-client'
+import { signOut, useSession } from '@/lib/auth-client'
 
 type SidebarSectionConfig = {
   title: string
@@ -282,6 +283,7 @@ export function SidebarUserCard({
   email: string
 }) {
   const { open, animate } = useSidebar()
+  const navigate = useNavigate()
   const initials =
     name
       .split(' ')
@@ -289,6 +291,11 @@ export function SidebarUserCard({
       .join('')
       .slice(0, 2)
       .toUpperCase() || 'U'
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate({ to: '/' })
+  }
 
   return (
     <div
@@ -330,7 +337,7 @@ export function SidebarUserCard({
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="mt-3"
+          className="mt-3 grid gap-2"
         >
           <Link
             to="/dashboard/profile"
@@ -339,6 +346,13 @@ export function SidebarUserCard({
             <User className="h-3.5 w-3.5" />
             View profile
           </Link>
+          <button
+            onClick={handleSignOut}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-sidebar-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Log out
+          </button>
         </motion.div>
       )}
     </div>
