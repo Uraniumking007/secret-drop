@@ -12,6 +12,7 @@ async function handler({ request }: { request: Request }) {
     endpoint: '/api/trpc',
     createContext: () => ({
       session,
+      request,
     }),
   })
 }

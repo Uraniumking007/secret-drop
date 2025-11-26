@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { and, desc, eq, gte, inArray, isNull, or } from 'drizzle-orm'
-import { protectedProcedure } from '../init'
+import { protectedProcedure, publicProcedure } from '../init'
 import type { TRPCRouterRecord } from '@trpc/server'
 import type { EncryptionLibrary } from '@/lib/encryption'
 import type { ExpirationOption } from '@/lib/secret-utils'
@@ -24,6 +24,10 @@ import {
   verifyPassword,
 } from '@/lib/encryption'
 import { calculateExpiration, canViewSecret } from '@/lib/secret-utils'
+import { extractRequestMetadata } from '@/lib/request-metadata'
+
+const getRequestMetadata = (request?: Request | null) =>
+  extractRequestMetadata(request)
 
 const createSecretSchema = z.object({
   orgId: z.string(),
@@ -182,6 +186,7 @@ export const secretsRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id
+      const metadata = getRequestMetadata(ctx.request)
 
       // Get secret
       const secretsList = await db
@@ -299,10 +304,12 @@ export const secretsRouter = {
       // Log access
       await db.insert(secretAccessLogs).values({
         secretId: secret.id,
+        secretName: secret.name,
+        secretOwnerId: secret.createdBy,
         userId,
         action: 'view',
-        ipAddress: null, // TODO: Extract from request
-        userAgent: null, // TODO: Extract from request
+        ipAddress: metadata.ipAddress,
+        userAgent: metadata.userAgent,
       })
 
       return {
@@ -311,6 +318,128 @@ export const secretsRouter = {
         data: decrypted.decryptedData,
         orgId: secret.orgId,
         teamId: secret.teamId,
+        createdAt: secret.createdAt,
+        expiresAt: secret.expiresAt,
+        maxViews: secret.maxViews,
+        viewCount: secret.viewCount + 1,
+        burnOnRead: secret.burnOnRead,
+      }
+    }),
+  // Public secret view (no auth)
+  publicView: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        encryptionKey: z.string(),
+        password: z.string().optional(),
+        encryptionLibrary: z
+          .enum(['webcrypto', 'crypto-js', 'noble'])
+          .default('webcrypto'),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const metadata = getRequestMetadata(ctx.request)
+
+      const secretsList = await db
+        .select()
+        .from(secrets)
+        .where(and(eq(secrets.id, input.id), isNull(secrets.deletedAt)))
+        .limit(1)
+
+      if (secretsList.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Secret not found',
+        })
+      }
+
+      const secret = secretsList[0]
+
+      const canView = canViewSecret(
+        secret.viewCount,
+        secret.maxViews,
+        secret.expiresAt,
+        secret.burnOnRead,
+        secret.viewCount > 0,
+      )
+
+      if (!canView.canView) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: canView.reason || 'Cannot view secret',
+        })
+      }
+
+      if (secret.passwordHash) {
+        if (!input.password) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Password required to access this secret',
+          })
+        }
+
+        const [salt, hash] = secret.passwordHash.split(':')
+        const isValid = await verifyPassword(
+          input.password,
+          salt,
+          hash,
+          input.encryptionLibrary as EncryptionLibrary,
+        )
+
+        if (!isValid) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Invalid password',
+          })
+        }
+      }
+
+      const encryptionKey = Uint8Array.from(
+        input.encryptionKey.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
+      )
+
+      const keyHash = await hashEncryptionKey(
+        encryptionKey,
+        input.encryptionLibrary as EncryptionLibrary,
+      )
+
+      if (keyHash !== secret.encryptionKeyHash) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Invalid encryption key',
+        })
+      }
+
+      const encryptedData = JSON.parse(secret.encryptedData)
+      const decrypted = await decrypt(
+        encryptedData.data,
+        encryptedData.iv,
+        encryptionKey,
+        input.encryptionLibrary as EncryptionLibrary,
+      )
+
+      await db
+        .update(secrets)
+        .set({
+          viewCount: secret.viewCount + 1,
+          deletedAt: secret.burnOnRead ? new Date() : null,
+        })
+        .where(eq(secrets.id, secret.id))
+
+      await db.insert(secretAccessLogs).values({
+        secretId: secret.id,
+        secretName: secret.name,
+        secretOwnerId: secret.createdBy,
+        userId: null,
+        action: 'view',
+        ipAddress: metadata.ipAddress,
+        userAgent: metadata.userAgent,
+      })
+
+      return {
+        id: secret.id,
+        name: secret.name,
+        data: decrypted.decryptedData,
         createdAt: secret.createdAt,
         expiresAt: secret.expiresAt,
         maxViews: secret.maxViews,

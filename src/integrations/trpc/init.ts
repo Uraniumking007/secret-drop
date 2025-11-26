@@ -4,6 +4,7 @@ import type { auth } from '@/lib/auth'
 
 export interface Context {
   session: Awaited<ReturnType<typeof auth.api.getSession>> | null
+  request: Request | null
 }
 
 const t = initTRPC.context<Context>().create({
