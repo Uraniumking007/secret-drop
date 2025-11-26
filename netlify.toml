@@ -21,3 +21,4 @@
 [dev]
   command = "vite dev"
   port = 4000
+  targetPort = 3000
