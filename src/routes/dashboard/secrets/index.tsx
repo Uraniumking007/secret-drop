@@ -11,12 +11,13 @@ import { Input } from '@/components/ui/input'
 import { EmptyState } from '@/components/secrets/EmptyState'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { PageState } from '@/components/layout/PageState'
+import { useSession } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/dashboard/secrets/')({
   component: SecretsPage,
   validateSearch: (search: Record<string, unknown>) => {
     return {
-      orgId: Number(search.orgId) || undefined,
+      orgId: typeof search.orgId === 'string' ? search.orgId : undefined,
     }
   },
 })
@@ -24,8 +25,13 @@ export const Route = createFileRoute('/dashboard/secrets/')({
 function SecretsPage() {
   const search = Route.useSearch()
   const trpc = useTRPC()
+  const { data: session } = useSession()
   const { data: orgs } = useQuery(trpc.organizations.list.queryOptions())
-  const orgId = search.orgId || orgs?.[0]?.id
+
+  const orgId =
+    session?.activeOrgId ||
+    (typeof search.orgId === 'string' ? search.orgId : undefined) ||
+    orgs?.[0]?.id
   const currentOrg = orgs?.find((org) => org.id === orgId)
 
   const { data: secrets, isLoading } = useQuery({

@@ -44,7 +44,8 @@ export function SecretTable({ secrets }: SecretTableProps) {
     onSuccess: () => {
       toast('Secret deleted successfully')
       queryClient.invalidateQueries({
-        queryKey: trpc.secrets.list.queryKey(),
+        queryKey: trpc.secrets.list.queryOptions({ orgId: secrets[0].orgId })
+          .queryKey,
       })
     },
   })

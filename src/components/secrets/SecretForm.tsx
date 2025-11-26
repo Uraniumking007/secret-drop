@@ -26,7 +26,7 @@ interface SecretFormProps {
     maxViews?: number | null
     password?: string
     burnOnRead: boolean
-    teamId?: string
+    teamId?: string | null
   }) => Promise<void>
   isLoading?: boolean
   userTier?: 'free' | 'pro_team' | 'business'
@@ -61,7 +61,7 @@ export function SecretForm({
   const [password, setPassword] = useState(initialData?.password || '')
   const [burnOnRead, setBurnOnRead] = useState(initialData?.burnOnRead || false)
   const [showPassword, setShowPassword] = useState(false)
-  const [teamId, setTeamId] = useState<string | undefined>(undefined)
+  const [teamId, setTeamId] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -269,8 +269,8 @@ function TeamSelect({
   disabled,
 }: {
   orgId: string
-  value?: string
-  onChange: (val?: string) => void
+  value?: string | null
+  onChange: (val: string | null) => void
   disabled?: boolean
 }) {
   const trpc = useTRPC()
@@ -280,8 +280,8 @@ function TeamSelect({
 
   return (
     <Select
-      value={value || 'none'}
-      onValueChange={(val) => onChange(val === 'none' ? undefined : val)}
+      value={value ?? 'none'}
+      onValueChange={(val) => onChange(val === 'none' ? null : val)}
       disabled={disabled}
     >
       <SelectTrigger id="team">
