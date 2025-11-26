@@ -36,19 +36,19 @@ const features = [
 
 export function FeatureGrid() {
   return (
-    <section className="py-24 px-6 bg-[#0f1216]">
+    <section className="py-24 px-6 bg-background">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {features.map((feature, i) => (
             <motion.div
               key={i}
-              className={`relative group overflow-hidden rounded-2xl bg-[#141921]/50 backdrop-blur-md border border-[#1c232d] p-8 hover:border-[#4c89b6]/50 transition-colors duration-500 ${feature.className}`}
+              className={`relative group overflow-hidden rounded-2xl bg-card/50 backdrop-blur-md border border-border p-8 hover:border-primary/50 transition-colors duration-500 ${feature.className}`}
               whileHover={{ y: -5 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#4c89b6]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
               <div className="relative z-10">
-                <div className="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#1c232d] text-[#4c89b6] group-hover:scale-110 transition-transform duration-500">
+                <div className="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-secondary text-primary group-hover:scale-110 transition-transform duration-500">
                   {feature.animation === 'flame' ? (
                     <motion.div
                       animate={{
@@ -71,16 +71,16 @@ export function FeatureGrid() {
                   )}
                 </div>
 
-                <h3 className="text-xl font-bold text-[#e6e9ee] mb-3">
+                <h3 className="text-xl font-bold text-foreground mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-400 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
 
                 {feature.animation === 'scroll' && (
-                  <div className="mt-6 h-24 overflow-hidden relative rounded bg-[#0f1216] border border-[#1c232d] p-2 font-mono text-xs text-green-500/70">
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#0f1216] via-transparent to-[#0f1216] z-10 pointer-events-none"></div>
+                  <div className="mt-6 h-24 overflow-hidden relative rounded bg-background border border-border p-2 font-mono text-xs text-green-500/70">
+                    <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background z-10 pointer-events-none"></div>
                     <motion.div
                       animate={{ y: [0, -100] }}
                       transition={{
@@ -91,7 +91,7 @@ export function FeatureGrid() {
                     >
                       {[...Array(10)].map((_, j) => (
                         <div key={j} className="mb-1">
-                          <span className="text-gray-500">
+                          <span className="text-muted-foreground">
                             [{new Date().toLocaleTimeString()}]
                           </span>{' '}
                           Access granted: 192.168.1.{10 + j}

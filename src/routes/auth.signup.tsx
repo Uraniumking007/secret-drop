@@ -5,6 +5,7 @@ import { signUp, useSession } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Card,
   CardContent,
@@ -24,6 +25,7 @@ function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -37,6 +39,12 @@ function SignupPage() {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
+
+    if (!termsAccepted) {
+      setError('You must accept the terms and privacy policy')
+      setIsLoading(false)
+      return
+    }
 
     try {
       const result = await signUp.email({
@@ -125,6 +133,36 @@ function SignupPage() {
                 <p className="text-xs text-muted-foreground">
                   Must be at least 8 characters long
                 </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  disabled={isLoading}
+                />
+                <label
+                  htmlFor="terms"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  I agree to the{' '}
+                  <Link
+                    to="/terms"
+                    className="text-primary hover:underline"
+                    target="_blank"
+                  >
+                    terms
+                  </Link>{' '}
+                  and{' '}
+                  <Link
+                    to="/privacy"
+                    className="text-primary hover:underline"
+                    target="_blank"
+                  >
+                    privacy policy
+                  </Link>
+                </label>
               </div>
 
               {error && (

@@ -7,7 +7,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { Toaster } from 'sonner'
 
-import Header from '../components/Header'
+// import Header from '../components/Header'
 import { ThemeProvider } from '../lib/theme'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
@@ -19,6 +19,8 @@ import type { QueryClient } from '@tanstack/react-query'
 import type { TRPCRouter } from '@/integrations/trpc/router'
 import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query'
 import { env } from '@/env'
+
+import { NotFound } from '@/components/NotFound'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -49,6 +51,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
 
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {

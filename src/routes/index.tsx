@@ -52,7 +52,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f1216] text-[#e6e9ee] font-sans selection:bg-[#4c89b6] selection:text-white overflow-x-hidden">
+    <div className="min-h-screen dark bg-[#0f1216] text-[#e6e9ee] font-sans selection:bg-[#4c89b6] selection:text-white overflow-x-hidden">
       <LandingHeader />
       <main>
         <Hero />
