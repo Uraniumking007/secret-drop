@@ -1,5 +1,5 @@
 import { Activity, Edit, Eye, Share2, Trash2 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000)
@@ -48,42 +48,54 @@ const actionLabels: Record<ActivityAction, string> = {
 export function ActivityFeed({ activities }: ActivityFeedProps) {
   if (activities.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center py-8">
-          <Activity className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">No recent activity</p>
+      <Card className="bg-[#141921]/50 border-[#2a3241] backdrop-blur-sm h-full">
+        <CardContent className="text-center py-12 flex flex-col items-center justify-center h-full">
+          <div className="bg-[#1c232d] w-12 h-12 rounded-full flex items-center justify-center mb-4">
+            <Activity className="h-6 w-6 text-[#9aa4b2]" />
+          </div>
+          <p className="text-[#9aa4b2]">No recent activity</p>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
+    <Card className="bg-[#141921]/50 border-[#2a3241] backdrop-blur-sm h-full">
+      <CardContent className="p-0">
+        <div className="divide-y divide-[#2a3241]">
           {activities.map((activity) => {
             const Icon = actionIcons[activity.action]
             const label = actionLabels[activity.action]
+            
+            // Determine icon color based on action
+            let iconColor = 'text-[#9aa4b2]'
+            let iconBg = 'bg-[#1c232d]'
+            
+            if (activity.action === 'view') {
+              iconColor = 'text-blue-400'
+              iconBg = 'bg-blue-400/10'
+            } else if (activity.action === 'delete') {
+              iconColor = 'text-red-400'
+              iconBg = 'bg-red-400/10'
+            } else if (activity.action === 'share') {
+              iconColor = 'text-emerald-400'
+              iconBg = 'bg-emerald-400/10'
+            }
+
             return (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 p-3 rounded-lg border"
+                className="flex items-start gap-4 p-4 hover:bg-[#1c232d]/30 transition-colors"
               >
-                <div className="p-2 rounded-full bg-muted">
+                <div className={`p-2 rounded-lg ${iconBg} ${iconColor} mt-0.5`}>
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm">
+                  <p className="text-sm text-[#e6e9ee]">
                     <span className="font-medium">{label}</span> secret{' '}
-                    <span className="font-medium">{activity.secretName}</span>
+                    <span className="font-medium text-[#4c89b6]">{activity.secretName}</span>
                   </p>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 mt-1.5 text-xs text-[#9aa4b2]">
                     <span>
                       {formatTimeAgo(
                         activity.accessedAt instanceof Date
@@ -94,7 +106,9 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                     {activity.ipAddress && (
                       <>
                         <span>•</span>
-                        <span>{activity.ipAddress}</span>
+                        <span className="font-mono bg-[#1c232d] px-1.5 py-0.5 rounded text-[10px]">
+                          {activity.ipAddress}
+                        </span>
                       </>
                     )}
                   </div>

@@ -75,6 +75,7 @@ export function SecretActivityLog({ secretId }: SecretActivityLogProps) {
                   <TableCell>
                     {formatDistanceToNow(new Date(log.accessedAt), {
                       addSuffix: true,
+                      includeSeconds: true,
                     })}
                   </TableCell>
                   <TableCell className="font-mono text-xs">
